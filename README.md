@@ -2,13 +2,18 @@
 
 Una aplicación moderna y robusta para gestionar tareas, construida con React + TypeScript + Supabase.
 
-[![Demo](https://img.shields.io/badge/Demo-Live-green)](https://tu-demo.vercel.app)
+[![Demo](https://img.shields.io/badge/Demo-Live-green)](https://taskflow-app-xi.vercel.app)
 [![React](https://img.shields.io/badge/React-18.2.0-blue)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-green)](https://supabase.com/)
 [![Tailwind](https://img.shields.io/badge/Tailwind-3.3.5-blue)](https://tailwindcss.com/)
 
 ![TaskFlow Screenshot](./public/screenshot.png)
+
+  🌐 Deployment
+  Este proyecto está desplegado en Vercel y puede accederse en:
+  🔗 https://taskflow-app-xi.vercel.app
+
 
 ## ✨ Características
 
@@ -235,12 +240,15 @@ Este proyecto está bajo la [Licencia MIT](./LICENSE). Puedes usar, modificar y 
 - [Tailwind CSS](https://tailwindcss.com/) - Por el framework de CSS utilitario
 - [Lucide Icons](https://lucide.dev/) - Por los iconos hermosos y consistentes
 
-## 📞 Contacto & Soporte
+## 👨‍💻 Autor
 
-- 🌐 **Sitio web**: [tu-sitio.com](https://tu-sitio.com)
-- � **Email**: tu-email@ejemplo.com
-- 🐦 **Twitter**: [@tu_usuario](https://twitter.com/tu_usuario)
-- � **Discord**: [Servidor de la comunidad](https://discord.gg/tu-servidor)
+**Christopher Eduardo Valdivia Baca**
+
+- 🌐 [LinkedIn](https://www.linkedin.com/in/christopher-eduardo-valdivia-baca-899051318/)
+- 📧 eduardovaldivia130@outlook.com
+- 💻 [GitHub](https://github.com/Eduardo1300)
+
+
 
 ---
 
