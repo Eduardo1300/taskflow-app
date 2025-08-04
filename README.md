@@ -10,9 +10,9 @@ Una aplicación moderna y robusta para gestionar tareas, construida con React + 
 
 ![TaskFlow Screenshot](./public/screenshot.png)
 
-  🌐 Deployment
-  Este proyecto está desplegado en Vercel y puede accederse en:
-  🔗 https://taskflow-app-xi.vercel.app
+🌐 Deployment
+Este proyecto está desplegado en Vercel y puede accederse en:
+🔗 https://taskflow-app-xi.vercel.app
 
 
 ## ✨ Características
@@ -104,7 +104,7 @@ npm run dev
 La aplicación utiliza **Supabase** como backend, con las siguientes tablas:
 
 - **`tasks`**: Almacena las tareas de los usuarios
-  - `id` (BIGSERIAL): Identificador único
+ - `id` (BIGSERIAL): Identificador único
   - `title` (VARCHAR): Título de la tarea
   - `description` (TEXT): Descripción opcional
   - `completed` (BOOLEAN): Estado de completado
