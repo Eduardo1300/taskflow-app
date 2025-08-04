@@ -5,8 +5,8 @@ import Sidebar from '../components/Layout/Sidebar';
 import TaskCard from '../components/Tasks/TaskCard';
 import TaskModal from '../components/Tasks/TaskModal';
 import { useAuth } from '../contexts/AuthContext';
-import { Task } from '../types';
-import { mockTasks } from '../data/mockData';
+import { Task } from '../types/database';
+import { TaskService } from '../services/taskService';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -17,15 +17,30 @@ const DashboardPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Cargar tareas al inicializar
   useEffect(() => {
     if (user) {
-      // Filtrar tareas del usuario actual
-      const userTasks = mockTasks.filter(task => task.userId === user.id);
-      setTasks(userTasks);
+      loadTasks();
     }
   }, [user]);
+
+  const loadTasks = async () => {
+    setLoading(true);
+    setError(null);
+    
+    const { data, error } = await TaskService.getTasks();
+    
+    if (error) {
+      setError(error);
+    } else if (data) {
+      setTasks(data);
+    }
+    
+    setLoading(false);
+  };
 
   // Filtrar tareas según búsqueda y estado
   useEffect(() => {
@@ -41,48 +56,73 @@ const DashboardPage: React.FC = () => {
 
     // Filtrar por estado
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(task => task.status === statusFilter);
+      const isCompleted = statusFilter === 'completed';
+      filtered = filtered.filter(task => task.completed === isCompleted);
     }
 
     setFilteredTasks(filtered);
   }, [tasks, searchTerm, statusFilter]);
 
-  const handleCreateTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'userId'>) => {
-    if (!user) return;
-
-    const newTask: Task = {
-      id: Date.now().toString(),
-      ...taskData,
-      createdAt: new Date(),
-      userId: user.id,
-    };
-
-    setTasks(prev => [newTask, ...prev]);
-    setIsModalOpen(false);
+  const handleCreateTask = async (taskData: { title: string; description?: string; completed?: boolean }) => {
+    setError(null);
+    
+    const { data, error } = await TaskService.createTask(taskData);
+    
+    if (error) {
+      setError(error);
+    } else if (data) {
+      setTasks(prev => [data, ...prev]);
+      setIsModalOpen(false);
+    }
   };
 
-  const handleEditTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'userId'>) => {
+  const handleEditTask = async (taskData: { title: string; description?: string; completed?: boolean }) => {
     if (!editingTask) return;
-
-    setTasks(prev => prev.map(task =>
-      task.id === editingTask.id
-        ? { ...task, ...taskData }
-        : task
-    ));
-    setEditingTask(null);
-    setIsModalOpen(false);
+    
+    setError(null);
+    
+    const { data, error } = await TaskService.updateTask(editingTask.id, taskData);
+    
+    if (error) {
+      setError(error);
+    } else if (data) {
+      setTasks(prev => prev.map(task =>
+        task.id === editingTask.id ? data : task
+      ));
+      setEditingTask(null);
+      setIsModalOpen(false);
+    }
   };
 
-  const handleToggleStatus = (taskId: string) => {
-    setTasks(prev => prev.map(task =>
-      task.id === taskId
-        ? { ...task, status: task.status === 'completed' ? 'pending' : 'completed' }
-        : task
-    ));
+  const handleToggleStatus = async (taskId: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    setError(null);
+    
+    const { data, error } = await TaskService.toggleTaskCompletion(taskId, !task.completed);
+    
+    if (error) {
+      setError(error);
+    } else if (data) {
+      setTasks(prev => prev.map(t =>
+        t.id === taskId ? data : t
+      ));
+    }
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+  const handleDeleteTask = async (taskId: number) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+      return;
+    }
+    
+    setError(null);
+    
+    const { error } = await TaskService.deleteTask(taskId);
+    
+    if (error) {
+      setError(error);
+    } else {
       setTasks(prev => prev.filter(task => task.id !== taskId));
     }
   };
@@ -94,8 +134,8 @@ const DashboardPage: React.FC = () => {
 
   // Estadísticas
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(task => task.status === 'completed').length;
-  const pendingTasks = tasks.filter(task => task.status === 'pending').length;
+  const completedTasks = tasks.filter(task => task.completed).length;
+  const pendingTasks = tasks.filter(task => !task.completed).length;
 
   const renderContent = () => {
     if (activeSection === 'profile') {
@@ -177,6 +217,19 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Error display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-800 text-sm">{error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="text-red-600 text-sm underline hover:no-underline mt-2"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
+
         {/* Controles */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -221,7 +274,13 @@ const DashboardPage: React.FC = () => {
 
         {/* Lista de tareas */}
         <div className="space-y-4">
-          {filteredTasks.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="bg-gray-50 rounded-lg p-8">
+                <p className="text-gray-500 text-lg">Cargando tareas...</p>
+              </div>
+            </div>
+          ) : filteredTasks.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gray-50 rounded-lg p-8">
                 <p className="text-gray-500 text-lg mb-4">

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Task } from '../../types';
+import { Task } from '../../types/database';
 
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (task: Omit<Task, 'id' | 'createdAt' | 'userId'>) => void;
+  onSave: (task: { title: string; description?: string; completed?: boolean }) => void;
   editingTask?: Task | null;
 }
 
@@ -13,21 +13,21 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    status: 'pending' as 'pending' | 'completed'
+    completed: false
   });
 
   useEffect(() => {
     if (editingTask) {
       setFormData({
         title: editingTask.title,
-        description: editingTask.description,
-        status: editingTask.status
+        description: editingTask.description || '',
+        completed: editingTask.completed
       });
     } else {
       setFormData({
         title: '',
         description: '',
-        status: 'pending'
+        completed: false
       });
     }
   }, [editingTask, isOpen]);
@@ -97,19 +97,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
           </div>
 
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-              Estado
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="completed"
+                checked={formData.completed}
+                onChange={(e) => setFormData(prev => ({ ...prev, completed: e.target.checked }))}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">Marcar como completada</span>
             </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="pending">Pendiente</option>
-              <option value="completed">Completado</option>
-            </select>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">

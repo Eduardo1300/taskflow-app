@@ -24,12 +24,12 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    const success = login(email, password);
+    const success = await login(email, password);
     
     if (success) {
       navigate('/dashboard');
     } else {
-      setError('Credenciales incorrectas. Intenta con: juan@example.com / password123');
+      setError('Credenciales incorrectas. Por favor, verifica tu email y contraseña.');
     }
     
     setIsLoading(false);
@@ -53,12 +53,11 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Demo credentials */}
+        {/* Info */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
-            <strong>Credenciales de prueba:</strong><br />
-            Email: juan@example.com<br />
-            Contraseña: password123
+            <strong>¡Bienvenido a TaskFlow!</strong><br />
+            Usa tu cuenta de Supabase para acceder o crea una nueva cuenta.
           </p>
         </div>
 

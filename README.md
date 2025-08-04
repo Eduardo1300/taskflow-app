@@ -9,7 +9,7 @@ Una aplicación moderna para gestionar tareas, construida con React + TypeScript
 - **Autenticación**: Sistema de login y registro simulado
 - **Filtros y búsqueda**: Filtra tareas por estado y busca por título/descripción
 - **Estadísticas**: Visualiza el progreso de tus tareas
-- **Persistencia local**: Los datos se mantienen en localStorage
+- **Base de datos real**: Conectado a Supabase PostgreSQL
 
 ## 🛠️ Tecnologías
 
@@ -17,6 +17,7 @@ Una aplicación moderna para gestionar tareas, construida con React + TypeScript
 - **TypeScript** - Tipado estático para JavaScript
 - **Tailwind CSS** - Framework de estilos utilitarios
 - **React Router DOM** - Enrutamiento del lado del cliente
+- **Supabase** - Backend como servicio (BaaS)
 - **Lucide React** - Iconos modernos
 - **Vite** - Herramienta de construcción rápida
 
@@ -33,19 +34,51 @@ cd taskflow
 npm install
 ```
 
-3. Inicia el servidor de desarrollo:
+3. Configurar Supabase:
+   - Crea un proyecto en [Supabase](https://supabase.com)
+   - Ve al Editor SQL y ejecuta el script `supabase-setup.sql`
+   - Copia las credenciales de tu proyecto
+
+4. Configurar variables de entorno:
+```bash
+cp .env.example .env
+```
+Edita `.env` y agrega tus credenciales de Supabase:
+```env
+VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
+VITE_SUPABASE_ANON_KEY=tu_clave_publica_de_supabase
+```
+
+5. Inicia el servidor de desarrollo:
 ```bash
 npm run dev
 ```
 
-4. Abre tu navegador en `http://localhost:5173`
+6. Abre tu navegador en `http://localhost:5173`
 
-## 🔑 Credenciales de prueba
+## 🗄️ Base de datos
 
-Para probar la aplicación, puedes usar estas credenciales:
+La aplicación utiliza **Supabase** como backend, con las siguientes tablas:
 
-- **Email**: juan@example.com
-- **Contraseña**: password123
+- **`tasks`**: Almacena las tareas de los usuarios
+  - `id` (BIGSERIAL): Identificador único
+  - `title` (VARCHAR): Título de la tarea
+  - `description` (TEXT): Descripción opcional
+  - `completed` (BOOLEAN): Estado de completado
+  - `created_at` (TIMESTAMP): Fecha de creación
+  - `user_id` (UUID): ID del usuario propietario
+
+- **`profiles`**: Perfiles de usuario extendidos
+  - `id` (UUID): Referencia a `auth.users`
+  - `email` (VARCHAR): Email del usuario
+  - `full_name` (VARCHAR): Nombre completo
+  - `created_at` (TIMESTAMP): Fecha de creación
+
+### 🔒 Seguridad
+
+- **Row Level Security (RLS)** habilitado
+- Los usuarios solo pueden ver/modificar sus propias tareas
+- Autenticación completa con Supabase Auth
 
 ## 🏗️ Estructura del proyecto
 
@@ -56,8 +89,9 @@ src/
 │   ├── Layout/         # Componentes de diseño (Header, Sidebar)
 │   └── Tasks/          # Componentes relacionados con tareas
 ├── contexts/           # Contextos de React (AuthContext)
-├── data/              # Datos simulados
+├── lib/               # Configuración de librerías (Supabase)
 ├── pages/             # Páginas principales
+├── services/          # Servicios para API calls (TaskService)
 ├── types/             # Definiciones de tipos TypeScript
 ├── App.tsx            # Componente principal
 ├── main.tsx           # Punto de entrada
@@ -68,8 +102,8 @@ src/
 
 ### Páginas principales:
 - **Landing Page**: Página de inicio con información del producto
-- **Login/Register**: Autenticación de usuarios
-- **Dashboard**: Gestión completa de tareas
+- **Login/Register**: Autenticación real con Supabase Auth
+- **Dashboard**: Gestión completa de tareas con base de datos
 
 ### Gestión de tareas:
 - ✅ Crear nuevas tareas
@@ -102,14 +136,16 @@ El proyecto utiliza Tailwind CSS para los estilos. Puedes personalizar:
 
 ## 📝 Próximas funcionalidades
 
-- [ ] Persistencia en base de datos real
-- [ ] Autenticación con JWT
+- [x] Persistencia en base de datos real (Supabase)
+- [x] Autenticación con Supabase Auth
 - [ ] Categorías para tareas
 - [ ] Fechas de vencimiento
-- [ ] Notificaciones
-- [ ] Colaboración en tiempo real
+- [ ] Notificaciones push
+- [ ] Colaboración en tiempo real con Supabase Realtime
 - [ ] Temas oscuro/claro
 - [ ] PWA (Progressive Web App)
+- [ ] Sincronización offline
+- [ ] Exportar tareas (PDF, CSV)
 
 ## 🤝 Contribuir
 
