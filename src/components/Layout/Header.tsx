@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckSquare, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 

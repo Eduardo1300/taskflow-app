@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckCircle, Circle, Calendar, Trash2, Edit } from 'lucide-react';
 import { Task } from '../../types/database';
 

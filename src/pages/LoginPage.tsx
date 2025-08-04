@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckSquare, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
             <strong>¡Bienvenido a TaskFlow!</strong><br />
-            Usa tu cuenta de Supabase para acceder o crea una nueva cuenta.
+            Organiza tus tareas y mejora tu productividad con nuestra plataforma.
           </p>
         </div>
 

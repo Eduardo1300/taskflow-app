@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { AuthContextType, User } from '../types';
@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const value: AuthContextType & { loading: boolean } = {
+  const value: AuthContextType = {
     user,
     login: async (email: string, password: string) => {
       const result = await login(email, password);

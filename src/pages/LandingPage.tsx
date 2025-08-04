@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckSquare, ArrowRight, CheckCircle, Clock, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

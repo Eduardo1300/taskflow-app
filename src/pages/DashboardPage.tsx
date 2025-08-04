@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, CheckCircle, Clock, BarChart3 } from 'lucide-react';
 import Header from '../components/Layout/Header';
 import Sidebar from '../components/Layout/Sidebar';
@@ -50,7 +50,7 @@ const DashboardPage: React.FC = () => {
     if (searchTerm) {
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
