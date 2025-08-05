@@ -22,7 +22,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleStatus, onDelete, onE
     <div className={`bg-white rounded-lg shadow-sm border-2 transition-all duration-200 hover:shadow-md ${
       task.completed ? 'border-green-200 bg-green-50' : 'border-gray-200'
     }`}>
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3 flex-1">
             <button
@@ -41,11 +41,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleStatus, onDelete, onE
             </button>
             
             <div className="flex-1 min-w-0">
-              <h3 className={`text-lg font-semibold ${
+              <h3 className={`text-base md:text-lg font-semibold ${
                 task.completed 
                   ? 'line-through text-gray-500' 
                   : 'text-gray-900'
-              }`}>
+              } break-words truncate`}>
                 {task.title}
               </h3>
               
@@ -53,7 +53,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleStatus, onDelete, onE
                 task.completed 
                   ? 'text-gray-400' 
                   : 'text-gray-600'
-              }`}>
+              } break-words truncate`}>
                 {task.description || 'Sin descripción'}
               </p>
               

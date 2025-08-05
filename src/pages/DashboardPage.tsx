@@ -140,9 +140,9 @@ const DashboardPage: React.FC = () => {
   const renderContent = () => {
     if (activeSection === 'profile') {
       return (
-        <div className="max-w-2xl">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Perfil</h2>
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="max-w-2xl mx-auto w-full">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Perfil</h2>
+          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
@@ -150,7 +150,7 @@ const DashboardPage: React.FC = () => {
                   type="text"
                   value={user?.name || ''}
                   disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm md:text-base"
                 />
               </div>
               <div>
@@ -159,7 +159,7 @@ const DashboardPage: React.FC = () => {
                   type="email"
                   value={user?.email || ''}
                   disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm md:text-base"
                 />
               </div>
             </div>
@@ -171,47 +171,45 @@ const DashboardPage: React.FC = () => {
     return (
       <>
         {/* Header del Dashboard */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
             ¡Hola, {user?.name}! 👋
           </h1>
-          <p className="text-gray-600">Aquí tienes un resumen de tus tareas</p>
+          <p className="text-gray-600 text-sm md:text-base">Aquí tienes un resumen de tus tareas</p>
         </div>
 
         {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <BarChart3 className="h-8 w-8 text-blue-600" />
+                <BarChart3 className="h-7 w-7 md:h-8 md:w-8 text-blue-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{totalTasks}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">Total</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">{totalTasks}</p>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <Clock className="h-8 w-8 text-orange-600" />
+                <Clock className="h-7 w-7 md:h-8 md:w-8 text-orange-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pendientes</p>
-                <p className="text-2xl font-bold text-gray-900">{pendingTasks}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">Pendientes</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">{pendingTasks}</p>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-7 w-7 md:h-8 md:w-8 text-green-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completadas</p>
-                <p className="text-2xl font-bold text-gray-900">{completedTasks}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">Completadas</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">{completedTasks}</p>
               </div>
             </div>
           </div>
@@ -219,11 +217,11 @@ const DashboardPage: React.FC = () => {
 
         {/* Error display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800 text-sm">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
+            <p className="text-red-800 text-xs md:text-sm">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="text-red-600 text-sm underline hover:no-underline mt-2"
+              className="text-red-600 text-xs md:text-sm underline hover:no-underline mt-2"
             >
               Cerrar
             </button>
@@ -231,9 +229,9 @@ const DashboardPage: React.FC = () => {
         )}
 
         {/* Controles */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+        <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 mb-4 md:mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 md:gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
@@ -241,16 +239,15 @@ const DashboardPage: React.FC = () => {
                   placeholder="Buscar tareas..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
                 />
               </div>
-              
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-sm md:text-base"
                 >
                   <option value="all">Todas</option>
                   <option value="pending">Pendientes</option>
@@ -258,13 +255,12 @@ const DashboardPage: React.FC = () => {
                 </select>
               </div>
             </div>
-            
             <button
               onClick={() => {
                 setEditingTask(null);
                 setIsModalOpen(true);
               }}
-              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="flex items-center px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm md:text-base"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nueva tarea
@@ -273,17 +269,17 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Lista de tareas */}
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {loading ? (
-            <div className="text-center py-12">
-              <div className="bg-gray-50 rounded-lg p-8">
-                <p className="text-gray-500 text-lg">Cargando tareas...</p>
+            <div className="text-center py-8 md:py-12">
+              <div className="bg-gray-50 rounded-lg p-6 md:p-8">
+                <p className="text-gray-500 text-base md:text-lg">Cargando tareas...</p>
               </div>
             </div>
           ) : filteredTasks.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="bg-gray-50 rounded-lg p-8">
-                <p className="text-gray-500 text-lg mb-4">
+            <div className="text-center py-8 md:py-12">
+              <div className="bg-gray-50 rounded-lg p-6 md:p-8">
+                <p className="text-gray-500 text-base md:text-lg mb-3 md:mb-4">
                   {searchTerm || statusFilter !== 'all' 
                     ? 'No se encontraron tareas con los filtros aplicados'
                     : 'No tienes tareas aún'
@@ -295,7 +291,7 @@ const DashboardPage: React.FC = () => {
                       setEditingTask(null);
                       setIsModalOpen(true);
                     }}
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    className="inline-flex items-center px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm md:text-base"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Crear tu primera tarea
@@ -325,8 +321,7 @@ const DashboardPage: React.FC = () => {
       
       <div className="flex">
         <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-        
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 md:p-8">
           {renderContent()}
         </main>
       </div>

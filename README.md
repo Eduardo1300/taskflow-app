@@ -162,6 +162,23 @@ src/
 - 📱 Diseño completamente responsivo
 - 🎨 Interfaz moderna con animaciones
 
+## 📱 Diseño Responsive
+
+La aplicación ahora es totalmente responsive, adaptándose correctamente a móviles, tablets y escritorios usando Tailwind CSS y sus breakpoints (`sm`, `md`, `lg`, `xl`).
+
+### 🛠 Mejoras realizadas:
+- **Cabecera y Menú:** El ícono de usuario y el botón de cerrar sesión ahora se muestran correctamente en pantallas pequeñas con un diseño tipo "dropdown" más limpio y accesible.
+- **Dashboard de Tareas:** Las tarjetas de tareas y el layout general se reorganizan adecuadamente según el tamaño de pantalla.
+- **Modal de Tareas:** Los formularios y botones se ajustan con paddings y tamaños de fuente responsivos.
+- **Tipografía y Espaciado:** Mejoras en el uso de `truncate`, `max-w`, y espaciado para evitar desbordes.
+- **Experiencia en móviles:** Sin errores visuales, ni texto oculto, ni botones inaccesibles.
+
+🧪 Probado en dispositivos móviles como iPhone SE, iPhone 14 Pro, iPad y pantallas de escritorio de 1440px.
+
+---
+
+📲 Puedes redimensionar la ventana o abrir la app desde tu celular para ver la mejora de diseño responsive en acción.
+
 ## 🚀 Scripts disponibles
 
 - `npm run dev` - Inicia el servidor de desarrollo
