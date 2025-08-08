@@ -4,26 +4,63 @@ import Header from '../components/Layout/Header';
 import Sidebar from '../components/Layout/Sidebar';
 import TaskCard from '../components/Tasks/TaskCard';
 import TaskModal from '../components/Tasks/TaskModal';
+import ShareTaskModal from '../components/Collaboration/ShareTaskModal';
+import InvitationNotifications from '../components/Collaboration/InvitationNotifications';
+import PWAUpdate from '../components/PWA/PWAUpdate';
+import OfflineIndicator from '../components/Offline/OfflineIndicator';
+import AnalyticsPage from '../components/Analytics/AnalyticsPage';
 import { useAuth } from '../contexts/AuthContext';
-import { Task } from '../types/database';
+import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
+import { CollaborationService } from '../services/collaborationService';
+import { CategoryService, Category } from '../services/categoryService';
+import { offlineService } from '../services/offlineService';
+import { useRealtime } from '../hooks/useRealtime';
+import { useOffline } from '../hooks/useOffline';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<TaskWithCollaboration[]>([]);
+  const [filteredTasks, setFilteredTasks] = useState<TaskWithCollaboration[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar tareas al inicializar
+  // Offline functionality
+  useOffline();
+
+  useRealtime({
+    table: 'tasks',
+    onInsert: () => {
+      loadTasks(); // Recargar tareas para obtener información de colaboración
+    },
+    onUpdate: () => {
+      loadTasks(); // Recargar tareas para mantener sincronización
+    },
+    onDelete: (payload: any) => {
+      setTasks(prev => prev.filter(task => task.id !== payload.old.id));
+    }
+  });
+
+
+
+  // Cargar tareas e invitaciones al inicializar
   useEffect(() => {
     if (user) {
       loadTasks();
+      loadPendingInvitations();
+      loadCategories();
+      
+      // Setup auto-sync for offline mode
+      offlineService.setupAutoSync(() => {
+        loadTasks(); // Reload tasks after successful sync
+      });
     }
   }, [user]);
 
@@ -31,15 +68,82 @@ const DashboardPage: React.FC = () => {
     setLoading(true);
     setError(null);
     
+    if (!navigator.onLine) {
+      // Load from cache when offline
+      const cachedTasks = offlineService.getCachedTasks();
+      const tasksWithCollaboration = cachedTasks.map(task => ({
+        ...task,
+        collaborators: [],
+        isShared: false
+      }));
+      setTasks(tasksWithCollaboration);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await TaskService.getTasks();
     
     if (error) {
       setError(error);
+      // Fallback to cache if online request fails
+      const cachedTasks = offlineService.getCachedTasks();
+      if (cachedTasks.length > 0) {
+        const tasksWithCollaboration = cachedTasks.map(task => ({
+          ...task,
+          collaborators: [],
+          isShared: false
+        }));
+        setTasks(tasksWithCollaboration);
+      }
     } else if (data) {
-      setTasks(data);
+      // Cache the fresh data
+      offlineService.setCachedTasks(data);
+      
+      // Cargar información de colaboración para cada tarea
+      const tasksWithCollaboration = await Promise.all(
+        data.map(async (task) => {
+          const { data: collaborators } = await CollaborationService.getTaskCollaborators(task.id);
+          return {
+            ...task,
+            collaborators: collaborators || [],
+            isShared: (collaborators && collaborators.length > 0) || false
+          };
+        })
+      );
+      setTasks(tasksWithCollaboration);
     }
     
     setLoading(false);
+  };
+
+  const loadPendingInvitations = async () => {
+    // Esta función se mantiene para futuras implementaciones
+  };
+
+  const loadCategories = async () => {
+    const { data, error } = await CategoryService.getCategories();
+    if (error) {
+      console.error('Error loading categories:', error);
+      // Fallback: categorías por defecto
+      setCategories([
+        { id: -1, name: 'Trabajo', color: '#3B82F6', user_id: '', created_at: '' },
+        { id: -2, name: 'Personal', color: '#10B981', user_id: '', created_at: '' },
+        { id: -3, name: 'Urgente', color: '#EF4444', user_id: '', created_at: '' },
+        { id: -4, name: 'Ideas', color: '#8B5CF6', user_id: '', created_at: '' }
+      ]);
+    } else if (data) {
+      if (data.length === 0) {
+        // Si no hay categorías, usar las por defecto
+        setCategories([
+          { id: -1, name: 'Trabajo', color: '#3B82F6', user_id: '', created_at: '' },
+          { id: -2, name: 'Personal', color: '#10B981', user_id: '', created_at: '' },
+          { id: -3, name: 'Urgente', color: '#EF4444', user_id: '', created_at: '' },
+          { id: -4, name: 'Ideas', color: '#8B5CF6', user_id: '', created_at: '' }
+        ]);
+      } else {
+        setCategories(data);
+      }
+    }
   };
 
   // Filtrar tareas según búsqueda y estado
@@ -63,8 +167,29 @@ const DashboardPage: React.FC = () => {
     setFilteredTasks(filtered);
   }, [tasks, searchTerm, statusFilter]);
 
-  const handleCreateTask = async (taskData: { title: string; description?: string; completed?: boolean }) => {
+  const handleCreateTask = async (taskData: { 
+    title: string; 
+    description?: string; 
+    completed?: boolean;
+    category?: string;
+    tags?: string[];
+    due_date?: string;
+    priority?: 'low' | 'medium' | 'high';
+  }) => {
     setError(null);
+    
+    if (!navigator.onLine) {
+      // Create task offline
+      const newTask = offlineService.createTaskOffline(taskData);
+      const taskWithCollaboration = {
+        ...newTask,
+        collaborators: [],
+        isShared: false
+      };
+      setTasks(prev => [taskWithCollaboration, ...prev]);
+      setIsModalOpen(false);
+      return;
+    }
     
     const { data, error } = await TaskService.createTask(taskData);
     
@@ -76,10 +201,29 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleEditTask = async (taskData: { title: string; description?: string; completed?: boolean }) => {
+  const handleEditTask = async (taskData: { 
+    title: string; 
+    description?: string; 
+    completed?: boolean;
+    category?: string;
+    tags?: string[];
+    due_date?: string;
+    priority?: 'low' | 'medium' | 'high';
+  }) => {
     if (!editingTask) return;
     
     setError(null);
+    
+    if (!navigator.onLine) {
+      // Update task offline
+      offlineService.updateTaskOffline(editingTask.id, taskData);
+      setTasks(prev => prev.map(task =>
+        task.id === editingTask.id ? { ...task, ...taskData } : task
+      ));
+      setEditingTask(null);
+      setIsModalOpen(false);
+      return;
+    }
     
     const { data, error } = await TaskService.updateTask(editingTask.id, taskData);
     
@@ -100,6 +244,15 @@ const DashboardPage: React.FC = () => {
     
     setError(null);
     
+    if (!navigator.onLine) {
+      // Toggle task offline
+      offlineService.toggleTaskOffline(taskId, !task.completed);
+      setTasks(prev => prev.map(t =>
+        t.id === taskId ? { ...t, completed: !t.completed } : t
+      ));
+      return;
+    }
+    
     const { data, error } = await TaskService.toggleTaskCompletion(taskId, !task.completed);
     
     if (error) {
@@ -118,6 +271,13 @@ const DashboardPage: React.FC = () => {
     
     setError(null);
     
+    if (!navigator.onLine) {
+      // Delete task offline
+      offlineService.deleteTaskOffline(taskId);
+      setTasks(prev => prev.filter(task => task.id !== taskId));
+      return;
+    }
+    
     const { error } = await TaskService.deleteTask(taskId);
     
     if (error) {
@@ -132,34 +292,49 @@ const DashboardPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleShareTask = (task: Task) => {
+    setShareModalTask(task);
+  };
+
+  const getUserPermission = (task: TaskWithCollaboration): 'owner' | 'view' | 'edit' | 'admin' => {
+    if (task.user_id === user?.id) return 'owner';
+    
+    const collaborator = task.collaborators?.find(c => c.user_id === user?.id);
+    return collaborator?.permission || 'view';
+  };
+
   // Estadísticas
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(task => task.completed).length;
   const pendingTasks = tasks.filter(task => !task.completed).length;
 
   const renderContent = () => {
+    if (activeSection === 'analytics') {
+      return <AnalyticsPage tasks={tasks} />;
+    }
+
     if (activeSection === 'profile') {
       return (
         <div className="max-w-2xl mx-auto w-full">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Perfil</h2>
-          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6">Perfil</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 md:p-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
                 <input
                   type="text"
                   value={user?.name || ''}
                   disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm md:text-base"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm md:text-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
                 <input
                   type="email"
                   value={user?.email || ''}
                   disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm md:text-base"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm md:text-base"
                 />
               </div>
             </div>
@@ -170,46 +345,58 @@ const DashboardPage: React.FC = () => {
 
     return (
       <>
+        {/* Indicador de estado offline */}
+        <div className="mb-6">
+          <OfflineIndicator />
+        </div>
+
+        {/* Notificaciones de invitaciones */}
+        <div className="mb-6">
+          <InvitationNotifications
+            onInvitationUpdate={loadTasks}
+          />
+        </div>
+
         {/* Header del Dashboard */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 md:mb-2">
             ¡Hola, {user?.name}! 👋
           </h1>
-          <p className="text-gray-600 text-sm md:text-base">Aquí tienes un resumen de tus tareas</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">Aquí tienes un resumen de tus tareas</p>
         </div>
 
         {/* Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 md:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <BarChart3 className="h-7 w-7 md:h-8 md:w-8 text-blue-600" />
               </div>
               <div className="ml-3 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">Total</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900">{totalTasks}</p>
+                <p className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">Total</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{totalTasks}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 md:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <Clock className="h-7 w-7 md:h-8 md:w-8 text-orange-600" />
               </div>
               <div className="ml-3 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">Pendientes</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900">{pendingTasks}</p>
+                <p className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">Pendientes</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{pendingTasks}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 md:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <CheckCircle className="h-7 w-7 md:h-8 md:w-8 text-green-600" />
               </div>
               <div className="ml-3 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">Completadas</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900">{completedTasks}</p>
+                <p className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">Completadas</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{completedTasks}</p>
               </div>
             </div>
           </div>
@@ -229,25 +416,25 @@ const DashboardPage: React.FC = () => {
         )}
 
         {/* Controles */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 mb-4 md:mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 md:p-6 mb-4 md:mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 md:gap-4">
             <div className="flex flex-col sm:flex-row gap-2 md:gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Buscar tareas..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm md:text-base"
                 />
               </div>
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-sm md:text-base"
+                  className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm md:text-base"
                 >
                   <option value="all">Todas</option>
                   <option value="pending">Pendientes</option>
@@ -272,14 +459,14 @@ const DashboardPage: React.FC = () => {
         <div className="space-y-3 md:space-y-4">
           {loading ? (
             <div className="text-center py-8 md:py-12">
-              <div className="bg-gray-50 rounded-lg p-6 md:p-8">
-                <p className="text-gray-500 text-base md:text-lg">Cargando tareas...</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 md:p-8">
+                <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg">Cargando tareas...</p>
               </div>
             </div>
           ) : filteredTasks.length === 0 ? (
             <div className="text-center py-8 md:py-12">
-              <div className="bg-gray-50 rounded-lg p-6 md:p-8">
-                <p className="text-gray-500 text-base md:text-lg mb-3 md:mb-4">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 md:p-8">
+                <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg mb-3 md:mb-4">
                   {searchTerm || statusFilter !== 'all' 
                     ? 'No se encontraron tareas con los filtros aplicados'
                     : 'No tienes tareas aún'
@@ -300,15 +487,21 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            filteredTasks.map(task => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onToggleStatus={handleToggleStatus}
-                onDelete={handleDeleteTask}
-                onEdit={handleEditClick}
-              />
-            ))
+            filteredTasks.map(task => {
+              const userPermission = getUserPermission(task);
+              return (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onToggleStatus={handleToggleStatus}
+                  onDelete={handleDeleteTask}
+                  onEdit={handleEditClick}
+                  onShare={handleShareTask}
+                  isShared={task.collaborators && task.collaborators.length > 0}
+                  userPermission={userPermission}
+                />
+              );
+            })
           )}
         </div>
       </>
@@ -316,7 +509,7 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header showUserMenu />
       
       <div className="flex">
@@ -334,7 +527,19 @@ const DashboardPage: React.FC = () => {
         }}
         onSave={editingTask ? handleEditTask : handleCreateTask}
         editingTask={editingTask}
+        categories={categories}
       />
+
+      {shareModalTask && (
+        <ShareTaskModal
+          task={shareModalTask}
+          isOpen={!!shareModalTask}
+          onClose={() => setShareModalTask(null)}
+          onTaskShared={loadTasks}
+        />
+      )}
+
+      <PWAUpdate />
     </div>
   );
 };

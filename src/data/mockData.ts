@@ -21,6 +21,10 @@ export const mockTasks: Task[] = [
     completed: false,
     created_at: '2024-01-15T10:00:00.000Z',
     user_id: '1',
+    category: 'Trabajo',
+    tags: ['react', 'typescript', 'frontend'],
+    due_date: '2024-01-20T23:59:59.000Z',
+    priority: 'high'
   },
   {
     id: 2,
@@ -29,6 +33,10 @@ export const mockTasks: Task[] = [
     completed: true,
     created_at: '2024-01-14T10:00:00.000Z',
     user_id: '1',
+    category: 'Trabajo',
+    tags: ['review', 'codigo'],
+    due_date: null,
+    priority: 'medium'
   },
   {
     id: 3,
@@ -37,6 +45,10 @@ export const mockTasks: Task[] = [
     completed: false,
     created_at: '2024-01-16T10:00:00.000Z',
     user_id: '1',
+    category: 'Personal',
+    tags: ['presentacion', 'equipo'],
+    due_date: '2024-01-18T14:00:00.000Z',
+    priority: 'medium'
   },
   {
     id: 4,
@@ -45,5 +57,9 @@ export const mockTasks: Task[] = [
     completed: false,
     created_at: '2024-01-13T10:00:00.000Z',
     user_id: '1',
+    category: 'Trabajo',
+    tags: ['documentacion', 'api'],
+    due_date: null,
+    priority: 'low'
   },
 ];

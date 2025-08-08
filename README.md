@@ -10,21 +10,52 @@ Una aplicación moderna y robusta para gestionar tareas, construida con React + 
 
 ![TaskFlow Screenshot](./public/screenshot.png)
 
-🌐 Deployment
-Este proyecto está desplegado en Vercel y puede accederse en:
+🌐 **Deployment**  
+Este proyecto está desplegado en Vercel:  
 🔗 https://taskflow-app-xi.vercel.app
-
 
 ## ✨ Características
 
-- 🔐 **Autenticación completa** - Sistema de registro e inicio de sesión con Supabase Auth
-- 📝 **Gestión completa de tareas** - Crear, editar, completar y eliminar tareas en tiempo real
-- 🎨 **Interfaz moderna** - Diseño limpio y responsivo con Tailwind CSS
-- 🔍 **Búsqueda y filtros** - Encuentra tareas rápidamente por título, descripción o estado
-- 📊 **Dashboard con estadísticas** - Visualiza tu progreso y productividad
-- 🛡️ **Seguridad robusta** - Row Level Security (RLS) para proteger los datos de cada usuario
-- 📱 **Totalmente responsivo** - Funciona perfectamente en desktop, tablet y móvil
-- ⚡ **Rendimiento optimizado** - Construido con Vite para una experiencia ultra-rápida
+### 🎯 **Gestión Completa de Tareas**
+- 📝 **CRUD completo** - Crear, editar, completar y eliminar tareas en tiempo real
+- 🏷️ **Categorías predefinidas** - Organiza tus tareas (Trabajo, Personal, Urgente, Ideas)
+- 🏷️ **Etiquetas personalizadas** - Agrega etiquetas ilimitadas para clasificar mejor
+- 📅 **Fechas de vencimiento** - Asigna deadlines y visualiza tareas vencidas
+- ⭐ **Prioridades** - Clasifica tareas por prioridad (Alta, Media, Baja) con códigos de color
+- 🔍 **Búsqueda avanzada** - Encuentra tareas por título, descripción, categoría o etiquetas
+- 🎛️ **Filtros múltiples** - Filtra por estado, prioridad, categoría y fechas
+
+### 🤝 **Colaboración Avanzada**
+- 👥 **Compartir tareas** - Invita a otros usuarios a colaborar en tiempo real
+- 🔐 **Gestión de permisos** - Control granular (view, edit, admin, owner)
+- 📧 **Sistema de invitaciones** - Invita por email con notificaciones automáticas
+- 📊 **Activity tracking** - Historial completo de todas las actividades
+- 🔔 **Notificaciones en vivo** - Alertas instantáneas de invitaciones y cambios
+
+### ⚡ **Experiencia en Tiempo Real**
+- 🔄 **Actualizaciones instantáneas** - Supabase Realtime para sincronización automática
+- 🌐 **Multi-dispositivo** - Mantén todos tus dispositivos sincronizados
+- 📱 **PWA completa** - Instalable como app nativa con soporte offline
+- 🔄 **Sincronización offline avanzada** - Cache inteligente y sync automático al reconectar
+
+### 🎨 **Interfaz Moderna**
+- 🌙 **Tema oscuro completo** - Modo claro/oscuro con detección automática del sistema
+- 📱 **Totalmente responsivo** - Perfecto en desktop, tablet y móvil
+- 🎨 **Diseño Material** - Interfaz limpia con Tailwind CSS y animaciones suaves
+- 🏃‍♂️ **Ultra-rápido** - Construido con Vite para rendimiento óptimo
+
+### 📊 **Analytics y Productividad**
+- 📈 **Analytics avanzados** - Estadísticas detalladas de productividad
+- 📊 **Gráficos interactivos** - Visualización de progreso y tendencias
+- 🏆 **Métricas de rendimiento** - Racha de días productivos, tiempo promedio
+- � **Insights personalizados** - Recomendaciones basadas en tu actividad
+- 📤 **Exportación de datos** - Exporta analytics en JSON para análisis
+
+### � **Seguridad y Autenticación**
+- 🔐 **Autenticación completa** - Sistema seguro con Supabase Auth
+- 🛡️ **Row Level Security** - Protección a nivel de base de datos
+- � **Perfiles de usuario** - Gestión completa de cuentas
+- 🔑 **JWT tokens** - Autenticación moderna y segura
 
 ## 🛠️ Stack Tecnológico
 
@@ -40,9 +71,12 @@ Este proyecto está desplegado en Vercel y puede accederse en:
 - **Supabase** - Backend como servicio (BaaS) completo
 - **PostgreSQL** - Base de datos relacional robusta
 - **Supabase Auth** - Autenticación completa con JWT
+- **Supabase Realtime** - Actualizaciones en tiempo real
 - **Row Level Security (RLS)** - Seguridad a nivel de fila en la base de datos
 
 ### DevOps & Herramientas
+- **Vite PWA Plugin** - Progressive Web App con soporte offline
+- **Workbox** - Service Worker para cache y offline
 - **ESLint** - Linting para código consistente
 - **PostCSS** - Procesamiento de CSS
 - **Autoprefixer** - Prefijos CSS automáticos
@@ -72,10 +106,12 @@ npm install
 2. Crea un nuevo proyecto
 3. Espera a que se complete la configuración
 
-#### 3.2 Configurar base de datos
+### 3.2 Configurar base de datos
 1. Ve a **SQL Editor** en tu proyecto de Supabase
-2. Ejecuta el script SQL ubicado en `supabase-setup.sql` en la raíz del proyecto
-3. Esto creará las tablas `tasks` y `profiles` con todas las políticas de seguridad
+2. Ejecuta el script SQL ubicado en `supabase-setup.sql` para crear las tablas básicas
+3. Luego ejecuta `supabase-update-features.sql` para agregar las nuevas funcionalidades
+4. Finalmente ejecuta `supabase-create-default-categories.sql` para crear categorías por defecto
+5. Esto creará todas las tablas necesarias con políticas de seguridad completas
 
 #### 3.3 Obtener credenciales
 1. Ve a **Settings > API** en tu proyecto de Supabase
@@ -99,23 +135,82 @@ npm run dev
 
 🎉 ¡Tu aplicación estará disponible en `http://localhost:5173`!
 
-## 🗄️ Base de datos
+## � Funcionalidades Avanzadas
+
+### 🤝 Colaboración
+- **Compartir tareas**: Invita a otros usuarios a colaborar en tus tareas
+- **Gestión de permisos**: Controla quien puede ver, editar o administrar cada tarea
+- **Invitaciones**: Sistema completo de invitaciones con notificaciones
+- **Activity tracking**: Seguimiento de todas las actividades en tareas compartidas
+
+### ⚡ Tiempo Real
+- **Actualizaciones instantáneas**: Los cambios se reflejan inmediatamente en todos los usuarios conectados
+- **Notificaciones en vivo**: Recibe alertas cuando te invitan a colaborar o hay cambios en tareas compartidas
+- **Sincronización automática**: Mantén todos tus dispositivos sincronizados sin recargar
+
+### 📱 Progressive Web App (PWA)
+- **Instalable**: Añade la app a tu pantalla de inicio como una app nativa
+- **Soporte offline**: Accede a tus tareas incluso sin conexión a internet
+- **Cache inteligente**: Carga rápida con contenido almacenado en cache
+- **Actualizaciones automáticas**: La app se actualiza automáticamente en segundo plano
+
+## �🗄️ Base de datos
 
 La aplicación utiliza **Supabase** como backend, con las siguientes tablas:
 
+### Tablas Principales
+
 - **`tasks`**: Almacena las tareas de los usuarios
- - `id` (BIGSERIAL): Identificador único
+  - `id` (BIGSERIAL): Identificador único
   - `title` (VARCHAR): Título de la tarea
   - `description` (TEXT): Descripción opcional
   - `completed` (BOOLEAN): Estado de completado
+  - `category` (TEXT): Categoría de la tarea ✨ NUEVO
+  - `tags` (TEXT[]): Array de etiquetas ✨ NUEVO
+  - `due_date` (TIMESTAMPTZ): Fecha de vencimiento ✨ NUEVO
+  - `priority` (TEXT): Prioridad (low, medium, high) ✨ NUEVO
   - `created_at` (TIMESTAMP): Fecha de creación
   - `user_id` (UUID): ID del usuario propietario
+
+- **`categories`**: Categorías predefinidas por usuario ✨ NUEVO
+  - `id` (BIGSERIAL): Identificador único
+  - `name` (TEXT): Nombre de la categoría
+  - `color` (TEXT): Color en hexadecimal
+  - `user_id` (UUID): ID del usuario propietario
+  - `created_at` (TIMESTAMP): Fecha de creación
 
 - **`profiles`**: Perfiles de usuario extendidos
   - `id` (UUID): Referencia a `auth.users`
   - `email` (VARCHAR): Email del usuario
   - `full_name` (VARCHAR): Nombre completo
   - `created_at` (TIMESTAMP): Fecha de creación
+
+### Tablas de Colaboración
+
+- **`task_collaborators`**: Gestión de colaboradores en tareas
+  - `id` (BIGSERIAL): Identificador único
+  - `task_id` (BIGINT): Referencia a la tarea
+  - `user_id` (UUID): Usuario colaborador
+  - `permission` (TEXT): Nivel de permiso (view, edit, admin)
+  - `added_by` (UUID): Quien añadió al colaborador
+  - `created_at` (TIMESTAMP): Fecha de creación
+
+- **`collaboration_invitations`**: Invitaciones de colaboración
+  - `id` (BIGSERIAL): Identificador único
+  - `task_id` (BIGINT): Referencia a la tarea
+  - `inviter_id` (UUID): Usuario que invita
+  - `invitee_email` (VARCHAR): Email del invitado
+  - `permission` (TEXT): Nivel de permiso propuesto
+  - `status` (TEXT): Estado (pending, accepted, declined)
+  - `created_at` (TIMESTAMP): Fecha de creación
+
+- **`task_activity`**: Registro de actividades
+  - `id` (BIGSERIAL): Identificador único
+  - `task_id` (BIGINT): Referencia a la tarea
+  - `user_id` (UUID): Usuario que realizó la acción
+  - `action` (TEXT): Tipo de acción realizada
+  - `details` (JSONB): Detalles adicionales
+  - `created_at` (TIMESTAMP): Fecha de la acción
 
 ### 🔒 Seguridad
 
@@ -127,18 +222,41 @@ La aplicación utiliza **Supabase** como backend, con las siguientes tablas:
 
 ```
 src/
-├── components/          # Componentes reutilizables
-│   ├── Auth/           # Componentes de autenticación
-│   ├── Layout/         # Componentes de diseño (Header, Sidebar)
-│   └── Tasks/          # Componentes relacionados con tareas
-├── contexts/           # Contextos de React (AuthContext)
-├── lib/               # Configuración de librerías (Supabase)
-├── pages/             # Páginas principales
-├── services/          # Servicios para API calls (TaskService)
-├── types/             # Definiciones de tipos TypeScript
-├── App.tsx            # Componente principal
-├── main.tsx           # Punto de entrada
-└── index.css          # Estilos globales
+├── components/              # Componentes reutilizables
+│   ├── Analytics/          # ✨ Componentes de analytics y reportes
+│   ├── Auth/               # Componentes de autenticación
+│   ├── Collaboration/      # ✨ Componentes de colaboración
+│   ├── Layout/             # Componentes de diseño (Header, Sidebar)
+│   ├── Offline/            # ✨ Indicadores de estado offline
+│   ├── PWA/                # ✨ Componentes PWA y actualizaciones
+│   ├── Tasks/              # Componentes relacionados con tareas
+│   └── Theme/              # ✨ Componentes de tema oscuro/claro
+├── contexts/               # Contextos de React
+│   ├── AuthContext.tsx     # Contexto de autenticación
+│   └── ThemeContext.tsx    # ✨ Contexto de tema
+├── hooks/                  # Hooks personalizados
+│   ├── useOffline.ts       # ✨ Hook para gestión offline
+│   ├── useRealtime.ts      # ✨ Hook para tiempo real
+│   └── useRealtimeNotifications.ts # ✨ Hook para notificaciones
+├── lib/                    # Configuración de librerías
+│   └── supabase.ts         # Configuración de Supabase
+├── pages/                  # Páginas principales
+│   ├── DashboardPage.tsx   # Dashboard principal con analytics
+│   ├── LandingPage.tsx     # Página de inicio
+│   ├── LoginPage.tsx       # Página de login
+│   └── RegisterPage.tsx    # Página de registro
+├── services/               # Servicios para API calls
+│   ├── analyticsService.ts # ✨ Servicio de analytics
+│   ├── categoryService.ts  # ✨ Servicio de categorías
+│   ├── collaborationService.ts # ✨ Servicio de colaboración
+│   ├── offlineService.ts   # ✨ Servicio de sincronización offline
+│   └── taskService.ts      # Servicio de tareas
+├── types/                  # Definiciones de tipos TypeScript
+│   ├── database.ts         # ✨ Tipos de base de datos actualizados
+│   └── index.ts            # Tipos generales
+├── App.tsx                 # Componente principal
+├── main.tsx                # Punto de entrada
+└── index.css               # Estilos globales con modo oscuro
 ```
 
 ## 🎯 Funcionalidades
@@ -149,18 +267,27 @@ src/
 - **Dashboard**: Gestión completa de tareas con base de datos
 
 ### Gestión de tareas:
-- ✅ Crear nuevas tareas
-- ✏️ Editar tareas existentes
-- 🔄 Marcar como completado/pendiente
-- 🗑️ Eliminar tareas
-- 🔍 Buscar tareas por título/descripción
-- 🎛️ Filtrar por estado (todas, pendientes, completadas)
+- ✅ Crear nuevas tareas con categorías, etiquetas, fechas y prioridades
+- ✏️ Editar tareas existentes con todos los campos
+- 🔄 Marcar como completado/pendiente con indicadores visuales
+- 🗑️ Eliminar tareas con confirmación
+- 🔍 Búsqueda avanzada por título, descripción, categoría y etiquetas
+- 🎛️ Filtros múltiples (estado, prioridad, categoría, fechas)
+- 🏷️ Gestión de categorías predefinidas y personalizadas
+- ⭐ Indicadores visuales de prioridad con códigos de color
+- 📅 Alertas de tareas vencidas y próximas a vencer
 
-### Características adicionales:
-- 📊 Estadísticas de progreso
-- 👤 Perfil de usuario
-- 📱 Diseño completamente responsivo
-- 🎨 Interfaz moderna con animaciones
+### Características avanzadas:
+- 📊 **Analytics completos** - Estadísticas detalladas, gráficos, métricas de productividad
+- 🤝 **Colaboración en tiempo real** - Invitaciones, permisos, activity tracking
+- � **Sincronización offline avanzada** - Cache inteligente, sync automático
+- 🌙 **Tema oscuro completo** - Modo claro/oscuro con persistencia
+- 📱 **PWA instalable** - Funciona como app nativa
+- 🔔 **Notificaciones en tiempo real** - Alertas de invitaciones y cambios
+- 📤 **Exportación de datos** - Analytics en JSON
+- 👤 **Perfiles de usuario** - Gestión completa de cuentas
+- 📱 **Diseño totalmente responsivo** - Perfecto en todos los dispositivos
+- 🎨 **Interfaz moderna** - Animaciones suaves y transiciones
 
 ## 📱 Diseño Responsive
 
@@ -194,29 +321,47 @@ El proyecto utiliza Tailwind CSS para los estilos. Puedes personalizar:
 - **Fuentes**: Actualiza las fuentes en `index.html` y `tailwind.config.js`
 - **Componentes**: Todos los componentes están en la carpeta `src/components/`
 
-## � Próximas Funcionalidades
+## 🎯 Estado de Funcionalidades
 
-### En desarrollo
-- [ ] 🏷️ **Categorías y etiquetas** - Organiza tus tareas por categorías
-- [ ] 📅 **Fechas de vencimiento** - Establece deadlines para tus tareas
-- [ ] 🔔 **Notificaciones** - Recordatorios automáticos
-- [ ] 🌙 **Tema oscuro** - Modo oscuro para trabajar de noche
-
-### Funcionalidades avanzadas
-- [ ] 🤝 **Colaboración** - Comparte tareas con otros usuarios
-- [ ] ⚡ **Tiempo real** - Actualizaciones en vivo con Supabase Realtime
-- [ ] 📱 **PWA** - Instalable como app nativa
-- [ ] 🔄 **Sincronización offline** - Trabaja sin conexión
-- [ ] 📊 **Analytics avanzados** - Reportes de productividad
-- [ ] 🔗 **API REST** - Integración con otras aplicaciones
-- [ ] 📤 **Exportación** - Exporta tus tareas en PDF, CSV, JSON
-
-### Completadas ✅
-- [x] ✅ **Autenticación completa** - Sistema de registro e inicio de sesión
+### ✅ **Completadas - Core Features**
+- [x] 🔐 **Autenticación completa** - Sistema de registro e inicio de sesión
 - [x] 🛡️ **Seguridad RLS** - Row Level Security implementado
 - [x] 📝 **CRUD completo** - Crear, leer, actualizar y eliminar tareas
 - [x] 🔍 **Búsqueda y filtros** - Encuentra tareas rápidamente
 - [x] 📊 **Dashboard** - Estadísticas y resumen de tareas
+- [x] 📱 **Diseño responsivo** - Perfecto en todos los dispositivos
+
+### ✅ **Completadas - Advanced Features**
+- [x] 🏷️ **Categorías predefinidas** - Sistema completo de categorías por usuario
+- [x] 🏷️ **Etiquetas personalizadas** - Tags ilimitados para clasificación
+- [x] 📅 **Fechas de vencimiento** - Deadlines con indicadores visuales
+- [x] ⭐ **Prioridades** - Alta, Media, Baja con códigos de color
+- [x] 🌙 **Tema oscuro completo** - Modo claro/oscuro con persistencia
+- [x] 🤝 **Colaboración avanzada** - Comparte tareas con otros usuarios
+- [x] ⚡ **Tiempo real** - Actualizaciones en vivo con Supabase Realtime
+- [x] 📱 **PWA completa** - Instalable como app nativa
+- [x] 🔔 **Notificaciones en tiempo real** - Sistema de invitaciones y alertas
+- [x] 🔄 **Sincronización offline avanzada** - Cache inteligente y sync automático
+- [x] 📊 **Analytics avanzados** - Estadísticas detalladas, gráficos, métricas
+- [x] 📤 **Exportación de datos** - Analytics exportables en JSON
+
+### 🔄 **En Desarrollo Futuro**
+- [ ] 🌐 **API REST completa** - Endpoints públicos para integración
+- [ ] � **Exportación avanzada** - PDF, CSV para tareas y reportes
+- [ ] � **Integraciones** - Calendario, Slack, Trello
+- [ ] 🤖 **IA y Sugerencias** - Recomendaciones inteligentes
+- [ ] � **Analytics predictivos** - Predicción de carga de trabajo
+
+### 🎉 **Resumen del Proyecto**
+**TaskFlow es una aplicación completa y moderna** que incluye todas las funcionalidades solicitadas:
+
+✅ **Categorías y etiquetas** - Sistema completo implementado  
+✅ **Fechas de vencimiento** - Con indicadores visuales  
+✅ **Tema oscuro** - Totalmente funcional  
+✅ **Sincronización offline avanzada** - Cache inteligente  
+✅ **Analytics avanzados** - Reportes completos  
+
+**Estado actual: PROYECTO COMPLETO** 🚀
 
 ## 🤝 Contribuir
 

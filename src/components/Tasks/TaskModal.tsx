@@ -1,49 +1,98 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Task } from '../../types/database';
+import { Category } from '../../services/categoryService';
 
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (task: { title: string; description?: string; completed?: boolean }) => void;
+  onSave: (task: { 
+    title: string; 
+    description?: string; 
+    completed?: boolean;
+    category?: string;
+    tags?: string[];
+    due_date?: string;
+    priority?: 'low' | 'medium' | 'high';
+  }) => void;
   editingTask?: Task | null;
+  categories?: Category[];
 }
 
-const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingTask }) => {
+const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingTask, categories = [] }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    completed: false
+    completed: false,
+    category: '',
+    tags: [] as string[],
+    due_date: '',
+    priority: '' as '' | 'low' | 'medium' | 'high'
   });
+  
+  const [tagInput, setTagInput] = useState('');
 
+  // Resetear formulario cuando el modal se abre/cierra o cambia la tarea editada
   useEffect(() => {
-    if (editingTask) {
-      setFormData({
-        title: editingTask.title,
-        description: editingTask.description || '',
-        completed: editingTask.completed
-      });
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        completed: false
-      });
+    if (isOpen) {
+      if (editingTask) {
+        setFormData({
+          title: editingTask.title,
+          description: editingTask.description || '',
+          completed: editingTask.completed,
+          category: editingTask.category || '',
+          tags: editingTask.tags || [],
+          due_date: editingTask.due_date || '',
+          priority: editingTask.priority || ''
+        });
+      } else {
+        setFormData({
+          title: '',
+          description: '',
+          completed: false,
+          category: '',
+          tags: [],
+          due_date: '',
+          priority: ''
+        });
+      }
+      setTagInput('');
     }
-  }, [editingTask, isOpen]);
+  }, [isOpen, editingTask]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) return;
     
-    onSave(formData);
+    const submitData = {
+      ...formData,
+      priority: formData.priority || undefined,
+      due_date: formData.due_date || undefined,
+      category: formData.category || undefined,
+      tags: formData.tags.length > 0 ? formData.tags : undefined
+    };
+    
+    onSave(submitData);
     onClose();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!formData.tags.includes(tagInput.trim())) {
+        setFormData(prev => ({
+          ...prev,
+          tags: [...prev.tags, tagInput.trim()]
+        }));
+      }
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
     }));
   };
 
@@ -51,14 +100,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 md:p-6 border-b">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b dark:border-gray-700">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
             {editingTask ? 'Editar tarea' : 'Nueva tarea'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -66,7 +115,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
 
         <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Título *
             </label>
             <input
@@ -75,45 +124,115 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
               name="title"
               required
               value={formData.title}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
               placeholder="¿Qué necesitas hacer?"
             />
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Descripción
             </label>
             <textarea
-              id="description"
-              name="description"
-              rows={3}
               value={formData.description}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
-              placeholder="Detalles adicionales (opcional)"
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              placeholder="Descripción de la tarea..."
             />
           </div>
 
+          {/* Category */}
           <div>
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                name="completed"
-                checked={formData.completed}
-                onChange={(e) => setFormData(prev => ({ ...prev, completed: e.target.checked }))}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="text-sm font-medium text-gray-700">Marcar como completada</span>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Categoría
             </label>
+            <select
+              value={formData.category || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Seleccionar categoría...</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Etiquetas
+            </label>
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleAddTag}
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Presiona Enter para agregar etiqueta..."
+              />
+              {formData.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Due Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Fecha de vencimiento
+            </label>
+            <input
+              type="date"
+              value={formData.due_date || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Prioridad
+            </label>
+            <select
+              value={formData.priority || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' | '' }))}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Seleccionar prioridad...</option>
+              <option value="low">Baja</option>
+              <option value="medium">Media</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
             >
               Cancelar
             </button>
