@@ -150,7 +150,71 @@ export interface Database {
           details?: any
           created_at?: string
         }
-      }
+      };
+      api_keys: {
+        Row: {
+          id: string;
+          name: string;
+          key: string;
+          user_id: string;
+          permissions: ('read' | 'write' | 'delete')[];
+          created_at: string;
+          last_used_at: string | null;
+          is_active: boolean;
+          rate_limit: number;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          key: string;
+          user_id: string;
+          permissions: ('read' | 'write' | 'delete')[];
+          created_at?: string;
+          last_used_at?: string | null;
+          is_active?: boolean;
+          rate_limit?: number;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          key?: string;
+          user_id?: string;
+          permissions?: ('read' | 'write' | 'delete')[];
+          created_at?: string;
+          last_used_at?: string | null;
+          is_active?: boolean;
+          rate_limit?: number;
+        };
+      };
+      webhooks: {
+        Row: {
+          id: string;
+          user_id: string;
+          url: string;
+          events: ('task.created' | 'task.updated' | 'task.deleted' | 'task.completed')[];
+          secret: string;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          url: string;
+          events: ('task.created' | 'task.updated' | 'task.deleted' | 'task.completed')[];
+          secret: string;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          url?: string;
+          events?: ('task.created' | 'task.updated' | 'task.deleted' | 'task.completed')[];
+          secret?: string;
+          is_active?: boolean;
+          created_at?: string;
+        };
+      };
     }
     Views: {
       [_ in never]: never

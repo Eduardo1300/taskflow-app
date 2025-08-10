@@ -1,4 +1,4 @@
-import { LayoutDashboard, User, LogOut, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, User, LogOut, BarChart3, Globe, Zap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState } from 'react';
 
@@ -14,6 +14,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'api', label: 'API REST', icon: Globe },
+    { id: 'integrations', label: 'Integraciones', icon: Zap },
     { id: 'profile', label: 'Perfil', icon: User },
   ];
 

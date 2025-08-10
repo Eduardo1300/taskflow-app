@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, CheckCircle, Clock, BarChart3 } from 'lucide-react';
+import { Plus, Search, Filter, CheckCircle, Clock, BarChart3, FileText, FileSpreadsheet } from 'lucide-react';
 import Header from '../components/Layout/Header';
 import Sidebar from '../components/Layout/Sidebar';
 import TaskCard from '../components/Tasks/TaskCard';
@@ -9,12 +9,16 @@ import InvitationNotifications from '../components/Collaboration/InvitationNotif
 import PWAUpdate from '../components/PWA/PWAUpdate';
 import OfflineIndicator from '../components/Offline/OfflineIndicator';
 import AnalyticsPage from '../components/Analytics/AnalyticsPage';
+import ApiManagementPage from '../components/Api/ApiManagementPage';
+import IntegrationsPage from '../components/Integrations/IntegrationsPage';
+import IntegrationNotifications from '../components/Integrations/IntegrationNotifications';
 import { useAuth } from '../contexts/AuthContext';
 import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
 import { CollaborationService } from '../services/collaborationService';
 import { CategoryService, Category } from '../services/categoryService';
 import { offlineService } from '../services/offlineService';
+import { exportService } from '../services/exportService';
 import { useRealtime } from '../hooks/useRealtime';
 import { useOffline } from '../hooks/useOffline';
 
@@ -308,9 +312,36 @@ const DashboardPage: React.FC = () => {
   const completedTasks = tasks.filter(task => task.completed).length;
   const pendingTasks = tasks.filter(task => !task.completed).length;
 
+  // Funciones de exportación
+  const handleExportToPDF = async () => {
+    try {
+      await exportService.exportTasksToPDF(filteredTasks);
+    } catch (error) {
+      console.error('Error exportando a PDF:', error);
+      setError('Error al exportar a PDF');
+    }
+  };
+
+  const handleExportToCSV = async () => {
+    try {
+      await exportService.exportTasksToCSV(filteredTasks);
+    } catch (error) {
+      console.error('Error exportando a CSV:', error);
+      setError('Error al exportar a CSV');
+    }
+  };
+
   const renderContent = () => {
     if (activeSection === 'analytics') {
       return <AnalyticsPage tasks={tasks} />;
+    }
+
+    if (activeSection === 'api') {
+      return <ApiManagementPage />;
+    }
+
+    if (activeSection === 'integrations') {
+      return <IntegrationsPage />;
     }
 
     if (activeSection === 'profile') {
@@ -442,16 +473,39 @@ const DashboardPage: React.FC = () => {
                 </select>
               </div>
             </div>
-            <button
-              onClick={() => {
-                setEditingTask(null);
-                setIsModalOpen(true);
-              }}
-              className="flex items-center px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm md:text-base"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva tarea
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              {/* Botones de exportación */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportToPDF}
+                  title="Exportar a PDF"
+                  className="flex items-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">PDF</span>
+                </button>
+                <button
+                  onClick={handleExportToCSV}
+                  title="Exportar a CSV"
+                  className="flex items-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">CSV</span>
+                </button>
+              </div>
+              
+              {/* Botón Nueva tarea */}
+              <button
+                onClick={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+                className="flex items-center px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm md:text-base"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva tarea
+              </button>
+            </div>
           </div>
         </div>
 
@@ -540,6 +594,7 @@ const DashboardPage: React.FC = () => {
       )}
 
       <PWAUpdate />
+      <IntegrationNotifications />
     </div>
   );
 };

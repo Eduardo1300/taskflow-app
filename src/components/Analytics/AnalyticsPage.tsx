@@ -9,10 +9,12 @@ import {
   PieChart,
   Activity,
   Lightbulb,
-  Download
+  Download,
+  FileText
 } from 'lucide-react';
 import { Task } from '../../types';
 import { analyticsService, AnalyticsData } from '../../services/analyticsService';
+import { exportService } from '../../services/exportService';
 
 interface AnalyticsPageProps {
   tasks: Task[];
@@ -42,6 +44,16 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
     URL.revokeObjectURL(url);
   };
 
+  const exportAnalyticsToPDF = async () => {
+    if (!analyticsData) return;
+    
+    try {
+      await exportService.exportAnalyticsToPDF(analyticsData);
+    } catch (error) {
+      console.error('Error exportando analytics a PDF:', error);
+    }
+  };
+
   if (loading || !analyticsData) {
     return (
       <div className="max-w-6xl mx-auto w-full">
@@ -68,13 +80,22 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
             Insights sobre tu productividad y uso de la app
           </p>
         </div>
-        <button
-          onClick={exportAnalytics}
-          className="mt-4 sm:mt-0 flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Exportar datos
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={exportAnalyticsToPDF}
+            className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Exportar PDF
+          </button>
+          <button
+            onClick={exportAnalytics}
+            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Exportar JSON
+          </button>
+        </div>
       </div>
 
       {/* Insights */}

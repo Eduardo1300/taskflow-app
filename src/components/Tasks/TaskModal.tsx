@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Task } from '../../types/database';
 import { Category } from '../../services/categoryService';
+import AISuggestions from './AISuggestions';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -86,6 +87,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
         }));
       }
       setTagInput('');
+    }
+  };
+
+  const handleAISuggestion = (type: 'category' | 'due_date' | 'priority', value: any) => {
+    switch (type) {
+      case 'category':
+        setFormData(prev => ({ ...prev, category: value }));
+        break;
+      case 'due_date':
+        setFormData(prev => ({ ...prev, due_date: value }));
+        break;
+      case 'priority':
+        setFormData(prev => ({ ...prev, priority: value }));
+        break;
     }
   };
 
@@ -227,6 +242,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
               <option value="high">Alta</option>
             </select>
           </div>
+
+          {/* Sugerencias de IA */}
+          <AISuggestions
+            title={formData.title}
+            description={formData.description}
+            onSuggestionAccept={handleAISuggestion}
+          />
 
           <div className="flex justify-end space-x-3 pt-4 border-t dark:border-gray-700">
             <button
