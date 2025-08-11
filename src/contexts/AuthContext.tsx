@@ -51,33 +51,74 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      console.log('🚀 Intentando registrar usuario:', { email, name });
+      
+      // Validaciones previas del lado del cliente
+      if (!email || !email.includes('@')) {
+        return { success: false, error: 'Email inválido' };
+      }
+      
+      if (!password || password.length < 6) {
+        return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' };
+      }
+      
+      if (!name || name.trim().length < 2) {
+        return { success: false, error: 'El nombre debe tener al menos 2 caracteres' };
+      }
+
+      // Verificar si el email ya existe antes de intentar registrar
+      console.log('🔍 Verificando si el email existe...');
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email.toLowerCase())
+        .single();
+
+      if (existingUser) {
+        console.log('❌ Email ya existe en profiles');
+        return { success: false, error: 'Este email ya está registrado. Intenta iniciar sesión.' };
+      }
+
+      console.log('✅ Email no existe en profiles, procediendo con signUp...');
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.toLowerCase().trim(),
         password,
         options: {
           data: {
-            full_name: name,
+            full_name: name.trim(),
           },
         },
       });
 
+      console.log('📊 Resultado de signUp:', {
+        user: data.user ? 'Usuario creado' : 'No user',
+        session: data.session ? 'Sesión creada' : 'No session',
+        error: error ? error.message : 'Sin error'
+      });
+
       if (error) {
+        console.error('❌ Error en signUp:', error);
         return { success: false, error: handleSupabaseError(error) };
       }
 
       if (data.user) {
         // Si el usuario necesita verificar el email, mostrar mensaje
         if (!data.session) {
+          console.log('📧 Usuario creado pero necesita verificar email');
           return { 
             success: true, 
-            error: 'Te hemos enviado un email de confirmación. Por favor, verifica tu correo.' 
+            error: 'Te hemos enviado un email de confirmación. Por favor, verifica tu correo antes de continuar.' 
           };
         }
+        
+        console.log('✅ Usuario registrado y sesión iniciada');
         setUser(mapSupabaseUser(data.user));
       }
 
       return { success: true };
     } catch (error) {
+      console.error('💥 Error inesperado en register:', error);
       return { success: false, error: handleSupabaseError(error) };
     }
   };

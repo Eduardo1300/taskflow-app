@@ -20,6 +20,22 @@ Este proyecto está desplegado en Vercel:
 
 **TaskFlow** es una aplicación de gestión de tareas **de nivel empresarial** que combina lo mejor de la productividad tradicional con **inteligencia artificial moderna** e **integraciones profundas**. Diseñada para competir con herramientas como Todoist, Asana y Notion, pero con capacidades únicas.
 
+--
+
+## 🎯 **Como ingresar?**
+
+Primero, regístrate ingresando tus datos en el formulario.
+
+Revisa tu correo electrónico y busca el email de verificación que te enviamos.
+
+Haz clic en el enlace dentro del correo para activar tu cuenta.
+
+Vuelve a la página e inicia sesión con tu email y contraseña.
+
+¡Y listo! Ya puedes comenzar a usar la aplicación.
+
+--
+
 ### 🌟 **Características Únicas**
 - 🤖 **IA Nativa** - Sugerencias automáticas de categorías, fechas y prioridades
 - 🔗 **Integraciones Profundas** - Google Calendar, Slack, Discord, Email, Webhooks
