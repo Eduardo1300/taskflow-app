@@ -13,6 +13,7 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   const { register } = useAuth();
@@ -28,6 +29,7 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
 
     const { name, email, password, confirmPassword } = formData;
@@ -51,12 +53,21 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    const success = await register(name, email, password);
+    const result = await register(name, email, password);
     
-    if (success) {
-      navigate('/dashboard');
+    if (result.success) {
+      if (result.requiresEmailVerification) {
+        // Mostrar mensaje de éxito y redirigir al login después de 3 segundos
+        setSuccessMessage('¡Registro completado satisfactoriamente! Ahora revisa tu correo y acepta el correo de confirmación que te enviamos.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 4000);
+      } else {
+        // Si no requiere verificación, ir directamente al dashboard
+        navigate('/dashboard');
+      }
     } else {
-      setError('El email ya está en uso o los datos no son válidos');
+      setError(result.error || 'El email ya está en uso o los datos no son válidos');
     }
     
     setIsLoading(false);
@@ -180,12 +191,19 @@ const RegisterPage: React.FC = () => {
             </div>
           )}
 
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-2 sm:p-3">
+              <p className="text-xs sm:text-sm text-green-800 font-medium">{successMessage}</p>
+              <p className="text-xs text-green-600 mt-1">Serás redirigido al login en unos segundos...</p>
+            </div>
+          )}
+
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !!successMessage}
             className="group relative w-full flex justify-center py-2 sm:py-3 px-4 border border-transparent text-sm sm:text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
+            {isLoading ? 'Creando cuenta...' : successMessage ? 'Redirigiendo...' : 'Crear cuenta'}
           </button>
 
           <div className="text-center">

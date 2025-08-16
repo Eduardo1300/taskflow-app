@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase, handleSupabaseError } from '../lib/supabase';
-import { AuthContextType, User } from '../types';
+import { AuthContextType, AuthResult, User } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     email: supabaseUser.email || '',
   });
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string): Promise<AuthResult> => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const register = async (name: string, email: string, password: string): Promise<AuthResult> => {
     try {
       console.log('🚀 Intentando registrar usuario:', { email, name });
       
@@ -108,6 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('📧 Usuario creado pero necesita verificar email');
           return { 
             success: true, 
+            requiresEmailVerification: true,
             error: 'Te hemos enviado un email de confirmación. Por favor, verifica tu correo antes de continuar.' 
           };
         }
@@ -161,14 +162,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
-    login: async (email: string, password: string) => {
-      const result = await login(email, password);
-      return result.success;
-    },
-    register: async (name: string, email: string, password: string) => {
-      const result = await register(name, email, password);
-      return result.success;
-    },
+    login,
+    register,
     logout,
     isAuthenticated: !!user,
     loading,

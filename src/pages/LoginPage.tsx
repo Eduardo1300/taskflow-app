@@ -24,12 +24,12 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    const success = await login(email, password);
+    const result = await login(email, password);
     
-    if (success) {
+    if (result.success) {
       navigate('/dashboard');
     } else {
-      setError('Credenciales incorrectas. Por favor, verifica tu email y contraseña.');
+      setError(result.error || 'Credenciales incorrectas. Por favor, verifica tu email y contraseña.');
     }
     
     setIsLoading(false);

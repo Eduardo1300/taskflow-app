@@ -36,10 +36,16 @@ export interface PendingInvitation extends CollaborationInvitation {
   inviter?: Profile;
 }
 
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+  requiresEmailVerification?: boolean;
+}
+
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<AuthResult>;
+  register: (name: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
