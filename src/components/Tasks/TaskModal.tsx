@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { Task } from '../../types/database';
 import { Category } from '../../services/categoryService';
 import AISuggestions from './AISuggestions';
+import { TaskDetails } from './TaskDetails';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -250,6 +251,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
             onSuggestionAccept={handleAISuggestion}
           />
 
+          {/* Task Details - Solo mostrar si estamos editando una tarea existente */}
+          {editingTask && editingTask.id && (
+            <div className="mt-6">
+              <TaskDetails task={editingTask} />
+            </div>
+          )}
+
           <div className="flex justify-end space-x-3 pt-4 border-t dark:border-gray-700">
             <button
               type="button"
@@ -266,6 +274,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
             </button>
           </div>
         </form>
+
+        {/* Task Details - Solo mostrar si estamos editando una tarea existente */}
+        {editingTask && editingTask.id && (
+          <div className="mt-6">
+            <TaskDetails task={editingTask} />
+          </div>
+        )}
       </div>
     </div>
   );

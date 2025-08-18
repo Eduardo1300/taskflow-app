@@ -401,6 +401,251 @@ class ExportService {
       throw error;
     }
   }
+
+  /**
+   * Exportar analytics completo a PDF con nuevas funcionalidades
+   */
+  async exportAdvancedAnalyticsToPDF(analyticsData: AnalyticsData): Promise<void> {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 20;
+    let yPosition = 30;
+    
+    // Helper function to add new page if needed
+    const checkNewPage = (requiredHeight: number) => {
+      if (yPosition + requiredHeight > pageHeight - margin) {
+        doc.addPage();
+        yPosition = margin;
+      }
+    };
+    
+    // Header
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TaskFlow Analytics - Reporte Completo', margin, yPosition);
+    yPosition += 15;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}`, margin, yPosition);
+    yPosition += 20;
+    
+    // Resumen General
+    checkNewPage(60);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('📊 Resumen General', margin, yPosition);
+    yPosition += 10;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    const { taskStats, productivityStats, predictions } = analyticsData;
+    
+    // Crear tabla de resumen
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Métrica', 'Valor', 'Estado']],
+      body: [
+        ['Total de Tareas', taskStats.total.toString(), '📋'],
+        ['Tareas Completadas', taskStats.completed.toString(), '✅'],
+        ['Tasa de Finalización', `${taskStats.completionRate.toFixed(1)}%`, taskStats.completionRate > 75 ? '🟢' : taskStats.completionRate > 50 ? '🟡' : '🔴'],
+        ['Tareas Vencidas', taskStats.overdue.toString(), taskStats.overdue === 0 ? '✅' : '⚠️'],
+        ['Racha Actual', `${productivityStats.currentStreak} días`, productivityStats.currentStreak > 7 ? '🔥' : '📈'],
+        ['Día Más Productivo', productivityStats.mostProductiveDay, '⭐'],
+      ],
+      margin: { left: margin },
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [79, 70, 229], textColor: 255 },
+      alternateRowStyles: { fillColor: [248, 250, 252] }
+    });
+    
+    yPosition = (doc as any).lastAutoTable.finalY + 15;
+    
+    // Predicciones y Análisis Avanzado
+    checkNewPage(80);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('🔮 Predicciones y Análisis Avanzado', margin, yPosition);
+    yPosition += 15;
+    
+    // Predicciones para la próxima semana
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Predicciones para la Próxima Semana:', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`• Tareas estimadas a completar: ${predictions.nextWeekPrediction.estimatedTasksToComplete}`, margin + 5, yPosition);
+    yPosition += 6;
+    doc.text(`• Tasa de finalización estimada: ${predictions.nextWeekPrediction.estimatedCompletionRate}%`, margin + 5, yPosition);
+    yPosition += 6;
+    doc.text(`• Confianza de la predicción: ${Math.round(predictions.nextWeekPrediction.confidence * 100)}%`, margin + 5, yPosition);
+    yPosition += 12;
+    
+    // Análisis de Riesgo de Burnout
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    const burnoutColor = predictions.burnoutRisk.level === 'high' ? [220, 38, 38] : 
+                        predictions.burnoutRisk.level === 'medium' ? [245, 158, 11] : [34, 197, 94];
+    doc.setTextColor(burnoutColor[0], burnoutColor[1], burnoutColor[2]);
+    doc.text(`Riesgo de Burnout: ${predictions.burnoutRisk.level.toUpperCase()} (${predictions.burnoutRisk.score}/100)`, margin, yPosition);
+    yPosition += 8;
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    if (predictions.burnoutRisk.factors.length > 0) {
+      doc.text('Factores de riesgo identificados:', margin + 5, yPosition);
+      yPosition += 6;
+      predictions.burnoutRisk.factors.forEach((factor, index) => {
+        if (index < 3) { // Limitar a 3 factores
+          doc.text(`  ${index + 1}. ${factor}`, margin + 10, yPosition);
+          yPosition += 5;
+        }
+      });
+      yPosition += 5;
+    }
+    
+    if (predictions.burnoutRisk.suggestions.length > 0) {
+      doc.text('Sugerencias para mitigación:', margin + 5, yPosition);
+      yPosition += 6;
+      predictions.burnoutRisk.suggestions.slice(0, 2).forEach((suggestion, index) => {
+        const lines = doc.splitTextToSize(`${index + 1}. ${suggestion}`, pageWidth - margin - 15);
+        doc.text(lines, margin + 10, yPosition);
+        yPosition += lines.length * 5 + 2;
+      });
+      yPosition += 5;
+    }
+    
+    // Análisis de Tendencias
+    checkNewPage(60);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('📈 Análisis de Tendencias (Últimas 12 Semanas)', margin, yPosition);
+    yPosition += 15;
+    
+    if (analyticsData.trends.length > 0) {
+      const trendData = analyticsData.trends.map(trend => [
+        trend.period,
+        trend.created.toString(),
+        trend.completed.toString(),
+        `${trend.completionRate}%`
+      ]);
+      
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['Período', 'Creadas', 'Completadas', 'Tasa Finalización']],
+        body: trendData.slice(-8), // Últimas 8 semanas para ahorrar espacio
+        margin: { left: margin },
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [34, 197, 94], textColor: 255 },
+        alternateRowStyles: { fillColor: [240, 253, 244] }
+      });
+      
+      yPosition = (doc as any).lastAutoTable.finalY + 15;
+    }
+    
+    // Insights Avanzados
+    checkNewPage(80);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('💡 Insights Avanzados', margin, yPosition);
+    yPosition += 15;
+    
+    const { advancedInsights } = analyticsData;
+    
+    // Balance de Carga de Trabajo
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Balance de Carga de Trabajo:', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const workloadColor = advancedInsights.workloadBalance.status === 'optimal' ? [34, 197, 94] :
+                         advancedInsights.workloadBalance.status === 'overloaded' ? [220, 38, 38] : [245, 158, 11];
+    doc.setTextColor(workloadColor[0], workloadColor[1], workloadColor[2]);
+    doc.text(`• Estado: ${advancedInsights.workloadBalance.status.toUpperCase()} (${advancedInsights.workloadBalance.score}/100)`, margin + 5, yPosition);
+    yPosition += 6;
+    
+    doc.setTextColor(0, 0, 0);
+    const recLines = doc.splitTextToSize(`• Recomendación: ${advancedInsights.workloadBalance.recommendation}`, pageWidth - margin - 10);
+    doc.text(recLines, margin + 5, yPosition);
+    yPosition += recLines.length * 5 + 8;
+    
+    // Eficiencia de Tiempo
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Gestión del Tiempo:', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`• Eficiencia en horas pico: ${advancedInsights.timeManagement.efficiency}%`, margin + 5, yPosition);
+    yPosition += 6;
+    doc.text(`• Horas más productivas: ${advancedInsights.timeManagement.peakHours.join(', ')}:00`, margin + 5, yPosition);
+    yPosition += 6;
+    if (advancedInsights.timeManagement.suggestions.length > 0) {
+      const timeLines = doc.splitTextToSize(`• Sugerencia: ${advancedInsights.timeManagement.suggestions[0]}`, pageWidth - margin - 10);
+      doc.text(timeLines, margin + 5, yPosition);
+      yPosition += timeLines.length * 5 + 8;
+    }
+    
+    // Balance de Categorías
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Balance de Categorías:', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`• Categoría que necesita atención: ${advancedInsights.categoryBalance.mostNegglected}`, margin + 5, yPosition);
+    yPosition += 6;
+    const catLines = doc.splitTextToSize(`• Recomendación: ${advancedInsights.categoryBalance.recommendation}`, pageWidth - margin - 10);
+    doc.text(catLines, margin + 5, yPosition);
+    yPosition += catLines.length * 5 + 10;
+    
+    // Recomendaciones de Objetivos
+    checkNewPage(50);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('🎯 Objetivos Recomendados', margin, yPosition);
+    yPosition += 15;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`• Objetivo diario recomendado: ${predictions.goalRecommendations.dailyTarget} tareas`, margin + 5, yPosition);
+    yPosition += 6;
+    doc.text(`• Objetivo semanal recomendado: ${predictions.goalRecommendations.weeklyTarget} tareas`, margin + 5, yPosition);
+    yPosition += 8;
+    
+    if (predictions.goalRecommendations.focusAreas.length > 0) {
+      doc.text('Áreas de enfoque recomendadas:', margin + 5, yPosition);
+      yPosition += 6;
+      predictions.goalRecommendations.focusAreas.forEach((area, index) => {
+        doc.text(`  ${index + 1}. ${area}`, margin + 10, yPosition);
+        yPosition += 5;
+      });
+    }
+    
+    // Footer
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text(`Página ${i} de ${totalPages}`, pageWidth - 40, pageHeight - 10);
+      doc.text('Generado por TaskFlow Analytics', margin, pageHeight - 10);
+    }
+    
+    // Descargar el PDF
+    const fileName = `TaskFlow-Analytics-Completo-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+  }
 }
 
 export const exportService = new ExportService();

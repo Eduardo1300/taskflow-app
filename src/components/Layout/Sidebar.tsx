@@ -1,6 +1,7 @@
-import { LayoutDashboard, User, LogOut, BarChart3, Globe, Zap } from 'lucide-react';
+import { LayoutDashboard, Calendar, User, LogOut, BarChart3, Globe, Zap, Trello } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   activeSection: string;
@@ -10,12 +11,16 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => {
   const { logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'api', label: 'API REST', icon: Globe },
-    { id: 'integrations', label: 'Integraciones', icon: Zap },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
+    { id: 'kanban', label: 'Kanban', icon: Trello, route: '/kanban' },
+    { id: 'calendar', label: 'Calendario', icon: Calendar, route: '/calendar' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
+    { id: 'api', label: 'API REST', icon: Globe, route: '/api' },
+    { id: 'integrations', label: 'Integraciones', icon: Zap, route: '/integrations' },
     { id: 'profile', label: 'Perfil', icon: User },
   ];
 
@@ -52,15 +57,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => 
           <div className="px-4 space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
+              const isActive = item.route ? location.pathname === item.route : activeSection === item.id;
+              
               return (
                 <button
                   key={item.id}
                   onClick={() => {
-                    onSectionChange(item.id);
+                    if (item.route) {
+                      navigate(item.route);
+                    } else {
+                      onSectionChange(item.id);
+                    }
                     setOpen(false); // Cierra el menú en móvil al navegar
                   }}
                   className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    activeSection === item.id
+                    isActive
                       ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                   }`}
