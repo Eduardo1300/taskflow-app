@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Calendar, Clock, Users, Target, Brain, AlertTriangle, CheckCircle, Activity, Download, LineChart } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Clock, Users, Target, Brain, AlertTriangle, CheckCircle, Activity } from 'lucide-react';
 import { calendarAnalyticsService, CalendarMetrics, ProductivityInsights, CalendarHealthScore, BurnoutRisk } from '../../services/calendarAnalyticsService';
 import AnalyticsCharts from '../Analytics/AnalyticsCharts';
 import CalendarForecast from '../Analytics/CalendarForecast';
