@@ -26,7 +26,6 @@ const DashboardPageEnhanced: React.FC = () => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskWithCollaboration[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<TaskWithCollaboration[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,14 +77,6 @@ const DashboardPageEnhanced: React.FC = () => {
   useEffect(() => {
     let filtered = [...tasks];
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(task =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
     // Filter by status
     if (statusFilter !== 'all') {
       filtered = filtered.filter(task =>
@@ -116,7 +107,7 @@ const DashboardPageEnhanced: React.FC = () => {
     });
 
     setFilteredTasks(filtered);
-  }, [tasks, searchTerm, statusFilter, priorityFilter]);
+  }, [tasks, statusFilter, priorityFilter]);
 
   const handleTaskSaved = async () => {
     await loadTasks();
