@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, CheckCircle, Target, TrendingUp, Zap, Sparkles } from 'lucide-react';
+import { Plus, CheckCircle, Target, TrendingUp, Zap, Sparkles } from 'lucide-react';
 import Header from '../components/Layout/Header';
 import SidebarEnhanced from '../components/Layout/SidebarEnhanced';
 import TaskCardEnhanced from '../components/Tasks/TaskCardEnhanced';
@@ -12,6 +12,10 @@ import AnalyticsPage from '../components/Analytics/AnalyticsPage';
 import ApiManagementPage from '../components/Api/ApiManagementPage';
 import IntegrationsPage from '../components/Integrations/IntegrationsPage';
 import IntegrationNotifications from '../components/Integrations/IntegrationNotifications';
+import NotificationCenter from '../components/Dashboard/NotificationCenter';
+import GoalsSystem from '../components/Dashboard/GoalsSystem';
+import QuickActions from '../components/Dashboard/QuickActions';
+import SmartSearch from '../components/Dashboard/SmartSearch';
 import { useAuth } from '../contexts/AuthContext';
 import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
@@ -167,6 +171,47 @@ const DashboardPageEnhanced: React.FC = () => {
 
   const stats = getTaskStats();
 
+  // Quick Actions handlers
+  const handleCreateTask = () => {
+    setEditingTask(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCreateHighPriorityTask = () => {
+    // TODO: Implement high priority task creation with pre-filled priority
+    setEditingTask(null);
+    setIsModalOpen(true);
+  };
+
+  const handleFilterPending = () => {
+    setStatusFilter('pending');
+    setPriorityFilter('all');
+  };
+
+  const handleFilterCompleted = () => {
+    setStatusFilter('completed');
+    setPriorityFilter('all');
+  };
+
+  const handleFilterHighPriority = () => {
+    setPriorityFilter('high');
+    setStatusFilter('all');
+  };
+
+  const handleSearchFocus = () => {
+    // The SmartSearch component will handle focus internally
+    console.log('Search focus requested');
+  };
+
+  const handleExportTasks = () => {
+    // Implement export functionality
+    console.log('Exporting tasks...', filteredTasks);
+  };
+
+  const handleSmartSearchResults = (results: TaskWithCollaboration[]) => {
+    setFilteredTasks(results);
+  };
+
   if (activeSection === 'analytics') {
     return <AnalyticsPage tasks={tasks} />;
   }
@@ -209,46 +254,23 @@ const DashboardPageEnhanced: React.FC = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                {/* Search */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Buscar tareas..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                </div>
+                {/* Notification Center */}
+                <NotificationCenter tasks={tasks} />
                 
-                {/* Status Filter */}
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
-                  <option value="all">Todas</option>
-                  <option value="pending">Pendientes</option>
-                  <option value="completed">Completadas</option>
-                </select>
-                
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value as any)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
-                  <option value="all">Todas las prioridades</option>
-                  <option value="high">Alta prioridad</option>
-                  <option value="medium">Media prioridad</option>
-                  <option value="low">Baja prioridad</option>
-                </select>
+                {/* Quick Actions */}
+                <QuickActions
+                  onCreateTask={handleCreateTask}
+                  onCreateHighPriorityTask={handleCreateHighPriorityTask}
+                  onFilterPending={handleFilterPending}
+                  onFilterCompleted={handleFilterCompleted}
+                  onFilterHighPriority={handleFilterHighPriority}
+                  onSearchFocus={handleSearchFocus}
+                  onExportTasks={handleExportTasks}
+                />
                 
                 {/* New Task Button */}
                 <button
-                  onClick={() => {
-                    setEditingTask(null);
-                    setIsModalOpen(true);
-                  }}
+                  onClick={handleCreateTask}
                   className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -321,6 +343,20 @@ const DashboardPageEnhanced: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Smart Search */}
+          <div className="mb-8">
+            <SmartSearch
+              tasks={tasks}
+              onFilteredResults={handleSmartSearchResults}
+              className="w-full"
+            />
+          </div>
+
+          {/* Goals System */}
+          <div className="mb-8">
+            <GoalsSystem tasks={tasks} />
           </div>
 
           {/* Tasks Grid */}
