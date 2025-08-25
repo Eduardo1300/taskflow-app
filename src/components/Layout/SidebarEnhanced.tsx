@@ -164,7 +164,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           fixed inset-y-0 left-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl transform transition-all duration-300 ease-out
           ${open ? 'translate-x-0' : '-translate-x-full'}
           lg:static lg:translate-x-0 
-          ${isCollapsed ? 'w-20' : 'w-72'}
+          ${isCollapsed ? 'w-20' : 'w-64 lg:w-56'}
         `}
       >
         {/* Header */}

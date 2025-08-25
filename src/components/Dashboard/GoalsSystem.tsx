@@ -7,7 +7,9 @@ import {
   Edit,
   Trash2,
   Award,
-  Zap
+  Zap,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface Goal {
@@ -32,6 +34,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: '',
@@ -221,11 +224,14 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors flex-1"
+          >
             <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg text-white">
               <Target className="h-5 w-5" />
             </div>
-            <div>
+            <div className="text-left flex-1">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Objetivos y Metas
               </h3>
@@ -233,11 +239,16 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
                 {completedGoals.length} de {goals.length} objetivos completados
               </p>
             </div>
-          </div>
+            {isCollapsed ? (
+              <ChevronDown className="h-5 w-5 text-gray-400" />
+            ) : (
+              <ChevronUp className="h-5 w-5 text-gray-400" />
+            )}
+          </button>
           
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+            className="flex items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm ml-4"
           >
             <Plus className="h-4 w-4 mr-1" />
             Nuevo objetivo
@@ -245,6 +256,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
         </div>
 
         {/* Goals List */}
+        {!isCollapsed && (
         <div className="space-y-4">
           {goals.length === 0 ? (
             <div className="text-center py-8">
@@ -342,6 +354,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
             })
           )}
         </div>
+        )}
       </div>
 
       {/* Modal */}
