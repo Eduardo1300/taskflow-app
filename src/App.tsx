@@ -11,9 +11,6 @@ import CalendarPageEnhanced from './pages/CalendarPageEnhanced';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ApiManagementPage from './pages/ApiManagementPage';
 import IntegrationsPage from './pages/IntegrationsPage';
-import ProfilePage from './pages/ProfilePage';
-import SettingsPage from './pages/SettingsPage';
-import HelpPage from './pages/HelpPage';
 
 function App() {
   return (
@@ -78,33 +75,6 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <IntegrationsPage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/settings" 
-                element={
-                  <ProtectedRoute>
-                    <SettingsPage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/help" 
-                element={
-                  <ProtectedRoute>
-                    <HelpPage />
                   </ProtectedRoute>
                 } 
               />

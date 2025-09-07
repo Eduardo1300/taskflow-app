@@ -37,6 +37,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
   // Resetear formulario cuando el modal se abre/cierra o cambia la tarea editada
   useEffect(() => {
     if (isOpen) {
+      // Prevenir scroll del body cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+      
       if (editingTask) {
         setFormData({
           title: editingTask.title,
@@ -59,7 +62,15 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
         });
       }
       setTagInput('');
+    } else {
+      // Restaurar scroll del body cuando el modal se cierra
+      document.body.style.overflow = 'auto';
     }
+
+    // Cleanup function para restaurar scroll cuando el componente se desmonta
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
   }, [isOpen, editingTask]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -115,9 +126,15 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 md:p-6 border-b dark:border-gray-700">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      onWheel={(e) => e.stopPropagation()}
+    >
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[60vh] min-h-[400px] flex flex-col"
+        onWheel={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 md:p-6 border-b dark:border-gray-700 flex-shrink-0">
           <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
             {editingTask ? 'Editar tarea' : 'Nueva tarea'}
           </h2>
@@ -129,7 +146,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
+        <div 
+          className="flex-1 overflow-y-scroll min-h-0 modal-scroll" 
+          style={{ 
+            maxHeight: 'calc(60vh - 160px)' // Resta el header y footer
+          }}
+          onWheel={(e) => e.stopPropagation()}
+        >
+          <form id="task-form" onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Título *
@@ -193,7 +217,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
                 placeholder="Presiona Enter para agregar etiqueta..."
               />
               {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
                   {formData.tags.map((tag, index) => (
                     <span
                       key={index}
@@ -251,36 +275,32 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
             onSuggestionAccept={handleAISuggestion}
           />
 
-          {/* Task Details - Solo mostrar si estamos editando una tarea existente */}
-          {editingTask && editingTask.id && (
-            <div className="mt-6">
-              <TaskDetails task={editingTask} />
-            </div>
-          )}
+            {/* Task Details - Solo mostrar si estamos editando una tarea existente */}
+            {editingTask && editingTask.id && (
+              <div className="mt-6">
+                <TaskDetails task={editingTask} />
+              </div>
+            )}
+            </form>
+        </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t dark:border-gray-700">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              {editingTask ? 'Actualizar' : 'Crear tarea'}
-            </button>
-          </div>
-        </form>
-
-        {/* Task Details - Solo mostrar si estamos editando una tarea existente */}
-        {editingTask && editingTask.id && (
-          <div className="mt-6">
-            <TaskDetails task={editingTask} />
-          </div>
-        )}
+        {/* Botones fijos en la parte inferior */}
+        <div className="flex justify-end space-x-3 p-4 md:p-6 border-t dark:border-gray-700 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            form="task-form"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+          >
+            {editingTask ? 'Actualizar' : 'Crear tarea'}
+          </button>
+        </div>
       </div>
     </div>
   );

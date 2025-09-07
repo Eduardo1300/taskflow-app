@@ -7,51 +7,57 @@ import {
   Clock,
   Users,
   Repeat,
-  Settings,
-  TrendingUp,
-  BarChart3
+  TrendingUp
 } from 'lucide-react';
 import { Task } from '../types';
 import { TaskService } from '../services/taskService';
+import { CategoryService, Category } from '../services/categoryService';
 import TaskModal from '../components/Tasks/TaskModal';
 import CalendarWeekView from '../components/Calendar/CalendarWeekView';
 import CalendarDayView from '../components/Calendar/CalendarDayView';
 import RecurringEventModal from '../components/Calendar/RecurringEventModal';
-import GoogleCalendarModal from '../components/Calendar/GoogleCalendarModal';
-import CalendarAnalytics from '../components/Calendar/CalendarAnalytics';
+
 
 type ViewMode = 'month' | 'week' | 'day';
-type TabMode = 'calendar' | 'analytics' | 'collaboration';
+type TabMode = 'calendar' | 'collaboration';
 
 const CalendarPageEnhanced = () => {
   const [events, setEvents] = useState<Task[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [activeTab, setActiveTab] = useState<TabMode>('calendar');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
-  const [isGoogleCalendarModalOpen, setIsGoogleCalendarModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadData = async () => {
       try {
         setIsLoading(true);
-        const result = await TaskService.getTasks();
-        if (result.data) {
-          const calendarEvents = result.data.filter(task => task.due_date);
+        
+        // Cargar tareas
+        const tasksResult = await TaskService.getTasks();
+        if (tasksResult.data) {
+          const calendarEvents = tasksResult.data.filter(task => task.due_date);
           setEvents(calendarEvents);
         }
+        
+        // Cargar categorías
+        const categoriesResult = await CategoryService.getCategories();
+        if (categoriesResult.data) {
+          setCategories(categoriesResult.data);
+        }
       } catch (error) {
-        console.error('Error loading events:', error);
+        // Handle error silently
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadEvents();
+    loadData();
   }, [currentDate]);
 
   const handleTaskSaved = async (taskData: { 
@@ -78,13 +84,12 @@ const CalendarPageEnhanced = () => {
       setIsModalOpen(false);
       setEditingTask(null);
     } catch (error) {
-      console.error('Error saving task:', error);
+      // Handle error silently
     }
   };
 
-  const handleRecurringEventSaved = async (recurringEvent: any) => {
+  const handleRecurringEventSaved = async () => {
     try {
-      console.log('Recurring event saved:', recurringEvent);
       setIsRecurringModalOpen(false);
       
       const result = await TaskService.getTasks();
@@ -93,7 +98,7 @@ const CalendarPageEnhanced = () => {
         setEvents(calendarEvents);
       }
     } catch (error) {
-      console.error('Error saving recurring event:', error);
+      // Handle error silently
     }
   };
 
@@ -192,14 +197,6 @@ const CalendarPageEnhanced = () => {
 
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => setIsGoogleCalendarModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Google Cal
-            </button>
-            
-            <button
               onClick={() => {
                 setEditingTask(null);
                 setIsModalOpen(true);
@@ -231,17 +228,6 @@ const CalendarPageEnhanced = () => {
           >
             <CalendarIcon className="h-5 w-5 mr-2" />
             Calendario
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-              activeTab === 'analytics' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
-                : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
-            }`}
-          >
-            <BarChart3 className="h-5 w-5 mr-2" />
-            Análisis
           </button>
           <button
             onClick={() => setActiveTab('collaboration')}
@@ -437,7 +423,7 @@ const CalendarPageEnhanced = () => {
 
                 <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-200/50 dark:border-purple-700/50 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
+                    <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
                     Estadísticas
                   </h3>
                   
@@ -468,12 +454,6 @@ const CalendarPageEnhanced = () => {
             </>
           )}
 
-          {activeTab === 'analytics' && (
-            <div className="lg:col-span-4">
-              <CalendarAnalytics events={events} />
-            </div>
-          )}
-
           {activeTab === 'collaboration' && (
             <div className="lg:col-span-4">
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-8">
@@ -499,6 +479,7 @@ const CalendarPageEnhanced = () => {
           onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
           editingTask={editingTask}
           onSave={handleTaskSaved}
+          categories={categories}
         />
 
         <RecurringEventModal
@@ -506,21 +487,6 @@ const CalendarPageEnhanced = () => {
           onClose={() => setIsRecurringModalOpen(false)}
           onSave={handleRecurringEventSaved}
           selectedDate={selectedDate || currentDate}
-        />
-
-        <GoogleCalendarModal
-          isOpen={isGoogleCalendarModalOpen}
-          onClose={() => setIsGoogleCalendarModalOpen(false)}
-          onSync={() => {
-            const loadEvents = async () => {
-              const result = await TaskService.getTasks();
-              if (result.data) {
-                const calendarEvents = result.data.filter(task => task.due_date);
-                setEvents(calendarEvents);
-              }
-            };
-            loadEvents();
-          }}
         />
       </div>
     </div>

@@ -146,7 +146,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
               </div>
               <div className={`text-lg font-bold mt-1 ${
                 day.toDateString() === today.toDateString()
-                  ? 'text-purple-600 dark:text-purple-400 bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto'
+                  ? 'bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto'
                   : 'text-gray-900 dark:text-white'
               }`}>
                 {day.getDate()}

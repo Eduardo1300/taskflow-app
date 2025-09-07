@@ -1,7 +1,7 @@
 -- Crear tabla para comentarios de tareas
 CREATE TABLE IF NOT EXISTS task_comments (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now(),
@@ -18,7 +18,7 @@ CREATE POLICY "Users can view task comments if they can view the task" ON task_c
         EXISTS (
             SELECT 1 FROM tasks 
             WHERE id = task_comments.task_id 
-            AND (user_id = auth.uid() OR shared_with ? auth.uid()::text)
+            AND user_id = auth.uid()
         )
     );
 
@@ -28,7 +28,7 @@ CREATE POLICY "Users can create comments on tasks they can view" ON task_comment
         EXISTS (
             SELECT 1 FROM tasks 
             WHERE id = task_comments.task_id 
-            AND (user_id = auth.uid() OR shared_with ? auth.uid()::text)
+            AND user_id = auth.uid()
         )
     );
 
@@ -41,7 +41,7 @@ CREATE POLICY "Users can delete their own comments" ON task_comments
 -- Crear tabla para archivos adjuntos
 CREATE TABLE IF NOT EXISTS task_attachments (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     file_name TEXT NOT NULL,
     file_size BIGINT NOT NULL,
@@ -60,7 +60,7 @@ CREATE POLICY "Users can view task attachments if they can view the task" ON tas
         EXISTS (
             SELECT 1 FROM tasks 
             WHERE id = task_attachments.task_id 
-            AND (user_id = auth.uid() OR shared_with ? auth.uid()::text)
+            AND user_id = auth.uid()
         )
     );
 
@@ -70,7 +70,7 @@ CREATE POLICY "Users can upload attachments to tasks they can view" ON task_atta
         EXISTS (
             SELECT 1 FROM tasks 
             WHERE id = task_attachments.task_id 
-            AND (user_id = auth.uid() OR shared_with ? auth.uid()::text)
+            AND user_id = auth.uid()
         )
     );
 
@@ -80,7 +80,7 @@ CREATE POLICY "Users can delete their own attachments" ON task_attachments
 -- Crear tabla para asignaciones de tareas
 CREATE TABLE IF NOT EXISTS task_assignments (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     assigned_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     assigned_to UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT now(),
@@ -96,7 +96,7 @@ CREATE POLICY "Users can view assignments for tasks they can view" ON task_assig
         EXISTS (
             SELECT 1 FROM tasks 
             WHERE id = task_assignments.task_id 
-            AND (user_id = auth.uid() OR shared_with ? auth.uid()::text)
+            AND user_id = auth.uid()
         )
         OR assigned_to = auth.uid()
     );
@@ -107,7 +107,7 @@ CREATE POLICY "Users can create assignments for tasks they can view" ON task_ass
         EXISTS (
             SELECT 1 FROM tasks 
             WHERE id = task_assignments.task_id 
-            AND (user_id = auth.uid() OR shared_with ? auth.uid()::text)
+            AND user_id = auth.uid()
         )
     );
 
@@ -279,7 +279,7 @@ CREATE POLICY "Users can view task attachments they have access to" ON storage.o
             SELECT 1 FROM task_attachments ta
             JOIN tasks t ON ta.task_id = t.id
             WHERE ta.storage_path = storage.objects.name
-            AND (t.user_id = auth.uid() OR t.shared_with ? auth.uid()::text)
+            AND t.user_id = auth.uid()
         )
     );
 

@@ -9,9 +9,8 @@ export const NotificationPanelWrapper: React.FC = () => {
     setIsOpen(false);
   };
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = (_: Notification) => {
     // Aquí puedes agregar lógica para manejar el click en notificaciones
-    console.log('Notification clicked:', notification);
   };
 
   return (

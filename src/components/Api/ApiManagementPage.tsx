@@ -163,7 +163,7 @@ const ApiManagementPage: React.FC = () => {
 
   if (loading && apiKeys.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="max-w-6xl ml-16 w-full">
         <div className="text-center py-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8">
             <Key className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -175,7 +175,7 @@ const ApiManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto w-full space-y-6">
+    <div className="max-w-6xl ml-16 w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -571,29 +571,29 @@ const ApiManagementPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="prose dark:prose-invert max-w-none">
-              <h4>Autenticación</h4>
-              <p>Incluye tu API key en el header de cada request:</p>
-              <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-sm">
+            <div className="max-w-none text-gray-900 dark:text-gray-100">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Autenticación</h4>
+              <p className="text-gray-700 dark:text-gray-300 mb-3">Incluye tu API key en el header de cada request:</p>
+              <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-sm text-gray-900 dark:text-gray-100 border dark:border-gray-600">
 {`X-API-Key: tu_api_key_aqui`}
               </pre>
 
-              <h4>Endpoints Disponibles</h4>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 mt-6">Endpoints Disponibles</h4>
               
-              <h5>GET /api/v1/tasks</h5>
-              <p>Obtiene todas las tareas del usuario.</p>
-              <p><strong>Parámetros de consulta:</strong></p>
-              <ul>
-                <li><code>page</code> (opcional): Número de página (default: 1)</li>
-                <li><code>limit</code> (opcional): Elementos por página (default: 20)</li>
-                <li><code>status</code> (opcional): 'completed' | 'pending'</li>
-                <li><code>category</code> (opcional): Filtrar por categoría</li>
-                <li><code>priority</code> (opcional): 'low' | 'medium' | 'high'</li>
+              <h5 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2">GET /api/v1/tasks</h5>
+              <p className="text-gray-700 dark:text-gray-300 mb-2">Obtiene todas las tareas del usuario.</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-2"><strong className="text-gray-900 dark:text-white">Parámetros de consulta:</strong></p>
+              <ul className="text-gray-700 dark:text-gray-300 mb-4 space-y-1">
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">page</code> (opcional): Número de página (default: 1)</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">limit</code> (opcional): Elementos por página (default: 20)</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">status</code> (opcional): 'completed' | 'pending'</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">category</code> (opcional): Filtrar por categoría</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">priority</code> (opcional): 'low' | 'medium' | 'high'</li>
               </ul>
 
-              <h5>POST /api/v1/tasks</h5>
-              <p>Crea una nueva tarea.</p>
-              <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-sm">
+              <h5 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2">POST /api/v1/tasks</h5>
+              <p className="text-gray-700 dark:text-gray-300 mb-3">Crea una nueva tarea.</p>
+              <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-sm text-gray-900 dark:text-gray-100 border dark:border-gray-600 mb-4">
 {`{
   "title": "Título de la tarea",
   "description": "Descripción opcional",
@@ -604,35 +604,35 @@ const ApiManagementPage: React.FC = () => {
 }`}
               </pre>
 
-              <h5>PUT /api/v1/tasks/:id</h5>
-              <p>Actualiza una tarea existente.</p>
+              <h5 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2">PUT /api/v1/tasks/:id</h5>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">Actualiza una tarea existente.</p>
 
-              <h5>DELETE /api/v1/tasks/:id</h5>
-              <p>Elimina una tarea.</p>
+              <h5 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2">DELETE /api/v1/tasks/:id</h5>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">Elimina una tarea.</p>
 
-              <h4>Webhooks</h4>
-              <p>Configura webhooks para recibir notificaciones automáticas cuando ocurran eventos en tus tareas.</p>
-              <p><strong>Eventos disponibles:</strong></p>
-              <ul>
-                <li><code>task.created</code>: Cuando se crea una nueva tarea</li>
-                <li><code>task.updated</code>: Cuando se actualiza una tarea</li>
-                <li><code>task.completed</code>: Cuando se marca una tarea como completada</li>
-                <li><code>task.deleted</code>: Cuando se elimina una tarea</li>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 mt-6">Webhooks</h4>
+              <p className="text-gray-700 dark:text-gray-300 mb-2">Configura webhooks para recibir notificaciones automáticas cuando ocurran eventos en tus tareas.</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-2"><strong className="text-gray-900 dark:text-white">Eventos disponibles:</strong></p>
+              <ul className="text-gray-700 dark:text-gray-300 mb-4 space-y-1">
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">task.created</code>: Cuando se crea una nueva tarea</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">task.updated</code>: Cuando se actualiza una tarea</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">task.completed</code>: Cuando se marca una tarea como completada</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">task.deleted</code>: Cuando se elimina una tarea</li>
               </ul>
 
-              <h4>Límites de Velocidad</h4>
-              <p>Cada API key tiene un límite de requests por minuto configurable. Cuando superes el límite, recibirás un error 429.</p>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 mt-6">Límites de Velocidad</h4>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">Cada API key tiene un límite de requests por minuto configurable. Cuando superes el límite, recibirás un error 429.</p>
 
-              <h4>Códigos de Respuesta</h4>
-              <ul>
-                <li><code>200</code>: Éxito</li>
-                <li><code>201</code>: Recurso creado</li>
-                <li><code>400</code>: Petición inválida</li>
-                <li><code>401</code>: API key inválida</li>
-                <li><code>403</code>: Sin permisos</li>
-                <li><code>404</code>: Recurso no encontrado</li>
-                <li><code>429</code>: Límite de velocidad excedido</li>
-                <li><code>500</code>: Error del servidor</li>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 mt-6">Códigos de Respuesta</h4>
+              <ul className="text-gray-700 dark:text-gray-300 space-y-1">
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">200</code>: Éxito</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">201</code>: Recurso creado</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">400</code>: Petición inválida</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">401</code>: API key inválida</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">403</code>: Sin permisos</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">404</code>: Recurso no encontrado</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">429</code>: Límite de velocidad excedido</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm text-gray-900 dark:text-gray-100">500</code>: Error del servidor</li>
               </ul>
             </div>
           </div>

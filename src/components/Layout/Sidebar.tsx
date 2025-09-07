@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calendar, User, LogOut, BarChart3, Globe, Zap, Trello } from 'lucide-react';
+import { LayoutDashboard, Calendar, User, LogOut, BarChart3, Globe, Zap, Trello, Settings, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -22,6 +22,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => 
     { id: 'api', label: 'API REST', icon: Globe, route: '/api' },
     { id: 'integrations', label: 'Integraciones', icon: Zap, route: '/integrations' },
     { id: 'profile', label: 'Perfil', icon: User },
+    { id: 'settings', label: 'Configuración', icon: Settings },
+    { id: 'help', label: 'Ayuda', icon: HelpCircle },
   ];
 
   return (

@@ -328,7 +328,7 @@ const IntegrationsPage: React.FC = () => {
 
   if (loading && integrations.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="max-w-6xl ml-16 w-full">
         <div className="text-center py-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8">
             <Link className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -340,7 +340,7 @@ const IntegrationsPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto w-full space-y-6">
+    <div className="max-w-6xl ml-16 w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>

@@ -102,7 +102,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       id: 'profile', 
       label: 'Perfil', 
       icon: User,
-      route: '/profile',
       color: 'text-gray-500',
       description: 'Configuración personal'
     },
@@ -113,7 +112,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       id: 'settings', 
       label: 'Configuración', 
       icon: Settings,
-      route: '/settings',
       color: 'text-gray-500',
       description: 'Ajustes de la aplicación'
     },
@@ -121,7 +119,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       id: 'help', 
       label: 'Ayuda', 
       icon: HelpCircle,
-      route: '/help',
       color: 'text-gray-500',
       description: 'Soporte y documentación'
     }
@@ -142,7 +139,10 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
   };
 
   const isActive = (item: MenuItem) => {
-    return item.route ? location.pathname === item.route : activeSection === item.id;
+    if (item.route) {
+      return location.pathname === item.route;
+    }
+    return activeSection === item.id;
   };
 
   return (
@@ -164,7 +164,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           fixed inset-y-0 left-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl transform transition-all duration-300 ease-out
           ${open ? 'translate-x-0' : '-translate-x-full'}
           lg:static lg:translate-x-0 
-          ${isCollapsed ? 'w-20' : 'w-64 lg:w-56'}
+          ${isCollapsed ? 'w-20' : 'w-64 lg:w-64'}
         `}
       >
         {/* Header */}
@@ -227,7 +227,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
                     onClick={() => handleItemClick(item)}
                     onMouseEnter={() => setHoveredItem(item.id)}
                     onMouseLeave={() => setHoveredItem(null)}
-                    className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 group ${
+                    className={`w-full flex items-center px-4 py-4 text-sm font-medium rounded-xl transition-all duration-200 group ${
                       active
                         ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 dark:text-blue-400 shadow-lg'
                         : hovered
@@ -235,8 +235,8 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
                         : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                     } ${isCollapsed ? 'justify-center' : ''}`}
                   >
-                    <div className={`relative ${isCollapsed ? '' : 'mr-3'}`}>
-                      <Icon className={`h-5 w-5 transition-all duration-200 ${
+                    <div className={`relative ${isCollapsed ? '' : 'mr-4'}`}>
+                      <Icon className={`h-6 w-6 transition-all duration-200 ${
                         active ? item.color : hovered ? item.color : ''
                       } ${hovered ? 'scale-110' : ''}`} />
                       {active && (
@@ -292,25 +292,45 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           <div className="space-y-1">
             {secondaryItems.map((item) => {
               const Icon = item.icon;
+              const active = isActive(item);
               const hovered = hoveredItem === item.id;
               
               return (
-                <button
-                  key={item.id}
-                  onClick={() => handleItemClick(item)}
-                  onMouseEnter={() => setHoveredItem(item.id)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                  className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
-                    hovered
-                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  } ${isCollapsed ? 'justify-center' : ''}`}
-                >
-                  <Icon className={`h-4 w-4 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-200 ${
-                    hovered ? 'scale-110' : ''
-                  }`} />
-                  {!isCollapsed && item.label}
-                </button>
+                <div key={item.id} className="relative">
+                  <button
+                    onClick={() => handleItemClick(item)}
+                    onMouseEnter={() => setHoveredItem(item.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                      active
+                        ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 dark:text-blue-400 shadow-lg'
+                        : hovered
+                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    } ${isCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <Icon className={`h-5 w-5 ${isCollapsed ? '' : 'mr-4'} transition-transform duration-200 ${
+                      hovered ? 'scale-110' : ''
+                    } ${active ? item.color : ''}`} />
+                    {!isCollapsed && item.label}
+                  </button>
+
+                  {/* Active indicator */}
+                  {active && (
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r-full" />
+                  )}
+
+                  {/* Tooltip for collapsed sidebar */}
+                  {isCollapsed && hovered && (
+                    <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-sm px-3 py-2 rounded-lg shadow-lg z-50 whitespace-nowrap">
+                      <div>{item.label}</div>
+                      {item.description && (
+                        <div className="text-xs text-gray-300 mt-1">{item.description}</div>
+                      )}
+                      <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700" />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -320,11 +340,11 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={logout}
-            className={`w-full flex items-center px-3 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 group ${
+            className={`w-full flex items-center px-4 py-4 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 group ${
               isCollapsed ? 'justify-center' : ''
             }`}
           >
-            <LogOut className={`h-4 w-4 ${isCollapsed ? '' : 'mr-3'} group-hover:scale-110 transition-transform duration-200`} />
+            <LogOut className={`h-5 w-5 ${isCollapsed ? '' : 'mr-4'} group-hover:scale-110 transition-transform duration-200`} />
             {!isCollapsed && 'Cerrar sesión'}
           </button>
         </div>

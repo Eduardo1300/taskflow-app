@@ -1,241 +1,348 @@
-import React, { useState } from 'react';
-import Header from '../components/Layout/Header';
-import SidebarEnhanced from '../components/Layout/SidebarEnhanced';
-import { 
-  Camera, 
-  Mail, 
-  MapPin, 
-  Calendar,
-  Save,
-  Edit3
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  bio?: string;
+  avatar?: string;
+  joined_date: string;
+  timezone: string;
+  language: string;
+}
 
 const ProfilePage: React.FC = () => {
-  const [activeSection, setActiveSection] = useState('profile');
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const profileData = {
-    name: 'Eduardo González',
-    email: 'eduardo@example.com',
-    phone: '+1 (555) 123-4567',
-    location: 'Madrid, España',
-    bio: 'Desarrollador apasionado por la productividad y la tecnología.',
-    avatar: '/api/placeholder/150/150'
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<UserProfile>({
+    id: user?.id || '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    location: '',
+    bio: '',
+    avatar: '',
+    joined_date: new Date().toISOString(),
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    language: 'es'
+  });
+
+  const [editedProfile, setEditedProfile] = useState(profile);
+
+  useEffect(() => {
+    setProfile({
+      id: user?.id || '',
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: '',
+      location: '',
+      bio: '',
+      avatar: '',
+      joined_date: new Date().toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: 'es'
+    });
+  }, [user]);
+
+  const handleEdit = () => {
+    setEditedProfile({ ...profile });
+    setIsEditing(true);
   };
 
-  const handleSectionChange = (section: string) => {
-    setActiveSection(section);
-  };
-
-  const handleSave = () => {
+  const handleCancel = () => {
+    setEditedProfile({ ...profile });
     setIsEditing(false);
-    // Aquí iría la lógica para guardar los cambios
-    console.log('Guardando datos del perfil:', profileData);
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // Aquí iría la lógica para actualizar el perfil
+      // Por ahora solo actualizamos el estado local
+      setProfile({ ...editedProfile });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof UserProfile, value: string) => {
+    setEditedProfile(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex">
-      <SidebarEnhanced activeSection={activeSection} onSectionChange={handleSectionChange} isCollapsed={false} />
-      <div className="flex-1 flex flex-col lg:ml-72">
-        <Header showUserMenu={true} />
-        <main className="flex-1 p-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Mi Perfil
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Gestiona tu información personal y preferencias de cuenta
-              </p>
-            </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-4xl ml-16 w-full space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Gestiona tu información personal y preferencias
+          </p>
+        </div>
+        
+        {!isEditing ? (
+          <button
+            onClick={handleEdit}
+            className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          >
+            <Edit2 className="h-4 w-4 mr-2" />
+            Editar Perfil
+          </button>
+        ) : (
+          <div className="flex space-x-2">
+            <button
+              onClick={handleCancel}
+              className="flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancelar
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {loading ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        )}
+      </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Profile Card */}
-              <div className="lg:col-span-1">
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-xl">
-                  <div className="text-center">
-                    <div className="relative inline-block mb-4">
-                      <img
-                        src={profileData.avatar}
-                        alt="Avatar"
-                        className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-700 shadow-lg"
-                      />
-                      <button className="absolute bottom-0 right-0 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-lg transition-colors">
-                        <Camera className="h-4 w-4" />
-                      </button>
-                    </div>
-                    
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
-                      {profileData.name}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Miembro Premium
-                    </p>
-                    
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-center justify-center text-gray-600 dark:text-gray-400">
-                        <Mail className="h-4 w-4 mr-2" />
-                        {profileData.email}
-                      </div>
-                      <div className="flex items-center justify-center text-gray-600 dark:text-gray-400">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        {profileData.location}
-                      </div>
-                      <div className="flex items-center justify-center text-gray-600 dark:text-gray-400">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Miembro desde Enero 2024
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                            156
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            Tareas completadas
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                            23
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            Proyectos
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                            4.8
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            Productividad
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+      {/* Profile Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6">
+          {/* Avatar Section */}
+          <div className="flex items-center space-x-6 mb-6">
+            <div className="relative">
+              <div className="w-24 h-24 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+                {profile.avatar ? (
+                  <img 
+                    src={profile.avatar} 
+                    alt="Avatar" 
+                    className="w-24 h-24 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="h-12 w-12 text-white" />
+                )}
               </div>
-
-              {/* Main Content */}
-              <div className="lg:col-span-2">
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-                  {/* Tabs */}
-                  <div className="border-b border-gray-200 dark:border-gray-600">
-                    <nav className="flex space-x-8 px-6">
-                      <button className="py-4 px-1 border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 font-medium text-sm">
-                        Información Personal
-                      </button>
-                      <button className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">
-                        Seguridad
-                      </button>
-                      <button className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">
-                        Notificaciones
-                      </button>
-                    </nav>
-                  </div>
-
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Información Personal
-                      </h3>
-                      <button
-                        onClick={() => setIsEditing(!isEditing)}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        <Edit3 className="h-4 w-4 mr-2" />
-                        {isEditing ? 'Cancelar' : 'Editar'}
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Nombre completo
-                        </label>
-                        <input
-                          type="text"
-                          value={profileData.name}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          value={profileData.email}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Teléfono
-                        </label>
-                        <input
-                          type="tel"
-                          value={profileData.phone}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Ubicación
-                        </label>
-                        <input
-                          type="text"
-                          value={profileData.location}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Biografía
-                        </label>
-                        <textarea
-                          rows={4}
-                          value={profileData.bio}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    {isEditing && (
-                      <div className="mt-6 flex justify-end space-x-3">
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          Cancelar
-                        </button>
-                        <button
-                          onClick={handleSave}
-                          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                        >
-                          <Save className="h-4 w-4 mr-2" />
-                          Guardar cambios
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+              {isEditing && (
+                <button className="absolute bottom-0 right-0 p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors">
+                  <Camera className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {profile.name}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">{profile.email}</p>
+              <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span>Miembro desde {formatDate(profile.joined_date)}</span>
               </div>
             </div>
           </div>
-        </main>
+
+          {/* Profile Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Información Básica
+              </h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Nombre completo
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedProfile.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                ) : (
+                  <p className="text-gray-900 dark:text-white">{profile.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email
+                </label>
+                <div className="flex items-center">
+                  <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                  <p className="text-gray-900 dark:text-white">{profile.email}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Teléfono
+                </label>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    value={editedProfile.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    placeholder="Número de teléfono"
+                  />
+                ) : (
+                  <div className="flex items-center">
+                    <Phone className="h-4 w-4 text-gray-400 mr-2" />
+                    <p className="text-gray-900 dark:text-white">
+                      {profile.phone || 'No especificado'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Ubicación
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedProfile.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    placeholder="Tu ubicación"
+                  />
+                ) : (
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 text-gray-400 mr-2" />
+                    <p className="text-gray-900 dark:text-white">
+                      {profile.location || 'No especificada'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Información Adicional
+              </h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Biografía
+                </label>
+                {isEditing ? (
+                  <textarea
+                    value={editedProfile.bio}
+                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    placeholder="Cuéntanos un poco sobre ti..."
+                  />
+                ) : (
+                  <p className="text-gray-900 dark:text-white">
+                    {profile.bio || 'No hay biografía disponible'}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Zona horaria
+                </label>
+                {isEditing ? (
+                  <select
+                    value={editedProfile.timezone}
+                    onChange={(e) => handleInputChange('timezone', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="America/Mexico_City">Ciudad de México</option>
+                    <option value="America/New_York">Nueva York</option>
+                    <option value="Europe/Madrid">Madrid</option>
+                    <option value="Europe/London">Londres</option>
+                    <option value="Asia/Tokyo">Tokio</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900 dark:text-white">{profile.timezone}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Idioma
+                </label>
+                {isEditing ? (
+                  <select
+                    value={editedProfile.language}
+                    onChange={(e) => handleInputChange('language', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900 dark:text-white">
+                    {profile.language === 'es' ? 'Español' : 
+                     profile.language === 'en' ? 'English' :
+                     profile.language === 'fr' ? 'Français' : 'Deutsch'}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Account Stats */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Estadísticas de la Cuenta
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Tareas completadas</div>
+            </div>
+            
+            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Proyectos activos</div>
+            </div>
+            
+            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Días racha</div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   );

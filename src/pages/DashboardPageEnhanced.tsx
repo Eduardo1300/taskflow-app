@@ -16,6 +16,9 @@ import NotificationCenter from '../components/Dashboard/NotificationCenter';
 import GoalsSystem from '../components/Dashboard/GoalsSystem';
 import QuickActions from '../components/Dashboard/QuickActions';
 import SmartSearch from '../components/Dashboard/SmartSearch';
+import ProfileSection from '../components/Profile/ProfileSection';
+import SettingsSection from '../components/Settings/SettingsSection';
+import HelpSection from '../components/Help/HelpSection';
 import { useAuth } from '../contexts/AuthContext';
 import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
@@ -63,7 +66,6 @@ const DashboardPageEnhanced: React.FC = () => {
       }
       setError(null);
     } catch (err) {
-      console.error('Error loading tasks:', err);
       setError('Error al cargar las tareas');
     } finally {
       setLoading(false);
@@ -124,7 +126,6 @@ const DashboardPageEnhanced: React.FC = () => {
       await TaskService.updateTask(taskId, updatedTask);
       await loadTasks();
     } catch (error) {
-      console.error('Error toggling task:', error);
       setError('Error al actualizar la tarea');
     }
   };
@@ -139,7 +140,6 @@ const DashboardPageEnhanced: React.FC = () => {
       await TaskService.deleteTask(taskId);
       await loadTasks();
     } catch (error) {
-      console.error('Error deleting task:', error);
       setError('Error al eliminar la tarea');
     }
   };
@@ -169,8 +169,17 @@ const DashboardPageEnhanced: React.FC = () => {
   };
 
   const handleCreateHighPriorityTask = () => {
-    // TODO: Implement high priority task creation with pre-filled priority
-    setEditingTask(null);
+    // Crear tarea con prioridad alta pre-seleccionada
+    setEditingTask({
+      id: 0, // Temporal ID para nueva tarea
+      title: '',
+      description: '',
+      completed: false,
+      priority: 'high',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: user?.id || ''
+    } as any);
     setIsModalOpen(true);
   };
 
@@ -191,12 +200,10 @@ const DashboardPageEnhanced: React.FC = () => {
 
   const handleSearchFocus = () => {
     // The SmartSearch component will handle focus internally
-    console.log('Search focus requested');
   };
 
   const handleExportTasks = () => {
     // Implement export functionality
-    console.log('Exporting tasks...', filteredTasks);
   };
 
   const handleSmartSearchResults = (results: TaskWithCollaboration[]) => {
@@ -275,6 +282,54 @@ const DashboardPageEnhanced: React.FC = () => {
     );
   }
 
+  if (activeSection === 'settings') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="flex">
+          <SidebarEnhanced
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
+            isCollapsed={false}
+          />
+          
+          <div className="flex-1 flex flex-col min-w-0 -ml-8">
+            <Header showUserMenu={true} />
+            
+            <main className="flex-1 py-6 pl-8 pr-6">
+              <div className="max-w-4xl mx-auto w-full">
+                <SettingsSection />
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'help') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="flex">
+          <SidebarEnhanced
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
+            isCollapsed={false}
+          />
+          
+          <div className="flex-1 flex flex-col min-w-0 -ml-8">
+            <Header showUserMenu={true} />
+            
+            <main className="flex-1 py-6 pl-8 pr-6">
+              <div className="max-w-4xl mx-auto w-full">
+                <HelpSection />
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (activeSection === 'profile') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -290,129 +345,7 @@ const DashboardPageEnhanced: React.FC = () => {
             
             <main className="flex-1 py-6 pl-8 pr-6">
               <div className="max-w-4xl mx-auto w-full">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Perfil de Usuario</h2>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Información Personal */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información Personal</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre Completo</label>
-                        <input
-                          type="text"
-                          value={user?.email?.split('@')[0] || ''}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Tu nombre completo"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-                        <input
-                          type="email"
-                          value={user?.email || ''}
-                          disabled
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono</label>
-                        <input
-                          type="tel"
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Tu número de teléfono"
-                        />
-                      </div>
-                      <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2 px-4 rounded-lg transition-all duration-200">
-                        Actualizar Información
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Preferencias */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preferencias</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Idioma</label>
-                        <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                          <option value="es">Español</option>
-                          <option value="en">English</option>
-                          <option value="fr">Français</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zona Horaria</label>
-                        <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                          <option value="America/Mexico_City">México (GMT-6)</option>
-                          <option value="America/New_York">Nueva York (GMT-5)</option>
-                          <option value="Europe/Madrid">Madrid (GMT+1)</option>
-                        </select>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Notificaciones por Email</span>
-                        <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600 transition-colors">
-                          <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6" />
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Recordatorios Push</span>
-                        <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 dark:bg-gray-600 transition-colors">
-                          <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" />
-                        </button>
-                      </div>
-                      <button className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-2 px-4 rounded-lg transition-all duration-200">
-                        Guardar Preferencias
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Estadísticas de Usuario */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Estadísticas</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Tareas completadas</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">{stats.completed}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Tareas creadas</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">{stats.total}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Productividad promedio</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Días activo</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">12</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Racha actual</span>
-                        <span className="font-semibold text-green-600 dark:text-green-400">5 días</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Configuración de Seguridad */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Seguridad</h3>
-                    <div className="space-y-4">
-                      <button className="w-full text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 p-3 rounded-lg transition-colors">
-                        <div className="font-medium text-gray-900 dark:text-white">Cambiar Contraseña</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Actualiza tu contraseña</div>
-                      </button>
-                      <button className="w-full text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 p-3 rounded-lg transition-colors">
-                        <div className="font-medium text-gray-900 dark:text-white">Autenticación en dos pasos</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Aumenta la seguridad de tu cuenta</div>
-                      </button>
-                      <button className="w-full text-left bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 p-3 rounded-lg transition-colors">
-                        <div className="font-medium text-red-900 dark:text-red-400">Eliminar Cuenta</div>
-                        <div className="text-sm text-red-600 dark:text-red-500">Esta acción no se puede deshacer</div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <ProfileSection />
               </div>
             </main>
           </div>

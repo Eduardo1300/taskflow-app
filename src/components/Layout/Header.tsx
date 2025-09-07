@@ -37,12 +37,9 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
     }
   }, [isMenuOpen, isSearchOpen]);
 
-  const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      // Aquí puedes implementar la lógica de búsqueda
-      console.log('Searching for:', searchQuery);
-    }
+    // Implement search functionality
   };
 
   return (

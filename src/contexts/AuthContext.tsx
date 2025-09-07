@@ -51,8 +51,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, password: string): Promise<AuthResult> => {
     try {
-      console.log('🚀 Intentando registrar usuario:', { email, name });
-      
       // Validaciones previas del lado del cliente
       if (!email || !email.includes('@')) {
         return { success: false, error: 'Email inválido' };
@@ -67,7 +65,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // Verificar si el email ya existe antes de intentar registrar
-      console.log('🔍 Verificando si el email existe...');
       const { data: existingUser } = await supabase
         .from('profiles')
         .select('email')
@@ -75,11 +72,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (existingUser) {
-        console.log('❌ Email ya existe en profiles');
         return { success: false, error: 'Este email ya está registrado. Intenta iniciar sesión.' };
       }
-
-      console.log('✅ Email no existe en profiles, procediendo con signUp...');
 
       const { data, error } = await supabase.auth.signUp({
         email: email.toLowerCase().trim(),
@@ -91,21 +85,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
 
-      console.log('📊 Resultado de signUp:', {
-        user: data.user ? 'Usuario creado' : 'No user',
-        session: data.session ? 'Sesión creada' : 'No session',
-        error: error ? error.message : 'Sin error'
-      });
-
       if (error) {
-        console.error('❌ Error en signUp:', error);
         return { success: false, error: handleSupabaseError(error) };
       }
 
       if (data.user) {
         // Si el usuario necesita verificar el email, mostrar mensaje
         if (!data.session) {
-          console.log('📧 Usuario creado pero necesita verificar email');
           return { 
             success: true, 
             requiresEmailVerification: true,
@@ -113,13 +99,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
         }
         
-        console.log('✅ Usuario registrado y sesión iniciada');
         setUser(mapSupabaseUser(data.user));
       }
 
       return { success: true };
     } catch (error) {
-      console.error('💥 Error inesperado en register:', error);
       return { success: false, error: handleSupabaseError(error) };
     }
   };
@@ -129,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await supabase.auth.signOut();
       setUser(null);
     } catch (error) {
-      console.error('Error during logout:', error);
+      // Silently handle logout errors
     }
   };
 
@@ -145,9 +129,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event);
-        
+      async (_, session) => {
         if (session?.user) {
           setUser(mapSupabaseUser(session.user));
         } else {

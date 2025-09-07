@@ -10,7 +10,17 @@ import {
   Users,
   Zap
 } from 'lucide-react';
-import { BoardMetrics, BoardService } from '../../services/boardService';
+
+interface BoardMetrics {
+  total_tasks: number;
+  completed_tasks: number;
+  in_progress_tasks: number;
+  overdue_tasks: number;
+  completion_rate: number;
+  avg_cycle_time: number; // days
+  throughput_week: number;
+  bottleneck_column?: string;
+}
 
 interface KanbanMetricsProps {
   boardId: string;
@@ -34,12 +44,22 @@ const KanbanMetrics: React.FC<KanbanMetricsProps> = ({ boardId, isOpen, onClose 
     setError(null);
     
     try {
-      const result = await BoardService.getBoardMetrics(boardId);
-      if (result.error) {
-        setError('Error al cargar métricas');
-      } else {
-        setMetrics(result.data);
-      }
+      // Simular carga de métricas
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Datos mock para las métricas
+      const mockMetrics: BoardMetrics = {
+        total_tasks: 24,
+        completed_tasks: 18,
+        in_progress_tasks: 4,
+        overdue_tasks: 2,
+        completion_rate: 75,
+        avg_cycle_time: 3.5,
+        throughput_week: 12,
+        bottleneck_column: 'En revisión'
+      };
+      
+      setMetrics(mockMetrics);
     } catch (err) {
       setError('Error al cargar métricas');
       console.error('Error loading metrics:', err);
@@ -70,10 +90,12 @@ const KanbanMetrics: React.FC<KanbanMetricsProps> = ({ boardId, isOpen, onClose 
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
             >
               <span className="sr-only">Cerrar</span>
-              ✕
+              <span className="text-gray-500 dark:text-gray-300 group-hover:text-gray-700 dark:group-hover:text-white text-xl font-bold">
+                ✕
+              </span>
             </button>
           </div>
         </div>

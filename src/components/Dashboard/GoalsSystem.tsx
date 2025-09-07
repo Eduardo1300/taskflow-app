@@ -110,49 +110,147 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
         switch (goal.category) {
           case 'tasks':
             if (goal.type === 'daily') {
-              // Tareas completadas hoy
+              // Tareas completadas hoy - usar una aproximación más inteligente
               const today = new Date();
               today.setHours(0, 0, 0, 0);
+              const tomorrow = new Date(today);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              
               current = tasks.filter(task => {
-                if (!task.completed || !task.updated_at) return false;
-                const completedDate = new Date(task.updated_at);
-                return completedDate >= today;
+                if (!task.completed) return false;
+                
+                // Si la tarea fue creada y completada hoy, contarla
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                // Si se creó hoy y está completada, o si se actualizó hoy y está completada
+                return (createdDate >= today && createdDate < tomorrow && task.completed) ||
+                       (updatedDate >= today && updatedDate < tomorrow && task.completed);
               }).length;
             } else if (goal.type === 'weekly') {
               // Tareas completadas esta semana
               const weekStart = new Date(now);
               weekStart.setDate(now.getDate() - now.getDay());
               weekStart.setHours(0, 0, 0, 0);
+              
               current = tasks.filter(task => {
-                if (!task.completed || !task.updated_at) return false;
-                const completedDate = new Date(task.updated_at);
-                return completedDate >= weekStart;
+                if (!task.completed) return false;
+                
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                // Contar tareas creadas o completadas esta semana
+                return (createdDate >= weekStart && task.completed) ||
+                       (updatedDate >= weekStart && task.completed);
               }).length;
             } else if (goal.type === 'monthly') {
               // Tareas completadas este mes
               const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              
               current = tasks.filter(task => {
-                if (!task.completed || !task.updated_at) return false;
-                const completedDate = new Date(task.updated_at);
-                return completedDate >= monthStart;
+                if (!task.completed) return false;
+                
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                // Contar tareas creadas o completadas este mes
+                return (createdDate >= monthStart && task.completed) ||
+                       (updatedDate >= monthStart && task.completed);
               }).length;
             }
             break;
 
           case 'productivity':
             if (goal.type === 'weekly') {
-              // Calcular productividad de la semana
+              // Calcular productividad de la semana (mejorado)
               const weekStart = new Date(now);
               weekStart.setDate(now.getDate() - now.getDay());
               weekStart.setHours(0, 0, 0, 0);
               
+              // Incluir todas las tareas que están en el rango de la semana
               const weekTasks = tasks.filter(task => {
                 const createdDate = new Date(task.created_at);
-                return createdDate >= weekStart;
+                const updatedDate = new Date(task.updated_at);
+                
+                // Incluir tareas creadas esta semana o actualizadas esta semana
+                return createdDate >= weekStart || updatedDate >= weekStart;
               });
               
               const completedWeekTasks = weekTasks.filter(task => task.completed);
               current = weekTasks.length > 0 ? Math.round((completedWeekTasks.length / weekTasks.length) * 100) : 0;
+            } else if (goal.type === 'daily') {
+              // Productividad diaria
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const tomorrow = new Date(today);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              
+              const todayTasks = tasks.filter(task => {
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                return (createdDate >= today && createdDate < tomorrow) ||
+                       (updatedDate >= today && updatedDate < tomorrow);
+              });
+              
+              const completedTodayTasks = todayTasks.filter(task => task.completed);
+              current = todayTasks.length > 0 ? Math.round((completedTodayTasks.length / todayTasks.length) * 100) : 0;
+            } else if (goal.type === 'monthly') {
+              // Productividad mensual
+              const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              
+              const monthTasks = tasks.filter(task => {
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                return createdDate >= monthStart || updatedDate >= monthStart;
+              });
+              
+              const completedMonthTasks = monthTasks.filter(task => task.completed);
+              current = monthTasks.length > 0 ? Math.round((completedMonthTasks.length / monthTasks.length) * 100) : 0;
+            }
+            break;
+
+          case 'custom':
+            // Para objetivos personalizados, usar la lógica de tareas por defecto
+            if (goal.type === 'daily') {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const tomorrow = new Date(today);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              
+              current = tasks.filter(task => {
+                if (!task.completed) return false;
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                return (createdDate >= today && createdDate < tomorrow && task.completed) ||
+                       (updatedDate >= today && updatedDate < tomorrow && task.completed);
+              }).length;
+            } else if (goal.type === 'weekly') {
+              const weekStart = new Date(now);
+              weekStart.setDate(now.getDate() - now.getDay());
+              weekStart.setHours(0, 0, 0, 0);
+              
+              current = tasks.filter(task => {
+                if (!task.completed) return false;
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                return (createdDate >= weekStart && task.completed) ||
+                       (updatedDate >= weekStart && task.completed);
+              }).length;
+            } else if (goal.type === 'monthly') {
+              const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              
+              current = tasks.filter(task => {
+                if (!task.completed) return false;
+                const createdDate = new Date(task.created_at);
+                const updatedDate = new Date(task.updated_at);
+                
+                return (createdDate >= monthStart && task.completed) ||
+                       (updatedDate >= monthStart && task.completed);
+              }).length;
             }
             break;
         }

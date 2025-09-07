@@ -18,16 +18,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
 // Helper mejorado para manejar errores de Supabase
 export const handleSupabaseError = (error: any) => {
-  console.error('Supabase error details:', {
-    message: error?.message,
-    status: error?.status,
-    statusCode: error?.statusCode,
-    details: error?.details,
-    hint: error?.hint,
-    code: error?.code,
-    fullError: error
-  });
-
   // Mapear errores específicos de autenticación
   if (error?.message) {
     const message = error.message.toLowerCase();

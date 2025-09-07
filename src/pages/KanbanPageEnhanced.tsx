@@ -13,15 +13,12 @@ import {
   BarChart3,
   Users
 } from 'lucide-react';
-import Header from '../components/Layout/Header';
-import SidebarEnhanced from '../components/Layout/SidebarEnhanced';
+import MainLayout from '../components/Layout/MainLayout';
 import TaskCardEnhanced from '../components/Tasks/TaskCardEnhanced';
 import TaskModalEnhanced from '../components/Tasks/TaskModalEnhanced';
-import BoardSelector from '../components/Kanban/BoardSelector';
 import KanbanMetrics from '../components/Kanban/KanbanMetrics';
 import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
-import { KanbanBoard } from '../services/boardService';
 import { useKanbanRealtime } from '../hooks/useKanbanRealtime';
 
 interface KanbanColumn {
@@ -46,16 +43,12 @@ const KanbanPageEnhanced: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeSection, setActiveSection] = useState('kanban');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isMetricsOpen, setIsMetricsOpen] = useState(false);
   
-  // Board management
-  const [currentBoardId, setCurrentBoardId] = useState<string | null>(null);
-  
   // Real-time collaboration
-  const { connectedUsers, broadcastUserActivity } = useKanbanRealtime(currentBoardId || undefined);
+  const { connectedUsers, broadcastUserActivity } = useKanbanRealtime();
   
   // Filter states
   const [filters, setFilters] = useState<FilterState>({
@@ -228,42 +221,27 @@ const KanbanPageEnhanced: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <SidebarEnhanced activeSection={activeSection} onSectionChange={setActiveSection} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header showUserMenu={true} />
-        
-        <main className="flex-1 p-6">
-          {/* Header del Kanban */}
-          <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white shadow-lg">
-                  <Tag className="h-6 w-6" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Vista Kanban
-                  </h1>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Organiza tus tareas visualmente • {tasks.length} tareas totales
-                  </p>
-                </div>
+    <MainLayout currentPage="kanban">
+      <div className="h-full">
+        {/* Header del Kanban */}
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white shadow-lg">
+                <Tag className="h-6 w-6" />
               </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Vista Kanban
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Organiza tus tareas visualmente • {tasks.length} tareas totales
+                </p>
+              </div>
+            </div>
               
-              {/* Board Selector and Tools */}
+              {/* Herramientas */}
               <div className="flex items-center space-x-4">
-                {/* Board Selector */}
-                <BoardSelector
-                  currentBoardId={currentBoardId}
-                  onBoardSelect={(boardId) => {
-                    setCurrentBoardId(boardId);
-                  }}
-                  onBoardCreate={(board: KanbanBoard) => {
-                    setCurrentBoardId(board.id);
-                  }}
-                />
-                
                 {/* Connected Users */}
                 {connectedUsers.length > 0 && (
                   <div className="flex items-center space-x-2">
@@ -288,16 +266,14 @@ const KanbanPageEnhanced: React.FC = () => {
                 )}
                 
                 {/* Metrics Button */}
-                {currentBoardId && (
-                  <button
-                    onClick={() => setIsMetricsOpen(true)}
-                    className="flex items-center space-x-2 px-3 py-2 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
-                    title="Ver métricas del board"
-                  >
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Métricas</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => setIsMetricsOpen(true)}
+                  className="flex items-center space-x-2 px-3 py-2 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+                  title="Ver métricas del board"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Métricas</span>
+                </button>
               </div>
             </div>
 
@@ -329,8 +305,8 @@ const KanbanPageEnhanced: React.FC = () => {
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                   className={`flex items-center px-3 py-2 border rounded-lg transition-colors ${
                     getActiveFiltersCount() > 0 
-                      ? 'border-purple-300 bg-purple-50 text-purple-700 dark:border-purple-600 dark:bg-purple-900/20 dark:text-purple-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'border-purple-300 bg-purple-50 text-purple-700 dark:border-purple-500 dark:bg-purple-900/30 dark:text-purple-300'
+                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Filter className="h-4 w-4 mr-2" />
@@ -414,11 +390,67 @@ const KanbanPageEnhanced: React.FC = () => {
               {/* Config Button */}
               <button 
                 onClick={() => setIsConfigOpen(!isConfigOpen)}
-                className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 <span>Columnas</span>
               </button>
+              
+              {/* Column Configuration Panel */}
+              {isConfigOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-gray-900 dark:text-white">Configurar Columnas</h3>
+                      <button
+                        onClick={() => setIsConfigOpen(false)}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {columns.map((column) => (
+                        <div key={column.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-3 h-3 rounded-full ${column.color}`} />
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {column.title}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {column.wipLimit && (
+                              <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+                                WIP: {column.wipLimit}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {getTasksByStatus(column.id).length} tareas
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-white text-xs">i</span>
+                        </div>
+                        <div>
+                          <p className="text-sm text-blue-800 dark:text-blue-300 font-medium">
+                            Límites WIP (Work In Progress)
+                          </p>
+                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                            Los límites WIP ayudan a mantener el flujo de trabajo eficiente limitando el número de tareas en progreso.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {/* New Task Button */}
               <button
@@ -445,15 +477,15 @@ const KanbanPageEnhanced: React.FC = () => {
 
           {/* Kanban Board */}
           <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
               {columns.map((column) => {
                 const columnTasks = getTasksByStatus(column.id);
                 const isOverWipLimit = column.wipLimit && columnTasks.length > column.wipLimit;
                 
                 return (
-                  <div key={column.id} className="flex flex-col">
+                  <div key={column.id} className="flex flex-col h-full">
                     {/* Column Header */}
-                    <div className={`flex items-center justify-between p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-t-2xl border border-gray-200/50 dark:border-gray-700/50 ${
+                    <div className={`flex items-center justify-between p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-t-2xl border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 ${
                       isOverWipLimit ? 'border-red-300 dark:border-red-600' : ''
                     }`}>
                       <div className="flex items-center space-x-3">
@@ -484,7 +516,7 @@ const KanbanPageEnhanced: React.FC = () => {
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`flex-1 p-4 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-b-2xl border-x border-b border-gray-200/50 dark:border-gray-700/50 min-h-[400px] transition-colors ${
+                          className={`flex-1 p-4 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-b-2xl border-x border-b border-gray-200/50 dark:border-gray-700/50 overflow-y-auto custom-scrollbar transition-colors ${
                             snapshot.isDraggingOver ? 'bg-blue-50/80 dark:bg-blue-900/20' : ''
                           }`}
                         >
@@ -538,27 +570,26 @@ const KanbanPageEnhanced: React.FC = () => {
               })}
             </div>
           </DragDropContext>
-        </main>
-      </div>
+        </div>
 
-      {/* Task Modal */}
-      <TaskModalEnhanced
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingTask(null);
-        }}
-        task={editingTask}
-        onTaskSaved={handleTaskSaved}
-      />
+        {/* Task Modal */}
+        <TaskModalEnhanced
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingTask(null);
+          }}
+          task={editingTask}
+          onTaskSaved={handleTaskSaved}
+        />
 
-      {/* Kanban Metrics Modal */}
-      <KanbanMetrics
-        boardId={currentBoardId || ''}
-        isOpen={isMetricsOpen}
-        onClose={() => setIsMetricsOpen(false)}
-      />
-    </div>
+        {/* Kanban Metrics Modal */}
+        <KanbanMetrics
+          boardId="default-board"
+          isOpen={isMetricsOpen}
+          onClose={() => setIsMetricsOpen(false)}
+        />
+    </MainLayout>
   );
 };
 

@@ -134,21 +134,44 @@ const CalendarAnalytics: React.FC<CalendarAnalyticsProps> = ({ events, onInsight
       </div>
 
       {/* View Tabs */}
-      <div className="flex justify-center mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg">
+      <div className="flex justify-center mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg overflow-x-auto min-w-full">
+        <div className="flex items-center space-x-2 min-w-max">
         <button
           onClick={() => setActiveView('overview')}
-          className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+          className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
             activeView === 'overview' 
               ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
               : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
           }`}
         >
           <BarChart3 className="h-5 w-5 mr-2" />
-          Overview
+          Resumen
         </button>
         <button
           onClick={() => setActiveView('charts')}
-          className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+          className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'charts' 
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
+              : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
+          }`}
+        >
+          <Activity className="h-5 w-5 mr-2" />
+          Productividad
+        </button>
+        <button
+          onClick={() => setActiveView('forecast')}
+          className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'forecast' 
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
+              : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
+          }`}
+        >
+          <TrendingUp className="h-5 w-5 mr-2" />
+          Calendario
+        </button>
+        <button
+          onClick={() => setActiveView('charts')}
+          className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
             activeView === 'charts' 
               ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
               : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
@@ -159,7 +182,7 @@ const CalendarAnalytics: React.FC<CalendarAnalyticsProps> = ({ events, onInsight
         </button>
         <button
           onClick={() => setActiveView('forecast')}
-          className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+          className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
             activeView === 'forecast' 
               ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
               : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
@@ -170,95 +193,22 @@ const CalendarAnalytics: React.FC<CalendarAnalyticsProps> = ({ events, onInsight
         </button>
         <button
           onClick={() => setActiveView('export')}
-          className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+          className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
             activeView === 'export' 
               ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
               : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
           }`}
         >
           <CheckCircle className="h-5 w-5 mr-2" />
-          Exportar
+          Recomendaciones
         </button>
+        </div>
       </div>
 
       {/* Content based on active view */}
       {activeView === 'overview' && (
         <div className="space-y-6">
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Events</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.totalEvents}</p>
-            </div>
-            <Calendar className="h-8 w-8 text-purple-500" />
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-600 dark:text-green-400">
-              {metrics.averageEventsPerDay.toFixed(1)} avg/day
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completion Rate</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.completionRate}%</p>
-            </div>
-            <Target className="h-8 w-8 text-blue-500" />
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-gray-600 dark:text-gray-400">
-              {metrics.completedEvents}/{metrics.totalEvents} completed
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Health Score</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{healthScore.score}</p>
-            </div>
-            <Activity className={`h-8 w-8 ${
-              healthScore.score >= 80 ? 'text-green-500' :
-              healthScore.score >= 60 ? 'text-yellow-500' : 'text-red-500'
-            }`} />
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className={`${
-              healthScore.score >= 80 ? 'text-green-600 dark:text-green-400' :
-              healthScore.score >= 60 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
-            }`}>
-              {healthScore.score >= 80 ? 'Excellent' :
-               healthScore.score >= 60 ? 'Good' : 'Needs attention'}
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Burnout Risk</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white capitalize">{burnoutRisk.level}</p>
-            </div>
-            <AlertTriangle className={`h-8 w-8 ${
-              burnoutRisk.level === 'low' ? 'text-green-500' :
-              burnoutRisk.level === 'medium' ? 'text-yellow-500' : 'text-red-500'
-            }`} />
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className={`${
-              burnoutRisk.level === 'low' ? 'text-green-600 dark:text-green-400' :
-              burnoutRisk.level === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
-            }`}>
-              Score: {burnoutRisk.score}
-            </span>
-          </div>
-        </div>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
@@ -550,50 +500,6 @@ const CalendarAnalytics: React.FC<CalendarAnalyticsProps> = ({ events, onInsight
 
         </div>
         )}
-
-        {/* Recommendations */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
-          <div className="flex items-center space-x-2 mb-4">
-            <CheckCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recommendations</h3>
-          </div>
-
-          <div className="space-y-3">
-            {healthScore.recommendations.slice(0, 3).map((recommendation, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <div className="flex-shrink-0 w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">
-                    {index + 1}
-                  </span>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">{recommendation}</p>
-              </div>
-            ))}
-          </div>
-
-          {burnoutRisk.level !== 'low' && (
-            <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-              <div className="flex items-start space-x-2">
-                <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-yellow-800 dark:text-yellow-200 text-sm">
-                    Burnout Risk: {burnoutRisk.level.charAt(0).toUpperCase() + burnoutRisk.level.slice(1)}
-                  </p>
-                  <p className="text-yellow-700 dark:text-yellow-300 text-sm">
-                    {burnoutRisk.suggestions[0]}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={() => handleInsightClick('all-recommendations')}
-            className="mt-4 text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
-          >
-            View all recommendations →
-          </button>
-        </div>
         </div>
       )}
 
