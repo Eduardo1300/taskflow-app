@@ -63,6 +63,24 @@ const LoginPageEnhanced: React.FC = () => {
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               Inicia sesión en tu cuenta de TaskFlow
             </p>
+              <div className="mt-4 mb-2 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-lg text-blue-900 dark:text-blue-100 text-base text-center shadow">
+                <span className="font-bold text-blue-700 dark:text-blue-200 flex items-center justify-center gap-2">
+                  🚀 Acceso de prueba rápido
+                </span>
+                <div className="mt-2 flex flex-col items-center gap-1">
+                  <span>
+                    <span className="font-semibold">Correo:</span>
+                    <span className="font-mono bg-white/60 dark:bg-gray-800/60 px-2 py-1 rounded ml-2">prueba@gmail.com</span>
+                  </span>
+                  <span>
+                    <span className="font-semibold">Contraseña:</span>
+                    <span className="font-mono bg-white/60 dark:bg-gray-800/60 px-2 py-1 rounded ml-2">12345678</span>
+                  </span>
+                </div>
+                <div className="mt-2 text-xs text-blue-600 dark:text-blue-300">
+                  Úsalo para probar la aplicación sin registro.
+                </div>
+              </div>
           </div>
 
           {/* Mensajes */}
