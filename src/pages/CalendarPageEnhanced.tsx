@@ -16,6 +16,7 @@ import TaskModal from '../components/Tasks/TaskModal';
 import CalendarWeekView from '../components/Calendar/CalendarWeekView';
 import CalendarDayView from '../components/Calendar/CalendarDayView';
 import RecurringEventModal from '../components/Calendar/RecurringEventModal';
+import MainLayout from '../components/Layout/MainLayout';
 
 
 type ViewMode = 'month' | 'week' | 'day';
@@ -178,8 +179,8 @@ const CalendarPageEnhanced = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900">
-      <div className="max-w-7xl mx-auto p-6">
+    <MainLayout currentPage="calendar">
+      <div className="p-6">
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-3 rounded-2xl shadow-lg">
@@ -489,7 +490,7 @@ const CalendarPageEnhanced = () => {
           selectedDate={selectedDate || currentDate}
         />
       </div>
-    </div>
+    </MainLayout>
   );
 };
 

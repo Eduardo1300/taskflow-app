@@ -43,7 +43,7 @@ const AnalyticsPage: React.FC = () => {
 
   return (
     <MainLayout currentPage="analytics">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <AnalyticsPageComponent tasks={tasks} />
       </div>
     </MainLayout>

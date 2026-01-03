@@ -102,6 +102,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       id: 'profile', 
       label: 'Perfil', 
       icon: User,
+      route: '/profile',
       color: 'text-gray-500',
       description: 'Configuración personal'
     },
@@ -112,6 +113,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       id: 'settings', 
       label: 'Configuración', 
       icon: Settings,
+      route: '/settings',
       color: 'text-gray-500',
       description: 'Ajustes de la aplicación'
     },
@@ -119,6 +121,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       id: 'help', 
       label: 'Ayuda', 
       icon: HelpCircle,
+      route: '/help',
       color: 'text-gray-500',
       description: 'Soporte y documentación'
     }

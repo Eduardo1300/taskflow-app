@@ -137,7 +137,7 @@ const LandingPageEnhanced: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-16 animate-slide-up" style={{ animationDelay: '0.4s' }}>
               <Link
-                to="/register"
+                to="/login"
                 className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 flex items-center"
               >
                 Comenzar gratis

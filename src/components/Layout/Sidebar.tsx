@@ -21,9 +21,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => 
     { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
     { id: 'api', label: 'API REST', icon: Globe, route: '/api' },
     { id: 'integrations', label: 'Integraciones', icon: Zap, route: '/integrations' },
-    { id: 'profile', label: 'Perfil', icon: User },
-    { id: 'settings', label: 'Configuración', icon: Settings },
-    { id: 'help', label: 'Ayuda', icon: HelpCircle },
+    { id: 'profile', label: 'Perfil', icon: User, route: '/profile' },
+    { id: 'settings', label: 'Configuración', icon: Settings, route: '/settings' },
+    { id: 'help', label: 'Ayuda', icon: HelpCircle, route: '/help' },
   ];
 
   return (

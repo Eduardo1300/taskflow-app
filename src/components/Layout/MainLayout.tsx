@@ -14,6 +14,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
   const [activeSection, setActiveSection] = useState(currentPage);
 
   const renderContent = () => {
+    // Si currentPage es profile, settings o help, mostrar el children directamente
+    // (que viene de las páginas enhanced)
+    if (currentPage === 'profile' || currentPage === 'settings' || currentPage === 'help') {
+      return children;
+    }
+    
     switch (activeSection) {
       case 'profile':
         return (

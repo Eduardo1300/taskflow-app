@@ -121,7 +121,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900">
-      <div className="max-w-6xl ml-0 mr-auto px-6 py-6">
+      <div className="w-full px-6 py-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">

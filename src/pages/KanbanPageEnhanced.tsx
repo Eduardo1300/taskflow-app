@@ -222,7 +222,7 @@ const KanbanPageEnhanced: React.FC = () => {
 
   return (
     <MainLayout currentPage="kanban">
-      <div className="h-full">
+      <div className="h-full px-6">
         {/* Header del Kanban */}
         <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
