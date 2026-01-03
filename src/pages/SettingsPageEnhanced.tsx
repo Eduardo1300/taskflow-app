@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Settings, 
   Bell, 
   Shield, 
   Palette, 
@@ -10,7 +9,6 @@ import {
   Sun, 
   Save,
   AlertTriangle,
-
   Eye,
   Users,
   Database,
