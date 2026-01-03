@@ -202,10 +202,10 @@ const HelpPageEnhanced: React.FC = () => {
     <MainLayout currentPage="help">
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="text-center py-6">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <HelpCircle className="h-10 w-10 text-purple-600 dark:text-purple-400" />
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Centro de Ayuda</h1>
+        <div className="text-center py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 mb-4">
+            <HelpCircle className="h-10 w-10 sm:h-10 sm:w-10 text-purple-600 dark:text-purple-400 mx-auto sm:mx-0" />
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">Centro de Ayuda</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-2">
             Encuentra respuestas, guías paso a paso y aprende a usar TaskFlow al máximo potencial
@@ -213,14 +213,14 @@ const HelpPageEnhanced: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="relative max-w-2xl mx-auto">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="relative max-w-2xl mx-auto px-4 sm:px-0">
+          <Search className="absolute left-6 sm:left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Busca en la ayuda... (¿Cómo crear tareas? ¿Colaborar con otros?)"
+            placeholder="Busca en la ayuda..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-6 py-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-800 dark:text-white text-lg shadow-sm"
+            className="w-full pl-12 pr-6 py-3 sm:py-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-800 dark:text-white text-sm sm:text-base shadow-sm"
           />
         </div>
 
@@ -269,7 +269,7 @@ const HelpPageEnhanced: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Guías Paso a Paso</h2>
             <span className="text-sm text-gray-600 dark:text-gray-400">{guides.length} guías disponibles</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {guides.map((guide) => {
               const Icon = guide.icon;
               return (
@@ -384,20 +384,20 @@ const HelpPageEnhanced: React.FC = () => {
         </div>
 
         {/* Still Need Help Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-12 text-center text-white shadow-xl">
-          <Lightbulb className="h-12 w-12 mx-auto mb-4 opacity-90" />
-          <h3 className="text-2xl font-bold mb-3">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 sm:p-12 text-center text-white shadow-xl">
+          <Lightbulb className="h-10 sm:h-12 w-10 sm:w-12 mx-auto mb-4 opacity-90" />
+          <h3 className="text-xl sm:text-2xl font-bold mb-3">
             ¿Aún necesitas ayuda?
           </h3>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto text-lg">
+          <p className="text-blue-100 mb-6 max-w-2xl mx-auto text-sm sm:text-lg">
             Nuestro equipo de soporte está disponible 24/7 para ayudarte. No dudes en contactarnos con cualquier pregunta o problema.
           </p>
-          <div className="flex justify-center space-x-4 flex-wrap gap-4">
-            <button className="flex items-center px-8 py-3 bg-white text-purple-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <button className="flex items-center justify-center px-6 sm:px-8 py-3 bg-white text-purple-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold text-sm sm:text-base">
               <MessageCircle className="h-5 w-5 mr-2" />
-              Iniciar Chat en Vivo
+              Chat en Vivo
             </button>
-            <button className="flex items-center px-8 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg transition-colors font-semibold border border-blue-500">
+            <button className="flex items-center justify-center px-6 sm:px-8 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg transition-colors font-semibold border border-blue-500 text-sm sm:text-base">
               <Mail className="h-5 w-5 mr-2" />
               Enviar Email
             </button>

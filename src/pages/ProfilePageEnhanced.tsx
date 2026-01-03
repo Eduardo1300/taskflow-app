@@ -109,9 +109,9 @@ const ProfilePageEnhanced: React.FC = () => {
     <MainLayout currentPage="profile">
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
               Gestiona tu información personal, estadísticas y preferencias
             </p>
@@ -120,16 +120,16 @@ const ProfilePageEnhanced: React.FC = () => {
           {!isEditing ? (
             <button
               onClick={handleEdit}
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full sm:w-auto flex items-center justify-center sm:justify-start px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Edit2 className="h-5 w-5 mr-2" />
-              Editar Perfil
+              <span>Editar Perfil</span>
             </button>
           ) : (
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <button
                 onClick={handleCancel}
-                className="flex items-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl transition-colors"
+                className="flex items-center justify-center px-4 sm:px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl transition-colors text-sm sm:text-base"
               >
                 <X className="h-5 w-5 mr-2" />
                 Cancelar
@@ -137,7 +137,7 @@ const ProfilePageEnhanced: React.FC = () => {
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-xl transition-colors"
+                className="flex items-center justify-center px-4 sm:px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-xl transition-colors text-sm sm:text-base"
               >
                 <Save className="h-5 w-5 mr-2" />
                 {loading ? 'Guardando...' : 'Guardar'}
@@ -147,8 +147,8 @@ const ProfilePageEnhanced: React.FC = () => {
         </div>
 
         {/* Profile Header Card */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-lg p-8">
-          <div className="flex items-center space-x-6">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-lg p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
             <div className="relative">
               <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-lg">
                 {profile.avatar ? (
@@ -168,8 +168,8 @@ const ProfilePageEnhanced: React.FC = () => {
               )}
             </div>
             
-            <div className="text-white">
-              <h2 className="text-3xl font-bold">{profile.name}</h2>
+            <div className="text-white text-center sm:text-left">
+              <h2 className="text-2xl sm:text-3xl font-bold">{profile.name}</h2>
               <p className="text-blue-100 mt-1">{profile.email}</p>
               <div className="flex items-center mt-3 text-blue-100">
                 <Calendar className="h-5 w-5 mr-2" />

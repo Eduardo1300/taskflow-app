@@ -1,24 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Plus, CheckCircle, Target, TrendingUp, Zap, Sparkles } from 'lucide-react';
-import Header from '../components/Layout/Header';
-import SidebarEnhanced from '../components/Layout/SidebarEnhanced';
+import MainLayout from '../components/Layout/MainLayout';
 import TaskCardEnhanced from '../components/Tasks/TaskCardEnhanced';
 import TaskModalEnhanced from '../components/Tasks/TaskModalEnhanced';
 import ShareTaskModal from '../components/Collaboration/ShareTaskModal';
 import InvitationNotifications from '../components/Collaboration/InvitationNotifications';
 import PWAUpdate from '../components/PWA/PWAUpdate';
 import OfflineIndicator from '../components/Offline/OfflineIndicator';
-import AnalyticsPage from '../components/Analytics/AnalyticsPage';
-import ApiManagementPage from '../components/Api/ApiManagementPage';
-import IntegrationsPage from '../components/Integrations/IntegrationsPage';
-import IntegrationNotifications from '../components/Integrations/IntegrationNotifications';
 import NotificationCenter from '../components/Dashboard/NotificationCenter';
 import GoalsSystem from '../components/Dashboard/GoalsSystem';
 import QuickActions from '../components/Dashboard/QuickActions';
 import SmartSearch from '../components/Dashboard/SmartSearch';
-import ProfileSection from '../components/Profile/ProfileSection';
-import SettingsSection from '../components/Settings/SettingsSection';
-import HelpSection from '../components/Help/HelpSection';
 import { useAuth } from '../contexts/AuthContext';
 import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
@@ -34,9 +26,9 @@ const DashboardPageEnhanced: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
-  const [activeSection, setActiveSection] = useState('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState('dashboard');
 
   // Offline functionality
   useOffline();
@@ -212,180 +204,79 @@ const DashboardPageEnhanced: React.FC = () => {
 
   if (activeSection === 'analytics') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <SidebarEnhanced
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            isCollapsed={false}
-          />
-          
-          <div className="flex-1 flex flex-col min-w-0 -ml-8">
-            <Header showUserMenu={true} />
-            
-            <main className="flex-1 py-6 pl-8 pr-6">
-              <div className="max-w-6xl mx-auto w-full">
-                <AnalyticsPage tasks={tasks} />
-              </div>
-            </main>
-          </div>
+      <MainLayout currentPage="dashboard">
+        <div className="w-full">
+          Analytics page goes here
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   if (activeSection === 'api') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <SidebarEnhanced
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            isCollapsed={false}
-          />
-          
-          <div className="flex-1 flex flex-col min-w-0 -ml-8">
-            <Header showUserMenu={true} />
-            
-            <main className="flex-1 py-6 pl-8 pr-6">
-              <div className="max-w-6xl mx-auto w-full">
-                <ApiManagementPage />
-              </div>
-            </main>
-          </div>
+      <MainLayout currentPage="dashboard">
+        <div className="w-full">
+          API Management page goes here
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   if (activeSection === 'integrations') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <SidebarEnhanced
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            isCollapsed={false}
-          />
-          
-          <div className="flex-1 flex flex-col min-w-0 -ml-8">
-            <Header showUserMenu={true} />
-            
-            <main className="flex-1 py-6 pl-8 pr-6">
-              <div className="max-w-6xl mx-auto w-full">
-                <IntegrationsPage />
-              </div>
-            </main>
-          </div>
+      <MainLayout currentPage="dashboard">
+        <div className="w-full">
+          Integrations page goes here
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   if (activeSection === 'settings') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <SidebarEnhanced
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            isCollapsed={false}
-          />
-          
-          <div className="flex-1 flex flex-col min-w-0 -ml-8">
-            <Header showUserMenu={true} />
-            
-            <main className="flex-1 py-6 pl-8 pr-6">
-              <div className="max-w-4xl mx-auto w-full">
-                <SettingsSection />
-              </div>
-            </main>
-          </div>
-        </div>
-      </div>
+      <MainLayout currentPage="settings">
+        <div className="w-full" />
+      </MainLayout>
     );
   }
 
   if (activeSection === 'help') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <SidebarEnhanced
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            isCollapsed={false}
-          />
-          
-          <div className="flex-1 flex flex-col min-w-0 -ml-8">
-            <Header showUserMenu={true} />
-            
-            <main className="flex-1 py-6 pl-8 pr-6">
-              <div className="max-w-4xl mx-auto w-full">
-                <HelpSection />
-              </div>
-            </main>
-          </div>
-        </div>
-      </div>
+      <MainLayout currentPage="help">
+        <div className="w-full" />
+      </MainLayout>
     );
   }
 
   if (activeSection === 'profile') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <SidebarEnhanced
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            isCollapsed={false}
-          />
-          
-          <div className="flex-1 flex flex-col min-w-0 -ml-8">
-            <Header showUserMenu={true} />
-            
-            <main className="flex-1 py-6 pl-8 pr-6">
-              <div className="max-w-4xl mx-auto w-full">
-                <ProfileSection />
-              </div>
-            </main>
-          </div>
-        </div>
-      </div>
+      <MainLayout currentPage="profile">
+        <div className="w-full" />
+      </MainLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="flex">
-        <SidebarEnhanced
-          activeSection={activeSection}
-          onSectionChange={setActiveSection}
-          isCollapsed={false}
-        />
-        
-        <div className="flex-1 flex flex-col min-w-0 -ml-8">
-          <Header showUserMenu={true} />
-          
-          <main className="flex-1 py-6 pl-8 pr-6">
-            <div className="max-w-6xl mx-auto w-full">
+    <>
+      <MainLayout currentPage="dashboard">
           {/* Dashboard Header */}
-          <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white shadow-lg">
-                  <Target className="h-6 w-6" />
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-start lg:items-center justify-between gap-4 sm:gap-6">
+              <div className="flex items-start sm:items-center space-x-3 sm:space-x-4">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white shadow-lg flex-shrink-0">
+                  <Target className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     Dashboard
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
                     Bienvenido de vuelta, {user?.email?.split('@')[0]}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 {/* Notification Center */}
                 <NotificationCenter tasks={tasks} />
                 
@@ -403,75 +294,76 @@ const DashboardPageEnhanced: React.FC = () => {
                 {/* New Task Button */}
                 <button
                   onClick={handleCreateTask}
-                  className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="w-full sm:w-auto flex items-center justify-center sm:justify-start px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Nueva tarea
+                  <span className="hidden sm:inline">Nueva tarea</span>
+                  <span className="sm:hidden">Nueva</span>
                 </button>
               </div>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Tareas</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Total Tareas</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {stats.pending} pendientes
                   </p>
                 </div>
-                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-                  <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex-shrink-0">
+                  <Target className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex items-center justify-between">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Completadas</p>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.completed}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Completadas</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{stats.completed}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% progreso
                   </p>
                 </div>
-                <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-xl flex-shrink-0">
+                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex items-center justify-between">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Alta Prioridad</p>
-                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.highPriority}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Alta Prioridad</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">{stats.highPriority}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Requieren atención
                   </p>
                 </div>
-                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-xl">
-                  <Zap className="h-6 w-6 text-red-600 dark:text-red-400" />
+                <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/30 rounded-xl flex-shrink-0">
+                  <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex items-center justify-between">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Productividad</p>
-                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Productividad</p>
+                  <p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Esta semana
                   </p>
                 </div>
-                <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
-                  <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex-shrink-0">
+                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
                 </div>
               </div>
             </div>
@@ -524,7 +416,7 @@ const DashboardPageEnhanced: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredTasks.map((task, index) => (
                   <div
                     key={task.id}
@@ -547,11 +439,9 @@ const DashboardPageEnhanced: React.FC = () => {
               </div>
             )}
           </div>
-            </div>
-        </main>
-      </div>
+    </MainLayout>
 
-      {/* Modals */}
+      {/* Modals - Outside MainLayout for z-index */}
       <TaskModalEnhanced
         isOpen={isModalOpen}
         onClose={() => {
@@ -577,12 +467,11 @@ const DashboardPageEnhanced: React.FC = () => {
 
       {/* Additional Components */}
       <InvitationNotifications />
-      <IntegrationNotifications />
       <PWAUpdate />
       <OfflineIndicator />
 
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
           {error}
           <button 
             onClick={() => setError(null)}
@@ -592,8 +481,7 @@ const DashboardPageEnhanced: React.FC = () => {
           </button>
         </div>
       )}
-    </div>
-    </div>
+    </>
   );
 };
 

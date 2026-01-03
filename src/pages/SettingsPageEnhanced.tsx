@@ -119,34 +119,35 @@ const SettingsPageEnhanced: React.FC = () => {
     <MainLayout currentPage="settings">
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Configuración</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Configuración</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
               Personaliza tu experiencia y administra tu cuenta
             </p>
           </div>
           
           {saveSuccess && (
-            <div className="flex items-center space-x-2 px-4 py-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg">
-              <CheckCircle className="h-5 w-5" />
-              <span>Cambios guardados exitosamente</span>
+            <div className="flex items-center space-x-2 px-4 py-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm sm:text-base">
+              <CheckCircle className="h-5 w-5 flex-shrink-0" />
+              <span className="hidden sm:inline">Cambios guardados exitosamente</span>
+              <span className="sm:hidden">Guardado</span>
             </div>
           )}
           
           <button
             onClick={handleSave}
             disabled={loading}
-            className="flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="flex items-center justify-center px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
           >
             <Save className="h-5 w-5 mr-2" />
             {loading ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 md:col-span-2 lg:md:col-span-1">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sticky top-6">
               <nav className="space-y-2">
                 {tabs.map((tab) => {
@@ -171,7 +172,7 @@ const SettingsPageEnhanced: React.FC = () => {
           </div>
 
           {/* Content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 md:col-span-2 lg:md:col-span-3">
             {/* Notifications */}
             {activeTab === 'notifications' && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">

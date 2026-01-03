@@ -22,6 +22,8 @@ interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   isCollapsed?: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 interface MenuItem {
@@ -38,10 +40,11 @@ interface MenuItem {
 const SidebarEnhanced: React.FC<SidebarProps> = ({ 
   activeSection, 
   onSectionChange, 
-  isCollapsed = false 
+  isCollapsed = false,
+  isOpen = false,
+  onClose
 }) => {
   const { logout } = useAuth();
-  const [open, setOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,8 +132,10 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
 
   // Cerrar sidebar en móvil al navegar
   useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
+    if (onClose) {
+      onClose();
+    }
+  }, [location.pathname, onClose]);
 
   const handleItemClick = (item: MenuItem) => {
     if (item.route) {
@@ -138,7 +143,9 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
     } else {
       onSectionChange(item.id);
     }
-    setOpen(false);
+    if (onClose) {
+      onClose();
+    }
   };
 
   const isActive = (item: MenuItem) => {
@@ -150,22 +157,11 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        className="lg:hidden fixed top-4 left-4 z-50 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg border dark:border-gray-600 hover:shadow-xl transition-all duration-200"
-        onClick={() => setOpen(true)}
-        aria-label="Abrir menú"
-      >
-        <svg className="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
       {/* Sidebar */}
       <div
         className={`
           fixed inset-y-0 left-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl transform transition-all duration-300 ease-out
-          ${open ? 'translate-x-0' : '-translate-x-full'}
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:static lg:translate-x-0 
           ${isCollapsed ? 'w-20' : 'w-64 lg:w-64'}
         `}
@@ -193,7 +189,7 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           
           {/* Close button - mobile only */}
           <button 
-            onClick={() => setOpen(false)} 
+            onClick={onClose}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

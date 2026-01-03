@@ -222,19 +222,19 @@ const KanbanPageEnhanced: React.FC = () => {
 
   return (
     <MainLayout currentPage="kanban">
-      <div className="h-full px-6">
+      <div className="h-full px-4 sm:px-6 lg:px-6">
         {/* Header del Kanban */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white shadow-lg">
-                <Tag className="h-6 w-6" />
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 sm:gap-6">
+            <div className="flex items-start space-x-3 sm:space-x-4">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white shadow-lg flex-shrink-0">
+                <Tag className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                   Vista Kanban
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
                   Organiza tus tareas visualmente • {tasks.length} tareas totales
                 </p>
               </div>
@@ -278,15 +278,15 @@ const KanbanPageEnhanced: React.FC = () => {
             </div>
 
             {/* Search and Filter Controls */}
-            <div className="flex items-center justify-end space-x-3 mt-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-4 sm:mt-6">
               {/* Search */}
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <input
                   type="text"
                   placeholder="Buscar tareas..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white w-64"
+                  className="w-full sm:w-64 pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm sm:text-base"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 {searchTerm && (
@@ -300,10 +300,10 @@ const KanbanPageEnhanced: React.FC = () => {
               </div>
               
               {/* Filter Button with counter */}
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className={`flex items-center px-3 py-2 border rounded-lg transition-colors ${
+                  className={`w-full sm:w-auto flex items-center justify-center sm:justify-start px-3 py-2 border rounded-lg transition-colors text-sm sm:text-base ${
                     getActiveFiltersCount() > 0 
                       ? 'border-purple-300 bg-purple-50 text-purple-700 dark:border-purple-500 dark:bg-purple-900/30 dark:text-purple-300'
                       : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -390,7 +390,7 @@ const KanbanPageEnhanced: React.FC = () => {
               {/* Config Button */}
               <button 
                 onClick={() => setIsConfigOpen(!isConfigOpen)}
-                className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="w-full sm:w-auto flex items-center justify-center sm:justify-start px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 <span>Columnas</span>
@@ -458,7 +458,7 @@ const KanbanPageEnhanced: React.FC = () => {
                   setEditingTask(null);
                   setIsModalOpen(true);
                 }}
-                className="flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto flex items-center justify-center sm:justify-start px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Nueva tarea
@@ -477,7 +477,7 @@ const KanbanPageEnhanced: React.FC = () => {
 
           {/* Kanban Board */}
           <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 min-h-[calc(100vh-400px)]">
               {columns.map((column) => {
                 const columnTasks = getTasksByStatus(column.id);
                 const isOverWipLimit = column.wipLimit && columnTasks.length > column.wipLimit;
