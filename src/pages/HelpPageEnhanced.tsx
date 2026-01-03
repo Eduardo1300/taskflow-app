@@ -14,9 +14,6 @@ import {
   Users,
   Zap,
   Shield,
-  Plus,
-  Filter,
-  CheckCircle,
   AlertCircle,
   Lightbulb
 } from 'lucide-react';

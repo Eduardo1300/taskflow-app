@@ -42,7 +42,7 @@ const ProfilePageEnhanced: React.FC = () => {
     language: 'es'
   });
 
-  const [stats, setStats] = useState<UserStats>({
+  const [stats] = useState<UserStats>({
     tasksCompleted: 47,
     activeProjects: 8,
     streakDays: 12,

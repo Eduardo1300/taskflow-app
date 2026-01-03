@@ -10,7 +10,7 @@ import {
   Sun, 
   Save,
   AlertTriangle,
-  Lock,
+
   Eye,
   Users,
   Database,
