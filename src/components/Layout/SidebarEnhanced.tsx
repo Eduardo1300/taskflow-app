@@ -382,10 +382,10 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       </div>
 
       {/* Backdrop */}
-      {open && (
+      {isOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
-          onClick={() => setOpen(false)}
+          onClick={onClose}
         />
       )}
     </>

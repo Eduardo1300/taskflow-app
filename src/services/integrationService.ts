@@ -646,6 +646,266 @@ class IntegrationService {
     }
   }
 
+  // ==================== Webhook Custom Integration ====================
+
+  async sendWebhookNotification(task: Task, type: 'created' | 'completed' | 'reminder' | 'overdue'): Promise<{ success: boolean; error?: string }> {
+    try {
+      const integration = await this.getIntegration('webhook');
+      if (!integration || !integration.is_active) {
+        return { success: false, error: 'Webhook no configurado' };
+      }
+
+      const { url, method = 'POST' } = integration.config;
+      if (!url) {
+        return { success: false, error: 'URL del webhook no configurada' };
+      }
+
+      const payload = {
+        event: type,
+        timestamp: new Date().toISOString(),
+        task: {
+          id: task.id,
+          title: task.title,
+          description: task.description || '',
+          priority: task.priority || 'medium',
+          category: task.category || '',
+          due_date: task.due_date || null,
+          completed: task.completed || false,
+          url: `${window.location.origin}/task/${task.id}`
+        }
+      };
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        return { success: false, error: `HTTP ${response.status}: Error enviando webhook` };
+      }
+
+      // Registrar en historial de sincronización
+      await this.logSyncEvent(integration.id, 'webhook', 'success');
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Error en integración webhook' };
+    }
+  }
+
+  async validateWebhook(url: string, method: string = 'POST'): Promise<{ success: boolean; error?: string }> {
+    try {
+      const testPayload = {
+        event: 'test',
+        timestamp: new Date().toISOString(),
+        message: 'Webhook de prueba desde TaskFlow'
+      };
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testPayload)
+      });
+
+      if (!response.ok) {
+        return { success: false, error: `HTTP ${response.status}: El servidor no respondió correctamente` };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: `Error de conexión: ${error instanceof Error ? error.message : 'Error desconocido'}` };
+    }
+  }
+
+  // ==================== Outlook Integration ====================
+
+  async connectOutlook(accessToken: string, refreshToken: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { success: false, error: 'Usuario no autenticado' };
+
+      // Verificar el token con Microsoft
+      const userInfo = await this.verifyOutlookToken(accessToken);
+      if (!userInfo) {
+        return { success: false, error: 'Token de Outlook inválido' };
+      }
+
+      const { error } = await supabase
+        .from('integrations')
+        .upsert({
+          user_id: user.id,
+          type: 'outlook',
+          name: 'Outlook Calendar',
+          config: {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            email: userInfo.userPrincipalName,
+            scope: 'calendar'
+          },
+          is_active: true
+        });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Error conectando con Outlook' };
+    }
+  }
+
+  async syncTaskToOutlook(task: Task): Promise<{ success: boolean; error?: string; eventId?: string }> {
+    try {
+      const integration = await this.getIntegration('outlook');
+      if (!integration || !integration.is_active) {
+        return { success: false, error: 'Outlook no conectado' };
+      }
+
+      const accessToken = await this.refreshOutlookToken(integration);
+      if (!accessToken) {
+        return { success: false, error: 'No se pudo obtener token de acceso' };
+      }
+
+      const event = {
+        subject: task.title,
+        bodyPreview: task.description || '',
+        body: {
+          contentType: 'HTML',
+          content: task.description || 'Sin descripción'
+        },
+        start: {
+          dateTime: task.due_date || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: task.due_date ? 
+            new Date(new Date(task.due_date).getTime() + 60 * 60 * 1000).toISOString() :
+            new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString(),
+          timeZone: 'UTC'
+        },
+        categories: [task.category || 'Personal'],
+        isReminderOn: true,
+        reminderMinutesBeforeStart: 15
+      };
+
+      const response = await fetch('https://graph.microsoft.com/v1.0/me/events', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(event)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, error: error.error?.message || 'Error creando evento' };
+      }
+
+      const createdEvent = await response.json();
+      
+      // Registrar sincronización
+      await this.logSyncEvent(integration.id, 'outlook', 'success', createdEvent.id);
+
+      return { success: true, eventId: createdEvent.id };
+    } catch (error) {
+      return { success: false, error: 'Error sincronizando con Outlook' };
+    }
+  }
+
+  private async verifyOutlookToken(accessToken: string): Promise<any> {
+    try {
+      const response = await fetch('https://graph.microsoft.com/v1.0/me', {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch {
+      return null;
+    }
+  }
+
+  private async refreshOutlookToken(integration: Integration): Promise<string | null> {
+    try {
+      const { refresh_token } = integration.config;
+      if (!refresh_token) return integration.config.access_token;
+
+      const response = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          client_id: import.meta.env.VITE_MICROSOFT_CLIENT_ID || '',
+          client_secret: import.meta.env.VITE_MICROSOFT_CLIENT_SECRET || '',
+          refresh_token,
+          grant_type: 'refresh_token',
+          scope: 'Calendars.ReadWrite offline_access'
+        })
+      });
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      
+      // Actualizar token en la base de datos
+      await supabase
+        .from('integrations')
+        .update({
+          config: {
+            ...integration.config,
+            access_token: data.access_token
+          }
+        })
+        .eq('id', integration.id);
+
+      return data.access_token;
+    } catch {
+      return null;
+    }
+  }
+
+  // ==================== Sync History ====================
+
+  async logSyncEvent(
+    integrationId: string,
+    integrationType: string,
+    status: 'success' | 'error',
+    externalId?: string,
+    errorMessage?: string
+  ): Promise<void> {
+    try {
+      await supabase
+        .from('integration_sync_history')
+        .insert({
+          integration_id: integrationId,
+          integration_type: integrationType,
+          status,
+          external_id: externalId || null,
+          error_message: errorMessage || null,
+          synced_at: new Date().toISOString()
+        });
+    } catch (error) {
+      console.error('Error logging sync event:', error);
+    }
+  }
+
+  async getSyncHistory(integrationId: string, limit: number = 50): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('integration_sync_history')
+        .select('*')
+        .eq('integration_id', integrationId)
+        .order('synced_at', { ascending: false })
+        .limit(limit);
+
+      if (error) return [];
+      return data || [];
+    } catch {
+      return [];
+    }
+  }
+
   // ==================== Notification Triggers ====================
 
   async triggerNotifications(task: Task, event: 'created' | 'completed' | 'reminder' | 'overdue'): Promise<void> {
@@ -660,18 +920,42 @@ class IntegrationService {
             switch (integration.type) {
               case 'slack':
                 await this.sendSlackNotification(task, event);
+                await this.logSyncEvent(integration.id, 'slack', 'success');
                 break;
               case 'discord':
                 await this.sendDiscordNotification(task, event);
+                await this.logSyncEvent(integration.id, 'discord', 'success');
                 break;
               case 'email':
                 if (integration.config.recipient_email) {
                   await this.sendTaskEmail(task, integration.config.recipient_email, event);
+                  await this.logSyncEvent(integration.id, 'email', 'success');
+                }
+                break;
+              case 'webhook':
+                await this.sendWebhookNotification(task, event);
+                break;
+              case 'google_calendar':
+                if (task.due_date) {
+                  const result = await this.syncTaskToGoogleCalendar(task);
+                  if (result.success) {
+                    await this.logSyncEvent(integration.id, 'google_calendar', 'success', result.eventId);
+                  }
+                }
+                break;
+              case 'outlook':
+                if (task.due_date) {
+                  const result = await this.syncTaskToOutlook(task);
+                  if (result.success) {
+                    await this.logSyncEvent(integration.id, 'outlook', 'success', result.eventId);
+                  }
                 }
                 break;
             }
           } catch (error) {
             console.error(`Error en notificación ${integration.type}:`, error);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            await this.logSyncEvent(integration.id, integration.type, 'error', undefined, errorMsg);
           }
         });
 

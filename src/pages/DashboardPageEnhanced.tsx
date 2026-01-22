@@ -28,7 +28,7 @@ const DashboardPageEnhanced: React.FC = () => {
   const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection] = useState('dashboard');
 
   // Offline functionality
   useOffline();

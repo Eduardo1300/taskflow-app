@@ -10,7 +10,8 @@ import {
   CheckCircle,
   AlertCircle,
   Zap,
-  Bot
+  Bot,
+  X
 } from 'lucide-react';
 import { integrationService, Integration } from '../../services/integrationService';
 import { aiService, AISuggestion } from '../../services/aiService';
@@ -23,10 +24,14 @@ const IntegrationsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showNewIntegrationModal, setShowNewIntegrationModal] = useState(false);
   const [selectedIntegrationType, setSelectedIntegrationType] = useState<string>('');
+  const [syncHistory, setSyncHistory] = useState<any[]>([]);
+  const [showSyncHistory, setShowSyncHistory] = useState(false);
+  const [validatingWebhook, setValidatingWebhook] = useState(false);
 
   // Form states
   const [integrationName, setIntegrationName] = useState('');
   const [integrationConfig, setIntegrationConfig] = useState<Record<string, any>>({});
+  const [webhookValidationResult, setWebhookValidationResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     loadData();
@@ -100,6 +105,31 @@ const IntegrationsPage: React.FC = () => {
     } else {
       setError(response.error || 'Error actualizando integración');
     }
+  };
+
+  const handleValidateWebhook = async () => {
+    if (!integrationConfig.url) {
+      setWebhookValidationResult({ success: false, message: 'URL del webhook requerida' });
+      return;
+    }
+
+    setValidatingWebhook(true);
+    const response = await integrationService.validateWebhook(
+      integrationConfig.url,
+      integrationConfig.method || 'POST'
+    );
+    
+    setValidatingWebhook(false);
+    setWebhookValidationResult({
+      success: response.success,
+      message: response.error || '✅ Webhook validado correctamente'
+    });
+  };
+
+  const handleShowSyncHistory = async (integrationId: string) => {
+    setShowSyncHistory(true);
+    const history = await integrationService.getSyncHistory(integrationId);
+    setSyncHistory(history);
   };
 
   const resetForm = () => {
@@ -300,6 +330,22 @@ const IntegrationsPage: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 placeholder="https://tu-servidor.com/webhook"
               />
+              <button
+                onClick={handleValidateWebhook}
+                disabled={validatingWebhook || !integrationConfig.url}
+                className="mt-2 text-sm px-3 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded transition-colors"
+              >
+                {validatingWebhook ? 'Validando...' : 'Probar Webhook'}
+              </button>
+              {webhookValidationResult && (
+                <div className={`mt-2 p-2 rounded text-sm ${
+                  webhookValidationResult.success
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+                }`}>
+                  {webhookValidationResult.message}
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -646,6 +692,13 @@ const IntegrationsPage: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
+                        onClick={() => handleShowSyncHistory(integration.id)}
+                        className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                        title="Ver historial de sincronización"
+                      >
+                        📋 Historial
+                      </button>
+                      <button
                         onClick={() => handleToggleIntegration(integration.id, integration.is_active)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                           integration.is_active
@@ -730,6 +783,88 @@ const IntegrationsPage: React.FC = () => {
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
               >
                 {loading ? 'Creando...' : 'Crear Integración'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sync History Modal */}
+      {showSyncHistory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-2xl max-h-96 overflow-y-auto">
+            <div className="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Historial de Sincronización
+              </h2>
+              <button
+                onClick={() => setShowSyncHistory(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="divide-y divide-gray-200 dark:divide-gray-600">
+              {syncHistory && syncHistory.length > 0 ? (
+                syncHistory.map((event: any, index: number) => (
+                  <div key={index} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          {event.status === 'success' ? (
+                            <CheckCircle size={18} className="text-green-600" />
+                          ) : (
+                            <AlertCircle size={18} className="text-red-600" />
+                          )}
+                          <span className={`text-sm font-medium ${
+                            event.status === 'success' 
+                              ? 'text-green-600 dark:text-green-400' 
+                              : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {event.status === 'success' ? 'Exitoso' : 'Error'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          Tipo: <span className="font-medium">{event.integration_type}</span>
+                        </p>
+                        {event.external_id && (
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                            ID Externo: <span className="font-mono text-xs">{event.external_id}</span>
+                          </p>
+                        )}
+                        {event.error_message && (
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                            Error: {event.error_message}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(event.synced_at).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(event.synced_at).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="px-6 py-8 text-center">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    No hay historial de sincronización disponible
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
+              <button
+                onClick={() => setShowSyncHistory(false)}
+                className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Cerrar
               </button>
             </div>
           </div>
