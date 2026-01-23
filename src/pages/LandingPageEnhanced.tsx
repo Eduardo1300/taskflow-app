@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Users, Zap, Shield, BarChart3, Globe, Sparkles, Play, Target } from 'lucide-react';
+import { ArrowRight, Star, Users, Zap, Shield, BarChart3, Globe, Sparkles, Play, Target, Check, ChevronDown } from 'lucide-react';
 import ThemeToggle from '../components/Theme/ThemeToggle';
+import { useState } from 'react';
 
 const LandingPageEnhanced: React.FC = () => {
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(0);
   const features = [
     {
       icon: Target,
@@ -62,6 +64,53 @@ const LandingPageEnhanced: React.FC = () => {
     { number: '50,000+', label: 'Tareas completadas' },
     { number: '99.9%', label: 'Tiempo activo' },
     { number: '4.9/5', label: 'Calificación' }
+  ];
+
+  const faqItems = [
+    {
+      question: '¿Cuál es el período de prueba gratuita?',
+      answer: 'Todos los planes nuevos incluyen 14 días de prueba completamente gratis. No necesitas tarjeta de crédito para comenzar.'
+    },
+    {
+      question: '¿Puedo cambiar de plan en cualquier momento?',
+      answer: 'Sí, puedes actualizar o cambiar tu plan en cualquier momento. Los cambios se reflejan inmediatamente.'
+    },
+    {
+      question: '¿TaskFlow es compatible con mi software actual?',
+      answer: 'Tenemos integraciones con 100+ herramientas populares. Si no ves la tuya, contáctanos y la agregamos.'
+    },
+    {
+      question: '¿Qué sucede con mis datos si cancelo?',
+      answer: 'Tus datos están seguros. Puedes descargarlos en cualquier momento. Mantenemos un backup durante 30 días.'
+    }
+  ];
+
+  const pricingPlans = [
+    {
+      name: 'Starter',
+      price: '$9',
+      period: '/mes',
+      description: 'Perfecto para empezar',
+      cta: 'Comenzar ahora',
+      features: ['Hasta 100 tareas', '1 usuario', 'Soporte por email', 'Almacenamiento 2GB']
+    },
+    {
+      name: 'Professional',
+      price: '$29',
+      period: '/mes',
+      description: 'La opción más popular',
+      cta: 'Comenzar ahora',
+      highlighted: true,
+      features: ['Tareas ilimitadas', 'Hasta 5 usuarios', 'Soporte prioritario', 'Almacenamiento 50GB', 'Integraciones', 'Análisis avanzado']
+    },
+    {
+      name: 'Enterprise',
+      price: 'Personalizado',
+      period: '',
+      description: 'Para grandes equipos',
+      cta: 'Solicitar demo',
+      features: ['Todo de Professional', 'Usuarios ilimitados', 'SSO y seguridad avanzada', 'Almacenamiento ilimitado', 'API custom', 'Soporte 24/7']
+    }
   ];
 
   return (
@@ -251,7 +300,123 @@ const LandingPageEnhanced: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              Planes simples y transparentes
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Elige el plan perfecto para tu necesidad. Siempre puedes cambiar después.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {pricingPlans.map((plan, idx) => (
+              <div
+                key={idx}
+                className={`rounded-2xl p-8 transition-all duration-300 ${
+                  plan.highlighted
+                    ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl transform scale-105'
+                    : 'bg-white dark:bg-gray-800 shadow-lg'
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="inline-block bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    Más popular
+                  </div>
+                )}
+                
+                <h3 className={`text-2xl font-bold mb-2 ${plan.highlighted ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{plan.name}</h3>
+                <p className={`text-sm mb-6 ${plan.highlighted ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'}`}>
+                  {plan.description}
+                </p>
+                
+                <div className="mb-6">
+                  <span className={`text-4xl font-bold ${plan.highlighted ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{plan.price}</span>
+                  <span className={plan.highlighted ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'}>
+                    {plan.period}
+                  </span>
+                </div>
+
+                <button className={`w-full py-3 rounded-lg font-semibold mb-8 transition-all duration-300 ${
+                  plan.highlighted
+                    ? 'bg-white text-blue-600 hover:bg-blue-50'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500'
+                }`}>
+                  {plan.cta}
+                </button>
+
+                <ul className="space-y-4">
+                  {plan.features.map((feature, fidx) => (
+                    <li key={fidx} className="flex items-center">
+                      <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${
+                        plan.highlighted ? 'text-white' : 'text-green-500'
+                      }`} />
+                      <span className={plan.highlighted ? 'text-white' : 'text-gray-700 dark:text-gray-300'}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-12">
+            ¿Preguntas sobre los planes? <a href="#faq" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">Consulta nuestro FAQ</a>
+          </p>
+        </div>
+      </section>
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 bg-white dark:bg-gray-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-5xl font-bold text-center text-gray-900 dark:text-white mb-12">
+            Preguntas Frecuentes
+          </h2>
+
+          <div className="space-y-4">
+            {faqItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden shadow-md transition-all duration-300"
+              >
+                <button
+                  onClick={() => setExpandedFAQ(expandedFAQ === idx ? null : idx)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 dark:text-white text-left">
+                    {item.question}
+                  </span>
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-600 dark:text-gray-400 transition-transform duration-300 ${
+                      expandedFAQ === idx ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                
+                {expandedFAQ === idx && (
+                  <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {item.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              ¿No encontraste lo que buscas?
+            </p>
+            <a href="mailto:soporte@taskflow.com" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+              Contáctanos
+            </a>
+          </div>
+        </div>
+      </section>
       <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 relative overflow-hidden">
         {/* Elementos decorativos */}
         <div className="absolute inset-0">
