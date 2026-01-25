@@ -4,10 +4,10 @@ import MainLayout from '../components/Layout/MainLayout';
 import TaskCardEnhanced from '../components/Tasks/TaskCardEnhanced';
 import TaskModalEnhanced from '../components/Tasks/TaskModalEnhanced';
 import ShareTaskModal from '../components/Collaboration/ShareTaskModal';
-import InvitationNotifications from '../components/Collaboration/InvitationNotifications';
+
 import PWAUpdate from '../components/PWA/PWAUpdate';
-import OfflineIndicator from '../components/Offline/OfflineIndicator';
-import NotificationCenter from '../components/Dashboard/NotificationCenter';
+
+
 import GoalsSystem from '../components/Dashboard/GoalsSystem';
 import QuickActions from '../components/Dashboard/QuickActions';
 import SmartSearch from '../components/Dashboard/SmartSearch';
@@ -278,7 +278,7 @@ const DashboardPageEnhanced: React.FC = () => {
               
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 {/* Notification Center */}
-                <NotificationCenter tasks={tasks} />
+
                 
                 {/* Quick Actions */}
                 <QuickActions
@@ -466,9 +466,7 @@ const DashboardPageEnhanced: React.FC = () => {
       )}
 
       {/* Additional Components */}
-      <InvitationNotifications />
       <PWAUpdate />
-      <OfflineIndicator />
 
       {error && (
         <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
