@@ -1,9 +1,10 @@
 import { CheckSquare, LogOut, User, ChevronDown, Bell, Search, Settings, Sun, Moon, Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { NotificationPanel } from '../Notifications/NotificationPanel';
+import { notificationService } from '../../services/notificationService';
 
 interface HeaderProps {
   showUserMenu?: boolean;
@@ -17,25 +18,51 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Load unread notifications count
+  useEffect(() => {
+    if (user) {
+      const loadUnreadCount = async () => {
+        try {
+          const count = await notificationService.getUnreadCount(user.id);
+          setUnreadCount(count);
+        } catch (error) {
+          console.error('Error loading unread count:', error);
+        }
+      };
+      loadUnreadCount();
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  // Cerrar menús al hacer clic fuera
+  // Cerrar menú del usuario al hacer clic fuera (solo para el dropdown del usuario)
   useEffect(() => {
-    const handleClickOutside = () => {
+    if (!isMenuOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      
+      // Si el clic está dentro del menú del usuario, no cerrar
+      if (userMenuRef.current?.contains(target)) {
+        return;
+      }
+      
+      // Cerrar el menú del usuario
       setIsMenuOpen(false);
-      setIsSearchOpen(false);
     };
 
-    if (isMenuOpen || isSearchOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [isMenuOpen, isSearchOpen]);
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
     const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +79,11 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
             {/* Mobile Menu Button */}
             {onMobileMenuToggle && (
               <button
-                onClick={onMobileMenuToggle}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('🔘 Hamburger button clicked in Header');
+                  onMobileMenuToggle();
+                }}
                 className="lg:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Menu className="h-5 w-5" />
@@ -125,9 +156,11 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
                 >
                   <Bell className="h-5 w-5 group-hover:animate-bounce" />
                   {/* Notification Badge */}
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-white">3</span>
-                  </span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-white">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                    </span>
+                  )}
                 </button>
               </div>
 
@@ -140,12 +173,9 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
               </button>
 
               {/* User Menu */}
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMenuOpen(!isMenuOpen);
-                  }}
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="flex items-center space-x-3 p-2 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group"
                 >
                   <div className="flex items-center space-x-2">

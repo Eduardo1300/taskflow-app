@@ -15,7 +15,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
@@ -130,11 +130,18 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
     }
   ];
 
+  // Track previous pathname to only close sidebar on actual navigation
+  const previousPathnameRef = useRef(location.pathname);
+
   // Cerrar sidebar en móvil al navegar
   useEffect(() => {
-    if (onClose) {
+    // Solo cerrar si la ruta realmente cambió (para móvil)
+    if (previousPathnameRef.current !== location.pathname && onClose) {
+      console.log('🚪 SidebarEnhanced useEffect calling onClose (route changed from:', previousPathnameRef.current, 'to:', location.pathname, ')');
       onClose();
     }
+    
+    previousPathnameRef.current = location.pathname;
   }, [location.pathname, onClose]);
 
   const handleItemClick = (item: MenuItem) => {

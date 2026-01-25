@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Header from './Header';
 import SidebarEnhanced from './SidebarEnhanced';
 import ProfileSection from '../Profile/ProfileSection';
@@ -13,6 +13,11 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
   const [activeSection, setActiveSection] = useState(currentPage);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Log sidebar state changes
+  React.useEffect(() => {
+    console.log('📍 Sidebar state changed:', isSidebarOpen);
+  }, [isSidebarOpen]);
 
   const renderContent = () => {
     // Si currentPage es profile, settings o help, mostrar el children directamente
@@ -45,10 +50,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
     }
   };
 
-  const handleSidebarItemClick = () => {
+  const handleSidebarItemClick = useCallback(() => {
     // Cerrar sidebar al seleccionar un item en móvil
     setIsSidebarOpen(false);
-  };
+  }, []);
+
+  const handleCloseSidebar = useCallback(() => {
+    console.log('📌 handleCloseSidebar called');
+    setIsSidebarOpen(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -66,8 +76,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+            onClick={() => {
+              console.log('⚫ Overlay clicked, closing sidebar');
+              setIsSidebarOpen(false);
+            }}
           />
         )}
         
@@ -81,14 +94,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
             }}
             isCollapsed={false}
             isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
+            onClose={handleCloseSidebar}
           />
         </div>
         
         <div className="flex-1 flex flex-col min-w-0 lg:-ml-8">
           <Header 
             showUserMenu={true}
-            onMobileMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            onMobileMenuToggle={() => {
+              console.log('🍔 Hamburger clicked, current isSidebarOpen:', isSidebarOpen);
+              setIsSidebarOpen(prev => {
+                console.log('🍔 Setting isSidebarOpen to:', !prev);
+                return !prev;
+              });
+            }}
           />
           
           <main className="flex-1 py-6 px-4 sm:px-6 lg:pl-8 lg:pr-6">
