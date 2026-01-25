@@ -180,91 +180,95 @@ const CalendarPageEnhanced = () => {
 
   return (
     <MainLayout currentPage="calendar">
-      <div className="p-6">
-        <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-3 rounded-2xl shadow-lg">
-              <CalendarIcon className="h-8 w-8 text-white" />
+      <div className="p-4 sm:p-6">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-2 sm:p-3 rounded-2xl shadow-lg flex-shrink-0">
+              <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
                 Calendario Avanzado
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
                 Gestiona tus eventos con inteligencia y colaboración
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={() => {
                 setEditingTask(null);
                 setIsModalOpen(true);
               }}
-              className="flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center justify-center sm:justify-start flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm sm:text-base rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo evento
+              <Plus className="h-4 w-4 flex-shrink-0 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Nuevo evento</span>
+              <span className="sm:hidden">Evento</span>
             </button>
             
             <button
               onClick={() => setIsRecurringModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center justify-center sm:justify-start flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-sm sm:text-base rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              <Repeat className="h-4 w-4 mr-2" />
-              Recurrente
+              <Repeat className="h-4 w-4 flex-shrink-0 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Recurrente</span>
+              <span className="sm:hidden">Repet.</span>
             </button>
           </div>
         </header>
 
-        <div className="flex justify-center mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg">
+        <div className="flex justify-center mb-6 sm:mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-1 sm:p-2 shadow-lg">
           <button
             onClick={() => setActiveTab('calendar')}
-            className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+            className={`flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
               activeTab === 'calendar' 
                 ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
                 : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
             }`}
           >
-            <CalendarIcon className="h-5 w-5 mr-2" />
-            Calendario
+            <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="hidden sm:inline">Calendario</span>
+            <span className="sm:hidden">Cal.</span>
           </button>
           <button
             onClick={() => setActiveTab('collaboration')}
-            className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+            className={`flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
               activeTab === 'collaboration' 
                 ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
                 : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
             }`}
           >
-            <Users className="h-5 w-5 mr-2" />
-            Colaboración
+            <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="hidden sm:inline">Colaboración</span>
+            <span className="sm:hidden">Colab.</span>
           </button>
         </div>
 
-        <main className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <main className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {activeTab === 'calendar' && (
             <>
-              <div className="lg:col-span-3">
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
+              <div className="lg:col-span-3 min-w-0">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-3 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
+                    <div className="flex items-center space-x-2 sm:space-x-4">
                       <button onClick={() => navigateMonth('prev')} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                        <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400" />
                       </button>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">{getMonthName(currentDate)}</h2>
+                      <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white capitalize truncate">{getMonthName(currentDate)}</h2>
                       <button onClick={() => navigateMonth('next')} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                        <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400" />
                       </button>
                     </div>
 
-                    <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+                    <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1 text-sm">
                       {['month', 'week', 'day'].map(mode => (
                         <button
                           key={mode}
                           onClick={() => setViewMode(mode as ViewMode)}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                          className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 ${
                             viewMode === mode ? 'bg-white dark:bg-gray-600 text-purple-600 shadow-md' : 'text-gray-600 dark:text-gray-300'
                           }`}
                         >
@@ -276,15 +280,15 @@ const CalendarPageEnhanced = () => {
 
                   {viewMode === 'month' && (
                     <>
-                      <div className="grid grid-cols-7 gap-2 mb-4">
+                      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3 sm:mb-4">
                         {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-                          <div key={day} className="p-3 text-center">
-                            <div className="text-sm font-semibold text-gray-600 dark:text-gray-400">{day}</div>
+                          <div key={day} className="p-1 sm:p-3 text-center">
+                            <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 truncate">{day}</div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="grid grid-cols-7 gap-2">
+                      <div className="grid grid-cols-7 gap-1 sm:gap-2">
                         {getMonthDays(currentDate).map((day, index) => {
                           const dayEvents = getEventsForDate(day.date);
                           const isToday = day.isToday;
@@ -296,7 +300,7 @@ const CalendarPageEnhanced = () => {
                                 setSelectedDate(day.date);
                                 if (dayEvents.length === 0) setIsModalOpen(true);
                               }}
-                              className={`min-h-[120px] p-3 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                              className={`min-h-[80px] sm:min-h-[120px] p-1.5 sm:p-3 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
                                 isToday 
                                   ? 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-300 dark:border-purple-600 shadow-md' 
                                   : day.isCurrentMonth 
@@ -304,14 +308,14 @@ const CalendarPageEnhanced = () => {
                                     : 'bg-gray-50/50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500'
                               }`}
                             >
-                              <div className={`text-sm font-medium mb-2 ${
+                              <div className={`text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                                 isToday ? 'text-purple-600 dark:text-purple-400 font-bold' : 
                                 day.isCurrentMonth ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
                               }`}>
                                 {day.date.getDate()}
                               </div>
                               
-                              <div className="space-y-1">
+                              <div className="space-y-0.5">
                                 {dayEvents.slice(0, 2).map((event, eventIndex) => (
                                   <div
                                     key={eventIndex}
@@ -320,7 +324,7 @@ const CalendarPageEnhanced = () => {
                                       setEditingTask(event);
                                       setIsModalOpen(true);
                                     }}
-                                    className={`text-xs px-2 py-1 rounded-full truncate cursor-pointer transition-all duration-200 hover:scale-105 ${
+                                    className={`text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full truncate cursor-pointer transition-all duration-200 hover:scale-105 ${
                                       event.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
                                       event.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
                                       'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
@@ -330,7 +334,7 @@ const CalendarPageEnhanced = () => {
                                   </div>
                                 ))}
                                 {dayEvents.length > 2 && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 px-2">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 px-1.5">
                                     +{dayEvents.length - 2} más
                                   </div>
                                 )}
@@ -364,9 +368,9 @@ const CalendarPageEnhanced = () => {
                 </div>
               </div>
 
-              <div className="lg:col-span-1 space-y-6">
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center">
                     <Clock className="h-5 w-5 mr-2 text-purple-600" />
                     Eventos de hoy
                   </h3>
@@ -393,8 +397,8 @@ const CalendarPageEnhanced = () => {
                   )}
                 </div>
 
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center">
                     <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
                     Próximos eventos
                   </h3>
@@ -422,8 +426,8 @@ const CalendarPageEnhanced = () => {
                   )}
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-200/50 dark:border-purple-700/50 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-200/50 dark:border-purple-700/50 p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center">
                     <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
                     Estadísticas
                   </h3>
