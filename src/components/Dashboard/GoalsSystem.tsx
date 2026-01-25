@@ -11,6 +11,8 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { GoalsService } from '../../services/goalsService';
 
 interface Goal {
   id: string;
@@ -31,24 +33,103 @@ interface GoalsSystemProps {
 }
 
 const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [newGoal, setNewGoal] = useState({
+  const [newGoal, setNewGoal] = useState<Partial<Goal>>({
     title: '',
     description: '',
     target: 0,
-    type: 'daily' as const,
-    category: 'tasks' as const
+    type: 'daily',
+    category: 'tasks'
   });
 
   useEffect(() => {
-    initializeDefaultGoals();
-    updateGoalProgress();
-  }, [tasks]);
+    if (user?.id) {
+      // Limpiar localStorage al cargar para evitar duplicados
+      localStorage.removeItem('taskflow-goals');
+      loadGoals();
+    }
+  }, [user?.id]);
 
-  const initializeDefaultGoals = () => {
+  useEffect(() => {
+    if (goals.length > 0) {
+      updateGoalProgress();
+    }
+  }, [tasks, goals.length]);
+
+  // Cargar datos del objetivo cuando se abre para editar
+  useEffect(() => {
+    if (editingGoal) {
+      setNewGoal({
+        id: editingGoal.id,
+        title: editingGoal.title,
+        description: editingGoal.description,
+        target: editingGoal.target,
+        type: editingGoal.type,
+        category: editingGoal.category
+      });
+    } else {
+      setNewGoal({
+        title: '',
+        description: '',
+        target: 0,
+        type: 'daily',
+        category: 'tasks'
+      });
+    }
+  }, [editingGoal]);
+
+  const loadGoals = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await GoalsService.getGoals(user.id);
+      if (error) {
+        console.error('Error loading goals:', error);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        // Eliminar duplicados basados en el título
+        const seen = new Set<string>();
+        const uniqueGoals = data.filter(g => {
+          const key = `${g.title}-${g.type}-${g.category}`;
+          if (seen.has(key)) {
+            // Es un duplicado, eliminar de Supabase
+            if (g.id) {
+              GoalsService.deleteGoal(g.id).catch(err => 
+                console.error('Error deleting duplicate goal:', err)
+              );
+            }
+            return false;
+          }
+          seen.add(key);
+          return true;
+        });
+        
+        const formattedGoals = uniqueGoals.map(g => ({
+          ...g,
+          startDate: g.start_date ? new Date(g.start_date) : new Date(),
+          endDate: g.end_date ? new Date(g.end_date) : new Date()
+        })) as Goal[];
+        
+        console.log(`📊 Loaded ${formattedGoals.length} unique goals (removed ${data.length - formattedGoals.length} duplicates)`);
+        setGoals(formattedGoals);
+      } else {
+        // Si no hay objetivos, crear los predeterminados
+        await createDefaultGoals();
+      }
+    } catch (error) {
+      console.error('Error loading goals:', error);
+    }
+  };
+
+  const createDefaultGoals = async () => {
+    if (!user?.id) return;
+    
     const defaultGoals: Goal[] = [
       {
         id: 'daily-tasks',
@@ -87,21 +168,21 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
         completed: false
       }
     ];
-
-    const existingGoals = localStorage.getItem('taskflow-goals');
-    if (existingGoals) {
-      setGoals(JSON.parse(existingGoals).map((g: any) => ({
-        ...g,
-        startDate: new Date(g.startDate),
-        endDate: new Date(g.endDate)
-      })));
-    } else {
-      setGoals(defaultGoals);
-      localStorage.setItem('taskflow-goals', JSON.stringify(defaultGoals));
+    
+    try {
+      for (const goal of defaultGoals) {
+        await GoalsService.createGoal(user.id, goal);
+      }
+      await loadGoals();
+    } catch (error) {
+      console.error('Error creating default goals:', error);
     }
   };
 
   const updateGoalProgress = () => {
+    console.log('📊 GoalsSystem - updateGoalProgress called with tasks:', tasks.length);
+    console.log('📊 GoalsSystem - Completed tasks:', tasks.filter(t => t.completed).length);
+    
     setGoals(prevGoals => {
       const updatedGoals = prevGoals.map(goal => {
         let current = 0;
@@ -110,70 +191,31 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
         switch (goal.category) {
           case 'tasks':
             if (goal.type === 'daily') {
-              // Tareas completadas hoy - usar una aproximación más inteligente
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              const tomorrow = new Date(today);
-              tomorrow.setDate(tomorrow.getDate() + 1);
-              
-              current = tasks.filter(task => {
-                if (!task.completed) return false;
-                
-                // Si la tarea fue creada y completada hoy, contarla
-                const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                // Si se creó hoy y está completada, o si se actualizó hoy y está completada
-                return (createdDate >= today && createdDate < tomorrow && task.completed) ||
-                       (updatedDate >= today && updatedDate < tomorrow && task.completed);
-              }).length;
+              // Tareas completadas (sin importar cuándo se crearon)
+              // Contar todas las tareas completadas
+              current = tasks.filter(task => task.completed).length;
+              console.log('📊 Daily tasks goal - Completed tasks:', current, '/', goal.target);
             } else if (goal.type === 'weekly') {
-              // Tareas completadas esta semana
-              const weekStart = new Date(now);
-              weekStart.setDate(now.getDate() - now.getDay());
-              weekStart.setHours(0, 0, 0, 0);
-              
-              current = tasks.filter(task => {
-                if (!task.completed) return false;
-                
-                const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                // Contar tareas creadas o completadas esta semana
-                return (createdDate >= weekStart && task.completed) ||
-                       (updatedDate >= weekStart && task.completed);
-              }).length;
+              // Tareas completadas (sin importar cuándo se crearon)
+              current = tasks.filter(task => task.completed).length;
+              console.log('📊 Weekly tasks goal - Completed tasks:', current, '/', goal.target);
             } else if (goal.type === 'monthly') {
-              // Tareas completadas este mes
-              const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-              
-              current = tasks.filter(task => {
-                if (!task.completed) return false;
-                
-                const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                // Contar tareas creadas o completadas este mes
-                return (createdDate >= monthStart && task.completed) ||
-                       (updatedDate >= monthStart && task.completed);
-              }).length;
+              // Tareas completadas (sin importar cuándo se crearon)
+              current = tasks.filter(task => task.completed).length;
+              console.log('📊 Monthly tasks goal - Completed tasks:', current, '/', goal.target);
             }
             break;
 
           case 'productivity':
             if (goal.type === 'weekly') {
-              // Calcular productividad de la semana (mejorado)
+              // Calcular productividad de la semana
               const weekStart = new Date(now);
               weekStart.setDate(now.getDate() - now.getDay());
               weekStart.setHours(0, 0, 0, 0);
               
-              // Incluir todas las tareas que están en el rango de la semana
               const weekTasks = tasks.filter(task => {
                 const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                // Incluir tareas creadas esta semana o actualizadas esta semana
-                return createdDate >= weekStart || updatedDate >= weekStart;
+                return createdDate >= weekStart;
               });
               
               const completedWeekTasks = weekTasks.filter(task => task.completed);
@@ -187,10 +229,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               
               const todayTasks = tasks.filter(task => {
                 const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                return (createdDate >= today && createdDate < tomorrow) ||
-                       (updatedDate >= today && updatedDate < tomorrow);
+                return createdDate >= today && createdDate < tomorrow;
               });
               
               const completedTodayTasks = todayTasks.filter(task => task.completed);
@@ -201,9 +240,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               
               const monthTasks = tasks.filter(task => {
                 const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                return createdDate >= monthStart || updatedDate >= monthStart;
+                return createdDate >= monthStart;
               });
               
               const completedMonthTasks = monthTasks.filter(task => task.completed);
@@ -222,10 +259,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               current = tasks.filter(task => {
                 if (!task.completed) return false;
                 const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                return (createdDate >= today && createdDate < tomorrow && task.completed) ||
-                       (updatedDate >= today && updatedDate < tomorrow && task.completed);
+                return createdDate >= today && createdDate < tomorrow;
               }).length;
             } else if (goal.type === 'weekly') {
               const weekStart = new Date(now);
@@ -235,10 +269,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               current = tasks.filter(task => {
                 if (!task.completed) return false;
                 const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                return (createdDate >= weekStart && task.completed) ||
-                       (updatedDate >= weekStart && task.completed);
+                return createdDate >= weekStart;
               }).length;
             } else if (goal.type === 'monthly') {
               const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -246,16 +277,15 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               current = tasks.filter(task => {
                 if (!task.completed) return false;
                 const createdDate = new Date(task.created_at);
-                const updatedDate = new Date(task.updated_at);
-                
-                return (createdDate >= monthStart && task.completed) ||
-                       (updatedDate >= monthStart && task.completed);
+                return createdDate >= monthStart;
               }).length;
             }
             break;
         }
 
         const completed = current >= goal.target;
+        
+        console.log(`📊 Goal: ${goal.title}, Current: ${current}, Target: ${goal.target}, Completed: ${completed}`);
         
         return {
           ...goal,
@@ -264,32 +294,104 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
         };
       });
 
-      // Guardar en localStorage
-      localStorage.setItem('taskflow-goals', JSON.stringify(updatedGoals));
-      
+      // Retornar los objetivos actualizados
       return updatedGoals;
     });
+
+    // Actualizar en Supabase de forma asincrónica (sin bloquear setState)
+    if (user?.id) {
+      setGoals(prevGoals => {
+        // Enviar actualizaciones a Supabase en segundo plano
+        prevGoals.forEach(goal => {
+          GoalsService.updateGoal(goal.id!, {
+            current: goal.current,
+            completed: goal.completed
+          } as any).catch(error => {
+            console.error('Error updating goal progress:', error);
+          });
+        });
+        
+        return prevGoals;
+      });
+    }
   };
 
-  const addGoal = () => {
-    const goal: Goal = {
-      id: Date.now().toString(),
-      ...newGoal,
-      current: 0,
-      startDate: new Date(),
-      endDate: new Date(Date.now() + (newGoal.type === 'daily' ? 24 * 60 * 60 * 1000 : 
-                                     newGoal.type === 'weekly' ? 7 * 24 * 60 * 60 * 1000 :
-                                     30 * 24 * 60 * 60 * 1000)),
-      completed: false
-    };
+  const addGoal = async () => {
+    if (!newGoal.title || !newGoal.target) {
+      alert('Por favor completa el título y la meta');
+      return;
+    }
 
-    setGoals(prev => [...prev, goal]);
+    if (editingGoal) {
+      // Actualizar objetivo existente
+      const updatedGoals = goals.map(g => 
+        g.id === editingGoal.id 
+          ? {
+              ...g,
+              title: newGoal.title!,
+              description: newGoal.description!,
+              target: newGoal.target!,
+              type: (newGoal.type || 'daily') as 'daily' | 'weekly' | 'monthly',
+              category: (newGoal.category || 'tasks') as 'tasks' | 'productivity' | 'custom'
+            }
+          : g
+      ) as Goal[];
+      
+      setGoals(updatedGoals);
+      
+      // Actualizar en Supabase
+      if (editingGoal?.id && user?.id) {
+        try {
+          await GoalsService.updateGoal(editingGoal.id, newGoal as any);
+        } catch (error) {
+          console.error('Error updating goal:', error);
+        }
+      }
+      console.log('✏️ Objetivo actualizado:', newGoal.title);
+    } else {
+      // Crear nuevo objetivo
+      const newGoalObj: Goal = {
+        id: Date.now().toString(),
+        title: newGoal.title || '',
+        description: newGoal.description || '',
+        target: newGoal.target || 0,
+        type: (newGoal.type || 'daily') as 'daily' | 'weekly' | 'monthly',
+        category: (newGoal.category || 'tasks') as 'tasks' | 'productivity' | 'custom',
+        current: 0,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + (newGoal.type === 'daily' ? 24 * 60 * 60 * 1000 : 
+                                       newGoal.type === 'weekly' ? 7 * 24 * 60 * 60 * 1000 :
+                                       30 * 24 * 60 * 60 * 1000)),
+        completed: false
+      };
+
+      setGoals(prev => [...prev, newGoalObj]);
+      
+      // Guardar en Supabase
+      if (user?.id) {
+        try {
+          await GoalsService.createGoal(user.id, newGoalObj);
+        } catch (error) {
+          console.error('Error creating goal:', error);
+        }
+      }
+      console.log('➕ Nuevo objetivo creado:', newGoal.title);
+    }
+
     setIsModalOpen(false);
+    setEditingGoal(null);
     setNewGoal({ title: '', description: '', target: 0, type: 'daily', category: 'tasks' });
   };
 
-  const deleteGoal = (goalId: string) => {
+  const deleteGoal = async (goalId: string) => {
     setGoals(prev => prev.filter(g => g.id !== goalId));
+    
+    // Eliminar de Supabase
+    try {
+      await GoalsService.deleteGoal(goalId);
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+    }
   };
 
   const getProgressColor = (percentage: number, completed: boolean) => {
@@ -546,10 +648,10 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               </button>
               <button
                 onClick={addGoal}
-                disabled={!newGoal.title || !newGoal.target}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+                disabled={!newGoal.title || !newGoal.target || newGoal.target <= 0}
               >
-                {editingGoal ? 'Guardar' : 'Crear'}
+                {editingGoal ? 'Guardar cambios' : 'Crear objetivo'}
               </button>
             </div>
           </div>
