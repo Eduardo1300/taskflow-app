@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
   Shield, 
@@ -18,35 +18,13 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { SettingsService, type NotificationSettings, type PrivacySettings, type AppearanceSettings } from '../services/settingsService';
 import MainLayout from '../components/Layout/MainLayout';
-
-interface NotificationSettings {
-  email: boolean;
-  push: boolean;
-  taskReminders: boolean;
-  weeklyDigest: boolean;
-  collaborationUpdates: boolean;
-  soundEnabled: boolean;
-  desktopNotifications: boolean;
-}
-
-interface PrivacySettings {
-  profileVisibility: 'public' | 'private';
-  showEmail: boolean;
-  allowCollaboration: boolean;
-  dataAnalytics: boolean;
-}
-
-interface AppearanceSettings {
-  theme: 'light' | 'dark';
-  language: string;
-  timezone: string;
-  dateFormat: string;
-  timeFormat: '12h' | '24h';
-}
 
 const SettingsPageEnhanced: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('notifications');
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -77,19 +55,59 @@ const SettingsPageEnhanced: React.FC = () => {
     timeFormat: '24h'
   });
 
+  useEffect(() => {
+    if (user?.id) {
+      loadSettings();
+    }
+  }, [user?.id]);
+
+  const loadSettings = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await SettingsService.getSettings(user.id);
+
+      if (error) {
+        console.error('Error loading settings:', error);
+        // Si no existe, crear uno nuevo
+        await SettingsService.createSettings(user.id, {});
+      } else if (data) {
+        setNotifications(data.notifications);
+        setPrivacy(data.privacy);
+        setAppearance(data.appearance);
+        if (data.appearance.theme && data.appearance.theme !== theme) {
+          setTheme(data.appearance.theme as 'light' | 'dark');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { error } = await SettingsService.updateSettings(user?.id || '', {
+        notifications,
+        privacy,
+        appearance
+      });
+
+      if (error) {
+        console.error('Error saving settings:', error);
+        alert('Error al guardar configuración');
+        return;
+      }
+
       if (appearance.theme !== theme) {
         setTheme(appearance.theme);
       }
-      
+
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving settings:', error);
+      alert('Error al guardar configuración');
     } finally {
       setLoading(false);
     }

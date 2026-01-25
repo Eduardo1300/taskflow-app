@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, TrendingUp, Clock, Target, Badge } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { ProfileService, type UserProfile } from '../services/profileService';
 import MainLayout from '../components/Layout/MainLayout';
-
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  location?: string;
-  bio?: string;
-  avatar?: string;
-  joined_date: string;
-  timezone: string;
-  language: string;
-}
 
 interface UserStats {
   tasksCompleted: number;
@@ -54,19 +42,42 @@ const ProfilePageEnhanced: React.FC = () => {
   const [editedProfile, setEditedProfile] = useState(profile);
 
   useEffect(() => {
-    setProfile({
-      id: user?.id || '',
-      name: user?.name || '',
-      email: user?.email || '',
-      phone: '',
-      location: '',
-      bio: '',
-      avatar: '',
-      joined_date: new Date().toISOString(),
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      language: 'es'
-    });
-  }, [user]);
+    if (user?.id) {
+      loadProfile();
+    }
+  }, [user?.id]);
+
+  const loadProfile = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await ProfileService.getProfile(user.id);
+      
+      if (error) {
+        console.error('Error loading profile:', error);
+        // Si no existe, crear uno nuevo
+        const newProfile: UserProfile = {
+          id: user.id,
+          name: user.name || '',
+          email: user.email || '',
+          phone: '',
+          location: '',
+          bio: '',
+          avatar: '',
+          joined_date: new Date().toISOString(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: 'es'
+        };
+        
+        await ProfileService.createProfile(user.id, newProfile);
+        setProfile(newProfile);
+      } else if (data) {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  };
 
   const handleEdit = () => {
     setEditedProfile({ ...profile });
@@ -81,10 +92,23 @@ const ProfilePageEnhanced: React.FC = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      setProfile({ ...editedProfile });
+      const { data, error } = await ProfileService.updateProfile(user?.id || '', editedProfile);
+      
+      if (error) {
+        console.error('Error updating profile:', error);
+        alert('Error al guardar el perfil');
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      } else {
+        setProfile(editedProfile);
+      }
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
+      alert('Error al guardar el perfil');
     } finally {
       setLoading(false);
     }
