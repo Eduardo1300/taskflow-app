@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { integrationService, Integration } from '../../services/integrationService';
 import { aiService, AISuggestion } from '../../services/aiService';
+import { EmailPreferencesService } from '../../services/emailPreferencesService';
 import { triggerIntegrationNotification } from './IntegrationNotifications';
 
 const IntegrationsPage: React.FC = () => {
@@ -65,20 +66,60 @@ const IntegrationsPage: React.FC = () => {
       return;
     }
 
-    setLoading(true);
-    const response = await integrationService.createIntegration(
-      selectedIntegrationType,
-      integrationName,
-      integrationConfig
-    );
-
-    if (response.success) {
-      await loadData();
-      setShowNewIntegrationModal(false);
-      resetForm();
-    } else {
-      setError(response.error || 'Error creando integración');
+    // Validar que el email sea válido para integración de email
+    if (selectedIntegrationType === 'email') {
+      if (!integrationConfig.recipient_email || !integrationConfig.recipient_email.trim()) {
+        setError('Email de destino es requerido');
+        return;
+      }
+      if (!integrationConfig.events || integrationConfig.events.length === 0) {
+        setError('Selecciona al menos un tipo de notificación');
+        return;
+      }
     }
+
+    setLoading(true);
+    
+    try {
+      // Si es email, guardar en email_preferences en lugar de integrations
+      if (selectedIntegrationType === 'email') {
+        const result = await EmailPreferencesService.saveEmailPreferences({
+          email: integrationConfig.recipient_email,
+          task_created: integrationConfig.events.includes('task_created'),
+          task_completed: integrationConfig.events.includes('task_completed'),
+          task_overdue: integrationConfig.events.includes('task_overdue'),
+          task_reminder: integrationConfig.events.includes('task_reminder'),
+        });
+
+        if (result.success) {
+          setShowNewIntegrationModal(false);
+          resetForm();
+          await loadData();
+          setError(null);
+        } else {
+          setError(result.error || 'Error guardando preferencias de email');
+        }
+      } else {
+        // Para otras integraciones, usar el servicio normal
+        const response = await integrationService.createIntegration(
+          selectedIntegrationType,
+          integrationName,
+          integrationConfig
+        );
+
+        if (response.success) {
+          await loadData();
+          setShowNewIntegrationModal(false);
+          resetForm();
+          setError(null);
+        } else {
+          setError(response.error || 'Error creando integración');
+        }
+      }
+    } catch (err) {
+      setError('Error al guardar la integración');
+    }
+    
     setLoading(false);
   };
 

@@ -1,5 +1,7 @@
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { Task, TaskInsert, TaskUpdate } from '../types/database';
+import { EmailService } from './emailService';
+import { EmailPreferencesService } from './emailPreferencesService';
 
 export class TaskService {
   /**
@@ -51,6 +53,23 @@ export class TaskService {
 
       if (error) {
         return { data: null, error: handleSupabaseError(error) };
+      }
+
+      // Enviar email si el usuario tiene activada la notificación de tarea creada
+      try {
+        const { should, email } = await EmailPreferencesService.shouldSendEmailForEvent('task_created');
+        
+        if (should && email) {
+          await EmailService.sendTaskCreatedEmail(
+            email,
+            data.title,
+            data.id.toString()
+          );
+          console.log('✉️ Task created email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending task created email:', emailError);
+        // No fallar la creación de la tarea si falla el email
       }
 
       return { data, error: null };

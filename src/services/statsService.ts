@@ -19,14 +19,20 @@ export class StatsService {
         .select('*')
         .eq('user_id', userId);
 
-      if (tasksError) throw tasksError;
+      if (tasksError) {
+        console.error('Error fetching tasks:', tasksError);
+        throw tasksError;
+      }
 
       const taskList = tasks || [];
+      console.log('📊 Tasks fetched:', taskList.length);
 
       // Calcular estadísticas
       const tasksCompleted = taskList.filter(t => t.completed).length;
       const totalTasks = taskList.length;
       const averageCompletionRate = totalTasks > 0 ? Math.round((tasksCompleted / totalTasks) * 100) : 0;
+
+      console.log('📊 Tasks completed:', tasksCompleted, 'Total:', totalTasks, 'Rate:', averageCompletionRate);
 
       // Contar proyectos únicos (categorías con tareas activas)
       const activeCategories = new Set<string>();
@@ -41,14 +47,24 @@ export class StatsService {
       const streakDays = this.calculateStreak(taskList);
 
       // Contar colaboradores únicos
-      const { data: collaborations } = await supabase
-        .from('task_collaborators')
-        .select('user_id')
-        .eq('task_id', taskList.map(t => t.id))
-        .neq('user_id', userId);
+      let collaborators = 0;
+      
+      if (taskList.length > 0) {
+        const taskIds = taskList.map(t => t.id);
+        const { data: collaborations, error: collabError } = await supabase
+          .from('task_collaborators')
+          .select('user_id')
+          .in('task_id', taskIds)
+          .neq('user_id', userId);
 
-      const collaborators = new Set<string>();
-      (collaborations || []).forEach(c => collaborators.add(c.user_id));
+        if (!collabError && collaborations) {
+          const uniqueCollaborators = new Set<string>();
+          collaborations.forEach(c => uniqueCollaborators.add(c.user_id));
+          collaborators = uniqueCollaborators.size;
+        }
+      }
+
+      console.log('📊 Active projects:', activeProjects, 'Streak:', streakDays, 'Collaborators:', collaborators);
 
       // Estimar horas (asumiendo 30 minutos por tarea completada)
       const totalHours = Math.round(tasksCompleted * 0.5);
@@ -58,7 +74,7 @@ export class StatsService {
           tasksCompleted,
           activeProjects,
           streakDays,
-          collaborators: collaborators.size,
+          collaborators,
           totalHours,
           averageCompletionRate,
           totalTasks
