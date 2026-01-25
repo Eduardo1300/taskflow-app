@@ -2,16 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, TrendingUp, Clock, Target, Badge } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProfileService, type UserProfile } from '../services/profileService';
+import { StatsService, type UserStats } from '../services/statsService';
 import MainLayout from '../components/Layout/MainLayout';
-
-interface UserStats {
-  tasksCompleted: number;
-  activeProjects: number;
-  streakDays: number;
-  collaborators: number;
-  totalHours: number;
-  averageCompletionRate: number;
-}
 
 const ProfilePageEnhanced: React.FC = () => {
   const { user } = useAuth();
@@ -30,13 +22,14 @@ const ProfilePageEnhanced: React.FC = () => {
     language: 'es'
   });
 
-  const [stats] = useState<UserStats>({
-    tasksCompleted: 47,
-    activeProjects: 8,
-    streakDays: 12,
-    collaborators: 6,
-    totalHours: 234,
-    averageCompletionRate: 87
+  const [stats, setStats] = useState<UserStats>({
+    tasksCompleted: 0,
+    activeProjects: 0,
+    streakDays: 0,
+    collaborators: 0,
+    totalHours: 0,
+    averageCompletionRate: 0,
+    totalTasks: 0
   });
 
   const [editedProfile, setEditedProfile] = useState(profile);
@@ -44,6 +37,7 @@ const ProfilePageEnhanced: React.FC = () => {
   useEffect(() => {
     if (user?.id) {
       loadProfile();
+      loadStats();
     }
   }, [user?.id]);
 
@@ -76,6 +70,25 @@ const ProfilePageEnhanced: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+    }
+  };
+
+  const loadStats = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await StatsService.getUserStats(user.id);
+
+      if (error) {
+        console.error('Error loading stats:', error);
+        return;
+      }
+
+      if (data) {
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
     }
   };
 
