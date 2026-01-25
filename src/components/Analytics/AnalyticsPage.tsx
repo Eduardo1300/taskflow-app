@@ -121,30 +121,30 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900">
-      <div className="w-full px-6 py-6">
+      <div className="w-full px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
         {/* Header */}
-        <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-3 rounded-2xl shadow-lg">
-              <BarChart3 className="h-8 w-8 text-white" />
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-2 sm:p-3 rounded-2xl shadow-lg flex-shrink-0">
+              <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
                 Analytics Completo
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
                 Análisis completo de productividad, tareas y calendario
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
+            <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 text-sm overflow-x-auto">
               {(['week', 'month', 'quarter'] as const).map((range) => (
                 <button
                   key={range}
                   onClick={() => setSelectedTimeRange(range)}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
                     selectedTimeRange === range
                       ? 'bg-purple-500 text-white'
                       : 'text-gray-600 dark:text-gray-400 hover:text-purple-500'
@@ -157,16 +157,17 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
 
             <button
               onClick={exportAnalyticsToPDF}
-              className="flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-sm rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex-shrink-0"
             >
-              <FileText className="h-4 w-4 mr-2" />
-              Exportar PDF
+              <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Exportar PDF</span>
+              <span className="sm:hidden">PDF</span>
             </button>
           </div>
         </header>
 
         {/* Navigation Tabs */}
-        <div className="flex justify-center mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg overflow-x-auto">
+        <div className="flex justify-start mb-6 sm:mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg overflow-x-auto">
           {[
             { key: 'overview', label: 'Resumen', icon: Target },
             { key: 'productivity', label: 'Productividad', icon: TrendingUp },
@@ -179,14 +180,15 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
             <button
               key={key}
               onClick={() => setActiveTab(key as any)}
-              className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
+              className={`flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap text-sm sm:text-base ${
                 activeTab === key 
                   ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
                   : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
               }`}
             >
-              <Icon className="h-5 w-5 mr-2" />
-              {label}
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{label.split(' ')[0]}</span>
             </button>
           ))}
         </div>

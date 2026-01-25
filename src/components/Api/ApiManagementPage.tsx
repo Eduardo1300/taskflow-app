@@ -175,78 +175,79 @@ const ApiManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl ml-16 w-full space-y-6">
+    <div className="w-full space-y-4 sm:space-y-6 px-3 sm:px-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-            <Globe className="h-6 w-6 mr-2" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <Globe className="h-5 w-5 sm:h-6 sm:w-6 mr-2 flex-shrink-0" />
             API REST
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
             Gestiona el acceso programático a tus tareas
           </p>
         </div>
         <button
           onClick={() => setShowApiDocumentation(true)}
-          className="mt-4 sm:mt-0 flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          className="flex items-center justify-center sm:justify-start w-full sm:w-auto px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
         >
-          <Book className="h-4 w-4 mr-2" />
+          <Book className="h-4 w-4 mr-1 sm:mr-2" />
           Documentación
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
-            <span className="text-red-700 dark:text-red-400">{error}</span>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 sm:p-4">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
+            <span className="text-xs sm:text-sm text-red-700 dark:text-red-400">{error}</span>
           </div>
         </div>
       )}
 
       {/* API Keys Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Key className="h-5 w-5 text-gray-500 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">API Keys</h3>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 flex-shrink-0" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">API Keys</h3>
             </div>
             <button
               onClick={() => setShowNewApiKeyModal(true)}
-              className="flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+              className="flex items-center justify-center px-2 sm:px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs sm:text-sm flex-shrink-0"
             >
-              <Plus className="h-4 w-4 mr-1" />
-              Nueva API Key
+              <Plus className="h-4 w-4 mr-0 sm:mr-1" />
+              <span className="hidden sm:inline">Nueva API Key</span>
+              <span className="sm:hidden">+</span>
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {apiKeys.length === 0 ? (
             <div className="text-center py-8">
               <Key className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400 mb-4">No tienes API keys creadas</p>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4">No tienes API keys creadas</p>
               <button
                 onClick={() => setShowNewApiKeyModal(true)}
-                className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors mx-auto"
+                className="flex items-center justify-center px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors mx-auto text-sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                 Crear primera API Key
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {apiKeys.map((apiKey) => (
                 <div
                   key={apiKey.id}
-                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-2">
-                        <h4 className="font-medium text-gray-900 dark:text-white mr-3">
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center mb-2 gap-2 flex-wrap">
+                        <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
                           {apiKey.name}
                         </h4>
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

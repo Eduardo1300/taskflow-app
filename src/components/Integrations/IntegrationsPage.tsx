@@ -386,24 +386,24 @@ const IntegrationsPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl ml-16 w-full space-y-6">
+    <div className="w-full space-y-4 sm:space-y-6 px-3 sm:px-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-            <Zap className="h-6 w-6 mr-2" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <Zap className="h-5 w-5 sm:h-6 sm:w-6 mr-2 flex-shrink-0" />
             Integraciones & IA
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
             Conecta TaskFlow con tus herramientas favoritas y aprovecha la IA
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
           <button
             onClick={() => setShowNewIntegrationModal(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            className="flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
             Nueva Integración
           </button>
           <button
@@ -413,40 +413,40 @@ const IntegrationsPage: React.FC = () => {
               'Las notificaciones funcionan correctamente',
               'test'
             )}
-            className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            className="flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
           >
-            <Bot className="h-4 w-4 mr-2" />
+            <Bot className="h-4 w-4 mr-1 sm:mr-2" />
             Probar Notificaciones
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-            <span className="text-red-700 dark:text-red-400">{error}</span>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 sm:p-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+            <span className="text-xs sm:text-sm text-red-700 dark:text-red-400">{error}</span>
           </div>
         </div>
       )}
 
       {/* IA Suggestions Preview */}
       {aiSuggestions.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-6">
-          <div className="flex items-center mb-4">
-            <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-4 sm:p-6">
+          <div className="flex items-center mb-3 sm:mb-4 gap-2">
+            <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
               Sugerencias de IA
             </h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {aiSuggestions.slice(0, 4).map((suggestion) => (
               <div
                 key={suggestion.id}
-                className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 dark:text-white text-sm">
+                <div className="flex items-start justify-between mb-2 gap-2">
+                  <h4 className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm">
                     {suggestion.title}
                   </h4>
                   <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full">

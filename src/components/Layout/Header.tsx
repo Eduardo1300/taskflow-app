@@ -71,11 +71,11 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="w-full px-3 sm:px-4 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
           
           {/* Logo y Mobile Menu Button */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
             {/* Mobile Menu Button */}
             {onMobileMenuToggle && (
               <button
@@ -84,23 +84,23 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
                   console.log('🔘 Hamburger button clicked in Header');
                   onMobileMenuToggle();
                 }}
-                className="lg:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
               >
                 <Menu className="h-5 w-5" />
               </button>
             )}
             
             {/* Logo */}
-            <div className="flex items-center cursor-pointer" onClick={() => navigate('/dashboard')}>
-              <div className="relative">
-                <CheckSquare className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+            <div className="flex items-center cursor-pointer min-w-0" onClick={() => navigate('/dashboard')}>
+              <div className="relative flex-shrink-0">
+                <CheckSquare className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-400" />
+                <div className="absolute -top-1 -right-1 w-2 sm:w-3 h-2 sm:h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
               </div>
-              <div className="ml-3">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <div className="ml-2 sm:ml-3 hidden sm:block">
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   TaskFlow
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden lg:block">
                   Productividad inteligente
                 </p>
               </div>
@@ -108,15 +108,15 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
           </div>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <div className="hidden lg:flex flex-1 max-w-md mx-4">
             <div className="relative w-full">
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar tareas, proyectos..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  placeholder="Buscar tareas..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </form>
@@ -125,12 +125,12 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
 
           {/* Right Side Actions */}
           {showUserMenu && user && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               
               {/* Mobile Search Button */}
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="md:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -176,23 +176,23 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex items-center space-x-3 p-2 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group"
+                  className="flex items-center space-x-1 sm:space-x-2 p-1 sm:p-2 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group flex-shrink-0"
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <div className="relative">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm flex-shrink-0">
                         {user.email?.charAt(0).toUpperCase()}
                       </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-2 sm:w-3 h-2 sm:h-3 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></div>
                     </div>
                     <div className="hidden sm:block text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate max-w-[100px]">
                         {user.email?.split('@')[0]}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">En línea</p>
                     </div>
                   </div>
-                  <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                  <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 hidden sm:block ${
                     isMenuOpen ? 'rotate-180' : ''
                   }`} />
                 </button>
