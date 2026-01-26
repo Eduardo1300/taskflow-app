@@ -48,13 +48,16 @@ export class EmailPreferencesService {
   static async saveEmailPreferences(preferences: Omit<EmailPreferences, 'user_id' | 'created_at' | 'updated_at'>): Promise<{ success: boolean; error?: string }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+      console.log('[EmailPreferencesService] Usuario autenticado:', user?.id);
+      console.log('[EmailPreferencesService] Preferencias a guardar:', preferences);
       if (!user) {
+        console.error('[EmailPreferencesService] Usuario no autenticado');
         return { success: false, error: 'Usuario no autenticado' };
       }
 
       // Primero intentar obtener los datos existentes
       const existing = await this.getEmailPreferences();
+      console.log('[EmailPreferencesService] Preferencias existentes:', existing);
 
       if (existing) {
         // Actualizar
@@ -71,8 +74,10 @@ export class EmailPreferencesService {
           .eq('user_id', user.id);
 
         if (error) {
+          console.error('[EmailPreferencesService] Error al actualizar:', error);
           return { success: false, error: error.message };
         }
+        console.log('[EmailPreferencesService] Preferencias actualizadas correctamente');
       } else {
         // Crear nuevo
         const { error } = await supabase
@@ -87,13 +92,15 @@ export class EmailPreferencesService {
           });
 
         if (error) {
+          console.error('[EmailPreferencesService] Error al crear:', error);
           return { success: false, error: error.message };
         }
+        console.log('[EmailPreferencesService] Preferencias creadas correctamente');
       }
 
       return { success: true };
     } catch (error) {
-      console.error('Error in saveEmailPreferences:', error);
+      console.error('[EmailPreferencesService] Error general:', error);
       return { success: false, error: String(error) };
     }
   }

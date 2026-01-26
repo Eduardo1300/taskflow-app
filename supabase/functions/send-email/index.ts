@@ -38,11 +38,15 @@ serve(async (req) => {
     }
 
     // Obtener credenciales de Resend desde variables de entorno (secreto)
-    const resendApiKey = Deno.env.get('resend_api_key')
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    console.log('[send-email] Variables de entorno disponibles:', Object.keys(Deno.env.toObject()))
+    console.log('[send-email] RESEND_API_KEY:', resendApiKey ? 'CONFIGURADA' : 'NO ENCONTRADA')
+    
     if (!resendApiKey) {
-      console.error('resend_api_key not configured')
+      console.error('[send-email] ERROR: RESEND_API_KEY not configured')
+      console.error('[send-email] Variables disponibles:', Object.keys(Deno.env.toObject()))
       return new Response(
-        JSON.stringify({ error: 'Email service not configured' }),
+        JSON.stringify({ error: 'Email service not configured - RESEND_API_KEY missing' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

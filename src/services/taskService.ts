@@ -57,18 +57,25 @@ export class TaskService {
 
       // Enviar email si el usuario tiene activada la notificación de tarea creada
       try {
+        console.log('[TaskService] Verificando si enviar email...');
         const { should, email } = await EmailPreferencesService.shouldSendEmailForEvent('task_created');
+        console.log('[TaskService] ¿Enviar email?:', should);
+        console.log('[TaskService] Email destino:', email);
         
         if (should && email) {
+          console.log('[TaskService] Enviando email de tarea creada...');
           await EmailService.sendTaskCreatedEmail(
             email,
             data.title,
-            data.id.toString()
+            data.id.toString(),
+            data
           );
           console.log('✉️ Task created email sent successfully');
+        } else {
+          console.log('[TaskService] No se enviará email (should=', should, ', email=', email, ')');
         }
       } catch (emailError) {
-        console.error('Error sending task created email:', emailError);
+        console.error('[TaskService] Error sending task created email:', emailError);
         // No fallar la creación de la tarea si falla el email
       }
 
@@ -111,7 +118,28 @@ export class TaskService {
    * Alternar el estado completado de una tarea
    */
   static async toggleTaskCompletion(id: number, completed: boolean): Promise<{ data: Task | null; error: string | null }> {
-    return this.updateTask(id, { completed });
+    const result = await this.updateTask(id, { completed });
+    
+    // Si la tarea se completó, enviar email de notificación
+    if (completed && result.data) {
+      try {
+        const { should, email } = await EmailPreferencesService.shouldSendEmailForEvent('task_completed');
+        
+        if (should && email) {
+          await EmailService.sendTaskCompletedEmail(
+            email,
+            result.data.title,
+            undefined,
+            result.data
+          );
+          console.log('✉️ Task completed email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('[TaskService] Error sending task completed email:', emailError);
+      }
+    }
+    
+    return result;
   }
 
   /**

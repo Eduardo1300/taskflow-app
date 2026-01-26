@@ -28,6 +28,7 @@ const IntegrationsPage: React.FC = () => {
   const [syncHistory, setSyncHistory] = useState<any[]>([]);
   const [showSyncHistory, setShowSyncHistory] = useState(false);
   const [validatingWebhook, setValidatingWebhook] = useState(false);
+  const [emailPreferences, setEmailPreferences] = useState<any>(null);
 
   // Form states
   const [integrationName, setIntegrationName] = useState('');
@@ -45,6 +46,14 @@ const IntegrationsPage: React.FC = () => {
     try {
       const integrationsData = await integrationService.getUserIntegrations();
       setIntegrations(integrationsData);
+
+      // Cargar preferencias de email
+      const emailPrefs = await EmailPreferencesService.getEmailPreferences();
+      console.log('[IntegrationsPage] Preferencias de email cargadas:', emailPrefs);
+      console.log('[IntegrationsPage] ¿Hay preferencias?:', !!emailPrefs);
+      console.log('[IntegrationsPage] Email:', emailPrefs?.email);
+      console.log('[IntegrationsPage] Task created:', emailPrefs?.task_created);
+      setEmailPreferences(emailPrefs);
 
       // Generar algunas sugerencias de ejemplo para mostrar las capacidades de IA
       const exampleSuggestions = await aiService.getAllSuggestions(
@@ -83,6 +92,7 @@ const IntegrationsPage: React.FC = () => {
     try {
       // Si es email, guardar en email_preferences en lugar de integrations
       if (selectedIntegrationType === 'email') {
+        console.log('[IntegrationsPage] Guardando integración de email:', integrationConfig);
         const result = await EmailPreferencesService.saveEmailPreferences({
           email: integrationConfig.recipient_email,
           task_created: integrationConfig.events.includes('task_created'),
@@ -90,8 +100,10 @@ const IntegrationsPage: React.FC = () => {
           task_overdue: integrationConfig.events.includes('task_overdue'),
           task_reminder: integrationConfig.events.includes('task_reminder'),
         });
-
+        console.log('[IntegrationsPage] Resultado de guardar preferencias:', result);
+        console.log('[IntegrationsPage] ¿Guardó correctamente?:', result.success);
         if (result.success) {
+          console.log('[IntegrationsPage] Cerrando modal y recargando datos...');
           setShowNewIntegrationModal(false);
           resetForm();
           await loadData();
@@ -106,7 +118,6 @@ const IntegrationsPage: React.FC = () => {
           integrationName,
           integrationConfig
         );
-
         if (response.success) {
           await loadData();
           setShowNewIntegrationModal(false);
@@ -117,6 +128,7 @@ const IntegrationsPage: React.FC = () => {
         }
       }
     } catch (err) {
+      console.error('[IntegrationsPage] Error al guardar integración:', err);
       setError('Error al guardar la integración');
     }
     
@@ -699,7 +711,7 @@ const IntegrationsPage: React.FC = () => {
       </div>
 
       {/* Lista de Integraciones Activas */}
-      {integrations.length > 0 && (
+      {(integrations.length > 0 || emailPreferences) && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -760,6 +772,81 @@ const IntegrationsPage: React.FC = () => {
                   </div>
                 );
               })}
+              
+              {/* Email Integration */}
+              {emailPreferences && (
+                <div className="flex items-center justify-between p-4 border border-green-200 dark:border-green-700 rounded-lg bg-green-50 dark:bg-green-900/20">
+                  <div className="flex items-center">
+                    <div className={`p-2 rounded-lg mr-3 ${getIntegrationColor('email')}`}>
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 dark:text-white">
+                        Email - {emailPreferences.email}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Notificaciones por correo
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        {[
+                          emailPreferences.task_created && 'Tarea creada',
+                          emailPreferences.task_completed && 'Tarea completada',
+                          emailPreferences.task_overdue && 'Tarea vencida',
+                          emailPreferences.task_reminder && 'Recordatorio'
+                        ].filter(Boolean).join(' • ')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => {
+                        setSelectedIntegrationType('email');
+                        setIntegrationName('Email Notifications');
+                        setIntegrationConfig({
+                          recipient_email: emailPreferences.email,
+                          events: [
+                            emailPreferences.task_created && 'task_created',
+                            emailPreferences.task_completed && 'task_completed',
+                            emailPreferences.task_overdue && 'task_overdue',
+                            emailPreferences.task_reminder && 'task_reminder'
+                          ].filter(Boolean)
+                        });
+                        setShowNewIntegrationModal(true);
+                      }}
+                      className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 hover:bg-blue-200"
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button
+                      onClick={async () => {
+                        console.log('[IntegrationsPage] Botón eliminar email presionado');
+                        if (window.confirm('¿Desconectar integración de email?')) {
+                          console.log('[IntegrationsPage] Usuario confirmó eliminar');
+                          const result = await EmailPreferencesService.saveEmailPreferences({
+                            email: emailPreferences.email,
+                            task_created: false,
+                            task_completed: false,
+                            task_overdue: false,
+                            task_reminder: false,
+                          });
+                          console.log('[IntegrationsPage] Resultado de eliminar:', result);
+                          if (result.success) {
+                            console.log('[IntegrationsPage] Limpiando estado y recargando...');
+                            setEmailPreferences(null);
+                            await loadData();
+                          } else {
+                            console.error('[IntegrationsPage] Error al eliminar:', result.error);
+                          }
+                        }
+                      }}
+                      className="p-2 text-red-400 hover:text-red-600 dark:hover:text-red-300"
+                      title="Desconectar email"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

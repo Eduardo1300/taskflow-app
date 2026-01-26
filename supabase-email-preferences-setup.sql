@@ -26,7 +26,7 @@ CREATE POLICY "Users can insert their own email preferences" ON email_preference
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can delete their own email preferences" ON email_preferences
-  FOR DELETE USING (auth.uid() = user_id);
+  FOR DELETE USING (auth.uid() = user_id);  
 
 -- Create index for faster lookups
 CREATE INDEX idx_email_preferences_user_id ON email_preferences(user_id);
