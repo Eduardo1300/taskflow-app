@@ -1,10 +1,10 @@
-import { supabase } from '../lib/supabase';
+    import { supabase } from '../lib/supabase';
 
 export interface EmailNotificationData {
   to: string;
   subject: string;
   html: string;
-  type: 'task_created' | 'task_assigned' | 'task_completed' | 'comment_added' | 'task_updated';
+  type: 'task_created' | 'task_assigned' | 'task_completed' | 'task_overdue' | 'task_reminder' | 'comment_added' | 'task_updated';
   taskId?: string;
   data?: any;
 }
@@ -144,7 +144,7 @@ export class EmailService {
   /**
    * Enviar email de tarea completada
    */
-  static async sendTaskCompletedEmail(userEmail: string, taskTitle: string, completedBy?: string, taskData?: any): Promise<{ success: boolean; error?: string }> {
+  static async sendTaskCompletedEmail(userEmail: string, taskTitle: string, completedBy?: string): Promise<{ success: boolean; error?: string }> {
     const subject = `✅ Tarea completada: ${taskTitle}`;
     const html = `
       <!DOCTYPE html>
@@ -204,7 +204,7 @@ export class EmailService {
   /**
    * Enviar email de tarea vencida
    */
-  static async sendTaskOverdueEmail(userEmail: string, taskTitle: string, dueDate?: string, taskData?: any): Promise<{ success: boolean; error?: string }> {
+  static async sendTaskOverdueEmail(userEmail: string, taskTitle: string, dueDate?: string): Promise<{ success: boolean; error?: string }> {
     const subject = `⚠️ Tarea Vencida: ${taskTitle}`;
     const html = `
       <!DOCTYPE html>
@@ -234,7 +234,6 @@ export class EmailService {
             <div class="task-details">
               <p><strong>Estado:</strong> ⚠️ Vencida</p>
               ${dueDate ? `<p><strong>Fecha de Vencimiento:</strong> ${new Date(dueDate).toLocaleDateString('es-ES')}</p>` : ''}
-              ${taskData?.category ? `<p><strong>Categoría:</strong> ${taskData.category}</p>` : ''}
             </div>
             
             <p>Por favor, completa esta tarea lo antes posible o actualiza su fecha de vencimiento.</p>

@@ -128,9 +128,7 @@ export class TaskService {
         if (should && email) {
           await EmailService.sendTaskCompletedEmail(
             email,
-            result.data.title,
-            undefined,
-            result.data
+            result.data.title
           );
           console.log('✉️ Task completed email sent successfully');
         }
