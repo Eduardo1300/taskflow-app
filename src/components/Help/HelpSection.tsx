@@ -18,28 +18,91 @@ const HelpSection: React.FC = () => {
             <div className="space-y-3">
               <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
                 <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                  ¿Cómo creo una nueva tarea?
+                  ¿Cómo asigno una tarea a otro usuario?
                 </summary>
                 <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
-                  Para crear una nueva tarea, haz clic en el botón "+" en la parte superior derecha o ve a la sección Dashboard y selecciona "Nueva tarea".
+                  Dentro de los detalles de una tarea (o al crearla), verás un campo "Asignar a". Puedes seleccionar a cualquier miembro de tu equipo que ya esté añadido al proyecto. Si el usuario no está en el proyecto, primero deberás invitarlo.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Puedo adjuntar archivos a mis tareas?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  Sí, en la sección de detalles de la tarea, hay una opción para "Adjuntar archivos". Puedes subir documentos, imágenes o cualquier otro archivo relevante directamente desde tu dispositivo o desde servicios en la nube integrados.
                 </div>
               </details>
               
               <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
                 <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                  ¿Cómo colaboro con mi equipo?
+                  ¿Cómo inicio un chat sobre una tarea específica?
                 </summary>
                 <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
-                  Puedes invitar a miembros del equipo desde la configuración del proyecto y asignar tareas específicas a cada persona.
+                  En los detalles de cualquier tarea, encontrarás una sección de "Comentarios". Puedes usarla para iniciar conversaciones con los colaboradores de la tarea, compartir actualizaciones y resolver dudas en tiempo real. Todos los comentarios quedan registrados.
                 </div>
               </details>
-              
+
               <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
                 <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                  ¿Cómo exporto mis datos?
+                  ¿Hay un historial de cambios en las tareas colaborativas?
                 </summary>
                 <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
-                  Ve a Configuración {'>'}  Gestión de Datos {'>'}  Exportar datos para descargar toda tu información en formato JSON o CSV.
+                  Absolutamente. Cada tarea incluye un "Historial de Actividad" que registra todos los cambios realizados, incluyendo asignaciones, cambios de estado, fechas de vencimiento y comentarios. Esto asegura transparencia y trazabilidad en el trabajo en equipo.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Qué integraciones están disponibles actualmente?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  TaskFlow se integra con plataformas populares como Google Calendar, Outlook Calendar, Slack, y Zoom para reuniones. Estamos trabajando constantemente para añadir más integraciones. Visita la sección "Integraciones" para ver la lista completa.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Cómo conecto mi calendario externo (ej. Google Calendar)?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  Dirígete a "Configuración" {'>'} "Integraciones". Selecciona tu calendario preferido (ej. Google Calendar) y sigue los pasos de autenticación. Una vez conectado, tus tareas con fechas de vencimiento en TaskFlow se sincronizarán automáticamente.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Qué métricas puedo ver en la sección de Analytics?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  En Analytics, puedes visualizar métricas clave como tu tasa de finalización de tareas, distribución de tareas por categoría y prioridad, productividad semanal y mensual, días más productivos, riesgo de burnout, y tendencias de rendimiento.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Cómo exporto mis reportes de Analytics?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  En la parte superior de la página de Analytics, encontrarás un botón "Exportar PDF". Al hacer clic, se generará un documento PDF con todos tus gráficos y métricas de rendimiento actuales, que podrás descargar y compartir.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Cómo cambio mi zona horaria?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  Ve a "Configuración" {'>'} "Perfil". Allí podrás seleccionar tu zona horaria preferida de una lista. Asegúrate de guardar los cambios para que todas tus fechas y horas se ajusten correctamente.
+                </div>
+              </details>
+
+              <details className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <summary className="p-4 cursor-pointer font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+                  ¿Puedo personalizar las notificaciones que recibo?
+                </summary>
+                <div className="p-4 pt-0 text-gray-600 dark:text-gray-400">
+                  Sí, en "Configuración" {'>'} "Notificaciones", puedes configurar qué tipo de alertas deseas recibir (ej. recordatorios de tareas, asignaciones nuevas, comentarios), y por qué medio (aplicación, correo electrónico).
                 </div>
               </details>
             </div>
@@ -66,13 +129,13 @@ const HelpSection: React.FC = () => {
               </a>
               
               <a
-                href="#"
+                href="/guides"
                 className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <FileText className="w-5 h-5 text-purple-500 mr-3" />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">Documentación</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Guías completas de uso</div>
+                  <div className="font-medium text-gray-900 dark:text-white">Guías paso a paso</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Tutoriales completos de uso</div>
                 </div>
                 <ExternalLink className="w-4 h-4 text-gray-400 ml-auto" />
               </a>

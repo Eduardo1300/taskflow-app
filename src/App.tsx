@@ -14,6 +14,7 @@ import IntegrationsPage from './pages/IntegrationsPage';
 import ProfilePageEnhanced from './pages/ProfilePageEnhanced';
 import SettingsPageEnhanced from './pages/SettingsPageEnhanced';
 import HelpPageEnhanced from './pages/HelpPageEnhanced';
+import GuidesPage from './pages/GuidesPage'; // Import the new GuidesPage
 
 function App() {
   return (
@@ -107,6 +108,16 @@ function App() {
                     <HelpPageEnhanced />
                   </ProtectedRoute>
                 } 
+              />
+
+              {/* Nueva ruta para las guías */}
+              <Route
+                path="/guides"
+                element={
+                  <ProtectedRoute>
+                    <GuidesPage />
+                  </ProtectedRoute>
+                }
               />
               
               {/* Redirección por defecto */}

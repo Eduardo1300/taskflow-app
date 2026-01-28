@@ -18,6 +18,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import MainLayout from '../components/Layout/MainLayout';
+import { guidesData, Guide } from '../data/guidesData'; // Import from shared data
 
 interface FAQItem {
   id: string;
@@ -26,6 +27,8 @@ interface FAQItem {
   category: string;
 }
 
+// Removed redundant Guide interface as it's now imported
+/*
 interface Guide {
   id: string;
   title: string;
@@ -33,6 +36,7 @@ interface Guide {
   icon: any;
   steps: string[];
 }
+*/
 
 const HelpPageEnhanced: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,15 +51,51 @@ const HelpPageEnhanced: React.FC = () => {
       category: 'tasks'
     },
     {
+      id: '11',
+      question: '¿Cómo asigno una tarea a otro usuario?',
+      answer: 'Dentro de los detalles de una tarea (o al crearla), verás un campo "Asignar a". Puedes seleccionar a cualquier miembro de tu equipo que ya esté añadido al proyecto. Si el usuario no está en el proyecto, primero deberás invitarlo.',
+      category: 'tasks'
+    },
+    {
+      id: '12',
+      question: '¿Puedo adjuntar archivos a mis tareas?',
+      answer: 'Sí, en la sección de detalles de la tarea, hay una opción para "Adjuntar archivos". Puedes subir documentos, imágenes o cualquier otro archivo relevante directamente desde tu dispositivo o desde servicios en la nube integrados.',
+      category: 'tasks'
+    },
+    {
       id: '2',
       question: '¿Cómo colaboro con otros usuarios?',
       answer: 'Ve a una tarea, haz clic en "Compartir" y escribe el email de la persona con quien quieres colaborar. Puedes asignar permisos de visualización o edición. Los colaboradores recibirán una invitación y podrán trabajar contigo en tiempo real.',
       category: 'collaboration'
     },
     {
+      id: '13',
+      question: '¿Cómo inicio un chat sobre una tarea específica?',
+      answer: 'En los detalles de cualquier tarea, encontrarás una sección de "Comentarios". Puedes usarla para iniciar conversaciones con los colaboradores de la tarea, compartir actualizaciones y resolver dudas en tiempo real. Todos los comentarios quedan registrados.',
+      category: 'collaboration'
+    },
+    {
+      id: '14',
+      question: '¿Hay un historial de cambios en las tareas colaborativas?',
+      answer: 'Absolutamente. Cada tarea incluye un "Historial de Actividad" que registra todos los cambios realizados, incluyendo asignaciones, cambios de estado, fechas de vencimiento y comentarios. Esto asegura transparencia y trazabilidad en el trabajo en equipo.',
+      category: 'collaboration'
+    },
+    {
       id: '3',
       question: '¿Cómo configuro las notificaciones?',
       answer: 'Ve a Configuración > Notificaciones donde puedes personalizar qué notificaciones quieres recibir por email, push o en la aplicación. Puedes habilitar/deshabilitar recordatorios de tareas, resúmenes semanales y actualizaciones de colaboración.',
+      category: 'settings'
+    },
+    {
+      id: '19',
+      question: '¿Cómo cambio mi zona horaria?',
+      answer: 'Ve a "Configuración" > "Perfil". Allí podrás seleccionar tu zona horaria preferida de una lista. Asegúrate de guardar los cambios para que todas tus fechas y horas se ajusten correctamente.',
+      category: 'settings'
+    },
+    {
+      id: '20',
+      question: '¿Puedo personalizar las notificaciones que recibo?',
+      answer: 'Sí, en "Configuración" > "Notificaciones", puedes configurar qué tipo de alertas deseas recibir (ej. recordatorios de tareas, asignaciones nuevas, comentarios), y por qué medio (aplicación, correo electrónico).',
       category: 'settings'
     },
     {
@@ -77,6 +117,18 @@ const HelpPageEnhanced: React.FC = () => {
       category: 'integrations'
     },
     {
+      id: '15',
+      question: '¿Qué integraciones están disponibles actualmente?',
+      answer: 'TaskFlow se integra con plataformas populares como Google Calendar, Outlook Calendar, Slack, y Zoom para reuniones. Estamos trabajando constantemente para añadir más integraciones. Visita la sección "Integraciones" para ver la lista completa.',
+      category: 'integrations'
+    },
+    {
+      id: '16',
+      question: '¿Cómo conecto mi calendario externo (ej. Google Calendar)?',
+      answer: 'Dirígete a "Configuración" > "Integraciones". Selecciona tu calendario preferido (ej. Google Calendar) y sigue los pasos de autenticación. Una vez conectado, tus tareas con fechas de vencimiento en TaskFlow se sincronizarán automáticamente.',
+      category: 'integrations'
+    },
+    {
       id: '7',
       question: '¿TaskFlow es gratuito?',
       answer: 'TaskFlow ofrece un plan gratuito con funcionalidades básicas de gestión de tareas. Los planes premium incluyen colaboración ilimitada, integraciones avanzadas, análisis detallados y soporte prioritario.',
@@ -86,6 +138,18 @@ const HelpPageEnhanced: React.FC = () => {
       id: '8',
       question: '¿Cómo veo mis estadísticas de productividad?',
       answer: 'Ve a la sección Analytics donde encontrarás gráficos detallados de tu productividad, tiempo dedicado a tareas, tendencias, y recomendaciones personalizadas basadas en IA.',
+      category: 'analytics'
+    },
+    {
+      id: '17',
+      question: '¿Qué métricas puedo ver en la sección de Analytics?',
+      answer: 'En Analytics, puedes visualizar métricas clave como tu tasa de finalización de tareas, distribución de tareas por categoría y prioridad, productividad semanal y mensual, días más productivos, riesgo de burnout, y tendencias de rendimiento. También puedes ver previsiones y análisis avanzados.',
+      category: 'analytics'
+    },
+    {
+      id: '18',
+      question: '¿Cómo exporto mis reportes de Analytics?',
+      answer: 'En la parte superior de la página de Analytics, encontrarás un botón "Exportar PDF". Al hacer clic, se generará un documento PDF con todos tus gráficos y métricas de rendimiento actuales, que podrás descargar y compartir. También puedes exportar datos en CSV.',
       category: 'analytics'
     },
     {
@@ -102,80 +166,8 @@ const HelpPageEnhanced: React.FC = () => {
     }
   ];
 
-  const guides: Guide[] = [
-    {
-      id: 'getting-started',
-      title: 'Primeros Pasos',
-      description: 'Aprende lo básico para empezar a usar TaskFlow eficientemente',
-      icon: User,
-      steps: [
-        'Crea tu primera tarea con título y descripción',
-        'Organiza tus tareas por categorías y proyectos',
-        'Establece fechas de vencimiento y prioridades',
-        'Marca tareas como completadas y sigue tu progreso'
-      ]
-    },
-    {
-      id: 'calendar-setup',
-      title: 'Configurar Calendario',
-      description: 'Sincroniza tus tareas con tu calendario favorito',
-      icon: Calendar,
-      steps: [
-        'Ve a la sección Integraciones',
-        'Selecciona Google Calendar o Outlook',
-        'Autoriza la conexión con tu cuenta',
-        'Configura la sincronización automática'
-      ]
-    },
-    {
-      id: 'team-collaboration',
-      title: 'Colaboración en Equipo',
-      description: 'Invita a tu equipo y trabajen juntos en proyectos',
-      icon: Users,
-      steps: [
-        'Crea un proyecto o abre una tarea',
-        'Haz clic en "Compartir" o "Añadir Colaboradores"',
-        'Invita miembros por email',
-        'Asigna roles y permisos (editor, revisor, etc.)'
-      ]
-    },
-    {
-      id: 'analytics-insights',
-      title: 'Análisis y Métricas',
-      description: 'Comprende tu productividad con análisis detallados',
-      icon: BarChart3,
-      steps: [
-        'Ve a la sección Analytics',
-        'Revisa tus métricas de productividad y tareas',
-        'Analiza tendencias y patrones de trabajo',
-        'Aplica recomendaciones personalizadas de IA'
-      ]
-    },
-    {
-      id: 'kanban-board',
-      title: 'Usar Vista Kanban',
-      description: 'Organiza tus tareas de forma visual',
-      icon: Zap,
-      steps: [
-        'Ve a la sección Kanban',
-        'Arrastra y suelta tareas entre columnas',
-        'Crea nuevas columnas personalizadas',
-        'Agrupa por prioridad, estado o asignado'
-      ]
-    },
-    {
-      id: 'security-setup',
-      title: 'Seguridad y Privacidad',
-      description: 'Protege tu cuenta y tus datos',
-      icon: Shield,
-      steps: [
-        'Configura una contraseña fuerte',
-        'Habilita autenticación de dos factores',
-        'Revisa permisos de colaboradores',
-        'Ajusta configuraciones de privacidad según necesites'
-      ]
-    }
-  ];
+  // Use the imported guidesData
+  const guides = guidesData;
 
   const categories = [
     { id: 'all', label: 'Todas' },
@@ -250,17 +242,17 @@ const HelpPageEnhanced: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/50 rounded-xl p-6 border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer">
+          <a href="/guides" className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/50 rounded-xl p-6 border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-start space-x-4">
               <div className="p-3 bg-purple-600 rounded-lg">
                 <Book className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Documentación</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Guías completas y detalladas</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Guías paso a paso</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Explora todas las guías</p>
               </div>
             </div>
-          </div>
+          </a>
         </div>
 
         {/* Guides Section */}
@@ -302,10 +294,10 @@ const HelpPageEnhanced: React.FC = () => {
                     ))}
                   </div>
                   
-                  <button className="w-full mt-4 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-medium transition-all duration-200">
+                  <a href="/guides" className="w-full mt-4 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-medium transition-all duration-200">
                     <span>Ver guía completa</span>
                     <ExternalLink className="h-4 w-4" />
-                  </button>
+                  </a>
                 </div>
               );
             })}
