@@ -86,6 +86,7 @@ export interface AnalyticsData {
   productivityStats: ProductivityStats;
   timeStats: TimeStats;
   trends: TrendData[];
+  completionTrends: Array<{ date: string; completed: number; total: number; rate: number }>; // Added completionTrends
   predictions: PredictionData;
   advancedInsights: AdvancedInsights;
   lastUpdated: Date;
@@ -433,7 +434,7 @@ class AnalyticsService {
     
     // Find categories with low completion rates
     categoryStats.forEach(category => {
-      if (category.percentage < 60 && category.total > 2) {
+      if (category.percentage < 60 && category.total >= 3) { // Ensure enough tasks for meaningful insight
         focusAreas.push(category.name);
       }
     });
@@ -449,6 +450,38 @@ class AnalyticsService {
     };
   }
 
+  calculateCompletionTrends(tasks: Task[]): Array<{ date: string; completed: number; total: number; rate: number }> {
+    const dailyStats = new Map<string, { completed: number; total: number }>();
+  
+    tasks.forEach(task => {
+      const date = new Date(task.created_at);
+      const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+  
+      if (!dailyStats.has(dateKey)) {
+        dailyStats.set(dateKey, { completed: 0, total: 0 });
+      }
+  
+      const stats = dailyStats.get(dateKey)!;
+      stats.total++;
+      if (task.completed) {
+        stats.completed++;
+      }
+    });
+  
+    const trends: Array<{ date: string; completed: number; total: number; rate: number }> = [];
+    Array.from(dailyStats.keys()).sort().forEach(dateKey => {
+      const stats = dailyStats.get(dateKey)!;
+      trends.push({
+        date: dateKey,
+        completed: stats.completed,
+        total: stats.total,
+        rate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0,
+      });
+    });
+  
+    return trends;
+  }
+  
   calculateAdvancedInsights(tasks: Task[]): AdvancedInsights {
     // Workload balance analysis
     const pendingTasks = tasks.filter(task => !task.completed);
@@ -561,6 +594,7 @@ class AnalyticsService {
     const trends = this.calculateTrends(tasks);
     const predictions = this.calculatePredictions(tasks, trends);
     const advancedInsights = this.calculateAdvancedInsights(tasks);
+    const completionTrends = this.calculateCompletionTrends(tasks);
     
     return {
       taskStats: this.calculateTaskStats(tasks),
@@ -569,6 +603,7 @@ class AnalyticsService {
       productivityStats: this.calculateProductivityStats(tasks),
       timeStats: this.calculateTimeStats(tasks),
       trends,
+      completionTrends,
       predictions,
       advancedInsights,
       lastUpdated: new Date()

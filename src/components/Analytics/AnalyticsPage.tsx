@@ -18,11 +18,79 @@ import {
 import { Task } from '../../types';
 import { analyticsService, AnalyticsData } from '../../services/analyticsService';
 import { exportService } from '../../services/exportService';
-import { calendarAnalyticsService } from '../../services/calendarAnalyticsService';
+import { 
+  calendarAnalyticsService,
+  CalendarMetrics,
+  TimeAnalysis,
+  ProductivityInsights,
+  CalendarHealthScore,
+  BurnoutRisk
+} from '../../services/calendarAnalyticsService';
 import AnalyticsCharts from './AnalyticsCharts';
 import CalendarForecast from './CalendarForecast';
 import ExportPDF from './ExportPDF';
 import SmartRecommendations from './SmartRecommendations';
+
+const emptyCalendarMetrics: CalendarMetrics = {
+  totalEvents: 0,
+  completedEvents: 0,
+  upcomingEvents: 0,
+  overdueEvents: 0,
+  completionRate: 0,
+  averageEventsPerDay: 0,
+  mostProductiveDay: '',
+  mostProductiveHour: 0,
+  categoryDistribution: {},
+  priorityDistribution: {},
+  collaborativeEvents: 0,
+  recurringEvents: 0,
+};
+
+const emptyTimeAnalysis: TimeAnalysis = {
+  hourlyDistribution: {},
+  dailyDistribution: {},
+  weeklyTrends: {},
+  monthlyTrends: {},
+  seasonalPatterns: {},
+};
+
+const emptyProductivityInsights: ProductivityInsights = {
+  peakProductivityHours: [],
+  optimalMeetingTimes: [],
+  busyDays: [],
+  freeDays: [],
+  workLifeBalance: {
+    workEvents: 0,
+    personalEvents: 0,
+    ratio: 0,
+  },
+  focusTimeBlocks: [],
+};
+
+const emptyCalendarHealthScore: CalendarHealthScore = {
+  score: 0,
+  factors: {
+    eventDistribution: 0,
+    completionRate: 0,
+    timeManagement: 0,
+    collaboration: 0,
+    planning: 0,
+  },
+  recommendations: [],
+};
+
+const emptyBurnoutRisk: BurnoutRisk = {
+  level: 'low',
+  score: 0,
+  indicators: {
+    overBooking: 0,
+    longDays: 0,
+    noBreaks: 0,
+    weekendWork: 0,
+    lateNightEvents: 0,
+  },
+  suggestions: [],
+};
 
 interface AnalyticsPageProps {
   tasks: Task[];
@@ -30,11 +98,11 @@ interface AnalyticsPageProps {
 
 const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
-  const [calendarMetrics, setCalendarMetrics] = useState<any>(null);
-  const [calendarInsights, setCalendarInsights] = useState<any>(null);
-  const [calendarHealth, setCalendarHealth] = useState<any>(null);
-  const [burnoutRisk, setBurnoutRisk] = useState<any>(null);
-  const [timeAnalysis, setTimeAnalysis] = useState<any>(null);
+  const [calendarMetrics, setCalendarMetrics] = useState<CalendarMetrics | null>(null);
+  const [calendarInsights, setCalendarInsights] = useState<ProductivityInsights | null>(null);
+  const [calendarHealth, setCalendarHealth] = useState<CalendarHealthScore | null>(null);
+  const [burnoutRisk, setBurnoutRisk] = useState<BurnoutRisk | null>(null);
+  const [timeAnalysis, setTimeAnalysis] = useState<TimeAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'productivity' | 'calendar' | 'charts' | 'forecast' | 'recommendations' | 'export'>('overview');
   const [selectedTimeRange, setSelectedTimeRange] = useState<'week' | 'month' | 'quarter'>('month');
@@ -66,6 +134,13 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
           setCalendarHealth(health);
           setBurnoutRisk(burnout);
           setTimeAnalysis(timeData);
+        } else {
+          // If no calendar events, set to empty default objects
+          setCalendarMetrics(emptyCalendarMetrics);
+          setCalendarInsights(emptyProductivityInsights);
+          setCalendarHealth(emptyCalendarHealthScore);
+          setBurnoutRisk(emptyBurnoutRisk);
+          setTimeAnalysis(emptyTimeAnalysis);
         }
       } catch (error) {
         console.error('Error loading analytics:', error);
@@ -101,8 +176,10 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
     
     try {
       await exportService.exportAnalyticsToPDF(analyticsData);
+      alert('Analytics exportado a PDF correctamente.');
     } catch (error) {
       console.error('Error exportando analytics a PDF:', error);
+      alert('Error al exportar analytics a PDF. Por favor, inténtalo de nuevo.');
     }
   };
 
@@ -229,7 +306,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
                 priorityDistribution={calendarMetrics.priorityDistribution}
                 weeklyTrends={timeAnalysis.weeklyTrends}
                 monthlyTrends={timeAnalysis.monthlyTrends}
-                completionTrends={[]}
+                completionTrends={analyticsData?.completionTrends || []}
                 trends={analyticsData?.trends}
                 predictions={analyticsData?.predictions}
                 advancedInsights={analyticsData?.advancedInsights}
@@ -278,8 +355,6 @@ const OverviewContent: React.FC<{
   calendarHealth: any;
   burnoutRisk: any;
 }> = ({ analyticsData, calendarMetrics, calendarHealth, burnoutRisk }) => {
-  if (!analyticsData) return <div>No data available</div>;
-
   const { taskStats, productivityStats } = analyticsData;
   const insights = analyticsService.generateInsights(analyticsData);
 
