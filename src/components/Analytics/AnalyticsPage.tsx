@@ -199,32 +199,31 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900">
       <div className="w-full px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-        {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
           <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-2 sm:p-3 rounded-2xl shadow-lg flex-shrink-0">
+            <div className="bg-gradient-to-r from-purple-500 to-blue-600 p-3 sm:p-4 rounded-2xl shadow-xl">
               <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
-                Analytics de Productividad y Gestión de Tareas para Desarrolladores y Equipos
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+                Analytics de Productividad
               </h1>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-                Análisis completo de productividad, gestión de tareas y rendimiento de calendario, diseñado para potenciar a desarrolladores, freelancers y startups.
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Análisis completo de tu rendimiento y gestión de tareas
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
-            <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 text-sm overflow-x-auto">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+            <div className="flex items-center bg-white dark:bg-gray-800 rounded-xl p-1 shadow-lg border border-gray-100 dark:border-gray-700">
               {(['week', 'month', 'quarter'] as const).map((range) => (
                 <button
                   key={range}
                   onClick={() => setSelectedTimeRange(range)}
-                  className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                  className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     selectedTimeRange === range
-                      ? 'bg-purple-500 text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-purple-500'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
                 >
                   {range.charAt(0).toUpperCase() + range.slice(1)}
@@ -234,17 +233,16 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
 
             <button
               onClick={exportAnalyticsToPDF}
-              className="flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-sm rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex-shrink-0"
+              className="flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
             >
-              <FileText className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Exportar PDF</span>
-              <span className="sm:hidden">PDF</span>
+              <FileText className="h-4 w-4 mr-2" />
+              Exportar PDF
             </button>
           </div>
         </header>
 
         {/* Navigation Tabs */}
-        <div className="flex justify-start mb-6 sm:mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg overflow-x-auto">
+        <div className="flex justify-center mb-6 sm:mb-8 bg-white dark:bg-gray-800 rounded-2xl p-2 shadow-lg border border-gray-100 dark:border-gray-700 overflow-x-auto">
           {[
             { key: 'overview', label: 'Resumen', icon: Target },
             { key: 'productivity', label: 'Productividad', icon: TrendingUp },
@@ -257,15 +255,14 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
             <button
               key={key}
               onClick={() => setActiveTab(key as any)}
-              className={`flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap text-sm sm:text-base ${
+              className={`flex items-center px-4 sm:px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
                 activeTab === key 
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
+                  : 'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
-              <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">{label}</span>
-              <span className="sm:hidden">{label.split(' ')[0]}</span>
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              {label}
             </button>
           ))}
         </div>
@@ -381,78 +378,96 @@ const OverviewContent: React.FC<{
       )}
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Tareas</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{taskStats.total}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl">
+              <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <Target className="h-8 w-8 text-blue-500" />
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-600 dark:text-green-400">
-              {taskStats.completionRate}% completadas
+            <span className="text-xs px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full font-medium">
+              {taskStats.completionRate}%
             </span>
           </div>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{taskStats.total}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Tareas</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Racha Actual</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{productivityStats.currentStreak}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl">
+              <Award className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <Award className="h-8 w-8 text-purple-500" />
+            <span className="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-full font-medium">
+              Racha
+            </span>
           </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-gray-600 dark:text-gray-400">días consecutivos</span>
-          </div>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{productivityStats.currentStreak}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Días consecutivos</p>
         </div>
 
         {calendarHealth && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Salud Calendario</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{calendarHealth.score}/100</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${
+                calendarHealth.score >= 80 
+                  ? 'bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30' 
+                  : calendarHealth.score >= 60 
+                    ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30'
+                    : 'bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30'
+              }`}>
+                <Activity className={`h-6 w-6 ${
+                  calendarHealth.score >= 80 
+                    ? 'text-green-600 dark:text-green-400' 
+                    : calendarHealth.score >= 60 
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-red-600 dark:text-red-400'
+                }`} />
               </div>
-              <Activity className={`h-8 w-8 ${
-                calendarHealth.score >= 80 ? 'text-green-500' :
-                calendarHealth.score >= 60 ? 'text-yellow-500' : 'text-red-500'
-              }`} />
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className={`${
-                calendarHealth.score >= 80 ? 'text-green-600 dark:text-green-400' :
-                calendarHealth.score >= 60 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
+              <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                calendarHealth.score >= 80 
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                  : calendarHealth.score >= 60 
+                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
               }`}>
                 {calendarHealth.score >= 80 ? 'Excelente' : calendarHealth.score >= 60 ? 'Bueno' : 'Necesita mejora'}
               </span>
             </div>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{calendarHealth.score}/100</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Salud Calendario</p>
           </div>
         )}
 
         {burnoutRisk && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Riesgo Burnout</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white capitalize">{burnoutRisk.level}</p>
-              </div>
-              <AlertTriangle className={`h-8 w-8 ${
-                burnoutRisk.level === 'low' ? 'text-green-500' :
-                burnoutRisk.level === 'medium' ? 'text-yellow-500' : 'text-red-500'
-              }`} />
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className={`${
-                burnoutRisk.level === 'low' ? 'text-green-600 dark:text-green-400' :
-                burnoutRisk.level === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${
+                burnoutRisk.level === 'low' 
+                  ? 'bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30' 
+                  : burnoutRisk.level === 'medium' 
+                    ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30'
+                    : 'bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30'
               }`}>
-                Puntuación: {burnoutRisk.score}
+                <AlertTriangle className={`h-6 w-6 ${
+                  burnoutRisk.level === 'low' 
+                    ? 'text-green-600 dark:text-green-400' 
+                    : burnoutRisk.level === 'medium' 
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-red-600 dark:text-red-400'
+                }`} />
+              </div>
+              <span className={`text-xs px-3 py-1 rounded-full font-medium capitalize ${
+                burnoutRisk.level === 'low' 
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                  : burnoutRisk.level === 'medium' 
+                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+              }`}>
+                {burnoutRisk.level}
               </span>
             </div>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{burnoutRisk.score}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Riesgo Burnout</p>
           </div>
         )}
       </div>

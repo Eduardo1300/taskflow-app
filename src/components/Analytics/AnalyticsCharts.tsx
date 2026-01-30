@@ -508,7 +508,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
                 advancedInsights.workloadBalance.status === 'overloaded' ? 'text-red-600' :
                 'text-yellow-600'
               }`}>
-                {advancedInsights.workloadBalance.score}/100
+                {isNaN(advancedInsights.workloadBalance.score) ? '0' : advancedInsights.workloadBalance.score}/100
               </div>
               <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
                 advancedInsights.workloadBalance.status === 'optimal' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' :
@@ -529,9 +529,10 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Eficiencia de Tiempo
             </h3>
-            <div className="text-center mb-4">
-              <div className="text-3xl font-bold text-blue-600 mb-2">
-                {advancedInsights.timeManagement.efficiency}%
+              <div className="text-center mb-4">
+                <div className="text-lg font-semibold text-orange-600 dark:text-orange-400 mb-3">
+                  {advancedInsights.categoryBalance.mostNegglected || 'Ninguna'}
+                </div>
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                 Eficiencia en Horas Pico

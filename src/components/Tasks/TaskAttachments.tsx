@@ -155,10 +155,10 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         link.click();
         document.body.removeChild(link);
       } else {
-        // Usar URL firmada para descarga segura
-        const signedUrl = await attachmentService.getSignedUrl(attachment.file_path);
+        // Usar URL pública para descarga (el bucket es público)
+        const publicUrl = attachmentService.getPublicUrl(attachment.file_path);
         const link = document.createElement('a');
-        link.href = signedUrl;
+        link.href = publicUrl;
         link.download = attachment.file_name;
         document.body.appendChild(link);
         link.click();

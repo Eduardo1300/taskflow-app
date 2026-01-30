@@ -16,7 +16,6 @@ import {
 import { integrationService, Integration } from '../../services/integrationService';
 import { aiService, AISuggestion } from '../../services/aiService';
 import { EmailPreferencesService } from '../../services/emailPreferencesService';
-import { triggerIntegrationNotification } from './IntegrationNotifications';
 
 const IntegrationsPage: React.FC = () => {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
@@ -440,39 +439,30 @@ const IntegrationsPage: React.FC = () => {
 
   return (
     <div className="w-full space-y-4 sm:space-y-6 px-3 sm:px-4">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-            <Zap className="h-5 w-5 sm:h-6 sm:w-6 mr-2 flex-shrink-0" />
-            Integraciones & IA
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Conecta TaskFlow con tus herramientas favoritas y aprovecha la IA
-          </p>
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center space-x-4">
+          <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 sm:p-4 rounded-2xl shadow-xl">
+            <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+              Integraciones & IA
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Conecta TaskFlow con tus herramientas favoritas
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+        <div className="flex gap-3">
           <button
             onClick={() => setShowNewIntegrationModal(true)}
-            className="flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+            className="flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
           >
-            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             Nueva Integración
           </button>
-          <button
-            onClick={() => triggerIntegrationNotification(
-              'success',
-              'Prueba de integración',
-              'Las notificaciones funcionan correctamente',
-              'test'
-            )}
-            className="flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
-          >
-            <Bot className="h-4 w-4 mr-1 sm:mr-2" />
-            Probar Notificaciones
-          </button>
         </div>
-      </div>
+      </header>
 
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 sm:p-4">
@@ -521,9 +511,9 @@ const IntegrationsPage: React.FC = () => {
       {/* Integraciones Disponibles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Google Calendar */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-3">
+            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl mr-3">
               <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
@@ -535,8 +525,8 @@ const IntegrationsPage: React.FC = () => {
             Crea eventos automáticamente en Google Calendar cuando asignes fechas de vencimiento a tus tareas.
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              {integrations.some(i => i.type === 'google_calendar' && i.is_active) ? 'Conectado' : 'No conectado'}
+            <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+              {integrations.some(i => i.type === 'google_calendar' && i.is_active) ? '✓ Conectado' : 'No conectado'}
             </span>
             {integrations.some(i => i.type === 'google_calendar' && i.is_active) ? (
               <CheckCircle className="h-5 w-5 text-green-500" />
@@ -547,7 +537,7 @@ const IntegrationsPage: React.FC = () => {
                   setIntegrationName('Google Calendar');
                   setShowNewIntegrationModal(true);
                 }}
-                className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                className="text-sm px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 Conectar
               </button>
@@ -556,9 +546,9 @@ const IntegrationsPage: React.FC = () => {
         </div>
 
         {/* Slack */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg mr-3">
+            <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl mr-3">
               <MessageSquare className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
@@ -570,8 +560,8 @@ const IntegrationsPage: React.FC = () => {
             Recibe notificaciones en Slack cuando completes tareas, se venzan o necesites recordatorios.
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              {integrations.some(i => i.type === 'slack' && i.is_active) ? 'Conectado' : 'No conectado'}
+            <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+              {integrations.some(i => i.type === 'slack' && i.is_active) ? '✓ Conectado' : 'No conectado'}
             </span>
             {integrations.some(i => i.type === 'slack' && i.is_active) ? (
               <CheckCircle className="h-5 w-5 text-green-500" />
@@ -582,7 +572,7 @@ const IntegrationsPage: React.FC = () => {
                   setIntegrationName('Slack');
                   setShowNewIntegrationModal(true);
                 }}
-                className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400"
+                className="text-sm px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 Conectar
               </button>
@@ -591,9 +581,9 @@ const IntegrationsPage: React.FC = () => {
         </div>
 
         {/* Discord */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg mr-3">
+            <div className="p-3 bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 rounded-xl mr-3">
               <MessageSquare className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
@@ -605,8 +595,8 @@ const IntegrationsPage: React.FC = () => {
             Mantén a tu equipo informado enviando actualizaciones de tareas a tu servidor de Discord.
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              {integrations.some(i => i.type === 'discord' && i.is_active) ? 'Conectado' : 'No conectado'}
+            <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+              {integrations.some(i => i.type === 'discord' && i.is_active) ? '✓ Conectado' : 'No conectado'}
             </span>
             {integrations.some(i => i.type === 'discord' && i.is_active) ? (
               <CheckCircle className="h-5 w-5 text-green-500" />
@@ -617,7 +607,7 @@ const IntegrationsPage: React.FC = () => {
                   setIntegrationName('Discord');
                   setShowNewIntegrationModal(true);
                 }}
-                className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                className="text-sm px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 Conectar
               </button>
@@ -626,9 +616,9 @@ const IntegrationsPage: React.FC = () => {
         </div>
 
         {/* Email */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg mr-3">
+            <div className="p-3 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 rounded-xl mr-3">
               <Mail className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
@@ -640,10 +630,10 @@ const IntegrationsPage: React.FC = () => {
             Recibe resúmenes diarios, recordatorios y notificaciones importantes directamente en tu email.
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              {integrations.some(i => i.type === 'email' && i.is_active) ? 'Conectado' : 'No conectado'}
+            <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+              {emailPreferences ? '✓ Configurado' : 'No conectado'}
             </span>
-            {integrations.some(i => i.type === 'email' && i.is_active) ? (
+            {emailPreferences ? (
               <CheckCircle className="h-5 w-5 text-green-500" />
             ) : (
               <button
@@ -652,7 +642,7 @@ const IntegrationsPage: React.FC = () => {
                   setIntegrationName('Email');
                   setShowNewIntegrationModal(true);
                 }}
-                className="text-sm text-green-600 hover:text-green-700 dark:text-green-400"
+                className="text-sm px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 Conectar
               </button>
@@ -661,9 +651,9 @@ const IntegrationsPage: React.FC = () => {
         </div>
 
         {/* Webhook */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg mr-3">
+            <div className="p-3 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-xl mr-3">
               <Webhook className="h-6 w-6 text-gray-600 dark:text-gray-400" />
             </div>
             <div>
@@ -675,14 +665,14 @@ const IntegrationsPage: React.FC = () => {
             Conecta TaskFlow con cualquier servicio usando webhooks. Ideal para automatizaciones personalizadas.
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">Personalizable</span>
+            <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">Personalizable</span>
             <button
               onClick={() => {
                 setSelectedIntegrationType('webhook');
                 setIntegrationName('Webhook Personalizado');
                 setShowNewIntegrationModal(true);
               }}
-              className="text-sm text-gray-600 hover:text-gray-700 dark:text-gray-400"
+              className="text-sm px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
             >
               Configurar
             </button>
@@ -690,9 +680,9 @@ const IntegrationsPage: React.FC = () => {
         </div>
 
         {/* IA Assistant */}
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-6">
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl border border-purple-200 dark:border-purple-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center mb-4">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg mr-3">
+            <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800/30 dark:to-purple-700/30 rounded-xl mr-3">
               <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
@@ -704,7 +694,7 @@ const IntegrationsPage: React.FC = () => {
             Sugerencias inteligentes de categorías, fechas y prioridades. Análisis de productividad automático.
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-purple-600 dark:text-purple-400">✨ Incluido</span>
+            <span className="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-full">✨ Incluido</span>
             <CheckCircle className="h-5 w-5 text-purple-500" />
           </div>
         </div>
