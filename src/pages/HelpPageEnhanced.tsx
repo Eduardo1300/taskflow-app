@@ -8,17 +8,11 @@ import {
   ExternalLink,
   ChevronRight,
   ChevronDown,
-  User,
-  Calendar,
-  BarChart3,
-  Users,
-  Zap,
-  Shield,
   AlertCircle,
   Lightbulb
 } from 'lucide-react';
 import MainLayout from '../components/Layout/MainLayout';
-import { guidesData, Guide } from '../data/guidesData'; // Import from shared data
+import { guidesData } from '../data/guidesData'; // Import from shared data
 
 interface FAQItem {
   id: string;

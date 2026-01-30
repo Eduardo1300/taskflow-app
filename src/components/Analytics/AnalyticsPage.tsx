@@ -355,6 +355,7 @@ const OverviewContent: React.FC<{
   calendarHealth: any;
   burnoutRisk: any;
 }> = ({ analyticsData, calendarMetrics, calendarHealth, burnoutRisk }) => {
+  if (!analyticsData) return null;
   const { taskStats, productivityStats } = analyticsData;
   const insights = analyticsService.generateInsights(analyticsData);
 
