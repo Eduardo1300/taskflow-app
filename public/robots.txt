@@ -1,0 +1,46 @@
+# Robots.txt para TaskFlow
+# https://taskflow.app
+
+User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent:facebookexternalhit
+Allow: /
+
+# Sitemap
+Sitemap: https://taskflow.app/sitemap.xml
+
+# Reglas específicas
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /kanban/
+Disallow: /calendar/
+Disallow: /analytics/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /tasks/
+Disallow: /*.json$
+Disallow: /*.jsx?
+Disallow: /*.tsx?
+
+# Archivos sensibles
+Disallow: /.env
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /vitest/
+Disallow: /coverage/
+
+# RSS Feed
+Disallow: /rss.xml

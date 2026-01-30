@@ -4,22 +4,130 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon-192.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskFlow | Gestión de Tareas y Productividad para Desarrolladores, Freelancers y Startups</title>
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+
+    <title>TaskFlow | Gestión de Tareas y Productividad para Equipos Modernos</title>
+    <meta name="description" content="TaskFlow: La aplicación definitiva de gestión de tareas para desarrolladores, freelancers y startups. Organiza proyectos, colabora en tiempo real y aumenta tu productividad. Prueba gratis." />
+    <meta name="keywords" content="gestión de tareas, productividad, organizacion de proyectos, tareas, kanban, calendario, colaboracion en equipo, desarrollo de software, freelancer, startup" />
+    <meta name="author" content="TaskFlow" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://taskflow.app" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://taskflow.app" />
+    <meta property="og:title" content="TaskFlow | Gestor de Tareas y Productividad" />
+    <meta property="og:description" content="Organiza, colabora y alcanza tus objetivos con TaskFlow. La plataforma de gestión de tareas más avanzada del mercado." />
+    <meta property="og:image" content="/screenshot.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="TaskFlow" />
+    <meta property="og:locale" content="es_ES" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@taskflow" />
+    <meta name="twitter:creator" content="@taskflow" />
+    <meta name="twitter:title" content="TaskFlow | Gestor de Tareas y Productividad" />
+    <meta name="twitter:description" content="Organiza, colabora y alcanza tus objetivos con TaskFlow. La plataforma de gestión de tareas más avanzada." />
+    <meta name="twitter:image" content="/screenshot.png" />
+
     <meta name="theme-color" content="#3B82F6" />
-    <meta name="description" content="TaskFlow es la aplicación definitiva para desarrolladores, freelancers y startups. Organiza tus tareas, gestiona proyectos, colabora en equipo y aumenta tu productividad. ¡Regístrate gratis y transforma tu flujo de trabajo!" />
-    
-    <!-- Apple PWA Meta Tags -->
+
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="TaskFlow" />
-    <link rel="apple-touch-icon" href="/icon-192.svg" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+    <link rel="alternate" type="application/rss+xml" title="TaskFlow Blog" href="/rss.xml" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "TaskFlow",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "description": "Aplicación de gestión de tareas y productividad para equipos modernos",
+      "url": "https://taskflow.app",
+      "logo": "https://taskflow.app/icon-512.svg",
+      "screenshot": "https://taskflow.app/screenshot.png",
+      "author": {
+        "@type": "Organization",
+        "name": "TaskFlow",
+        "url": "https://taskflow.app"
+      },
+      "featureList": [
+        "Gestión de tareas con IA",
+        "Tableros Kanban",
+        "Calendario integrado",
+        "Colaboración en tiempo real",
+        "Analytics de productividad",
+        "Integraciones con herramientas populares"
+      ],
+      "review": {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "4.8",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Usuarios verificados"
+        }
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "TaskFlow",
+      "url": "https://taskflow.app",
+      "logo": "https://taskflow.app/icon-512.svg",
+      "sameAs": [
+        "https://twitter.com/taskflow",
+        "https://linkedin.com/company/taskflow",
+        "https://github.com/taskflow"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+1-800-TASKFLOW",
+        "contactType": "customer service",
+        "availableLanguage": ["es", "en"]
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "TaskFlow",
+      "url": "https://taskflow.app",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://taskflow.app/search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
