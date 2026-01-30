@@ -529,10 +529,9 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Eficiencia de Tiempo
             </h3>
-              <div className="text-center mb-4">
-                <div className="text-lg font-semibold text-orange-600 dark:text-orange-400 mb-3">
-                  {advancedInsights.categoryBalance.mostNegglected || 'Ninguna'}
-                </div>
+            <div className="text-center mb-4">
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {isNaN(advancedInsights.timeManagement.efficiency) ? '0' : advancedInsights.timeManagement.efficiency}%
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                 Eficiencia en Horas Pico
@@ -563,7 +562,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
                 Categoría que necesita atención:
               </div>
               <div className="text-lg font-semibold text-orange-600 dark:text-orange-400 mb-3">
-                {advancedInsights.categoryBalance.mostNegglected}
+                {advancedInsights.categoryBalance.mostNegglected || 'Ninguna'}
               </div>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
