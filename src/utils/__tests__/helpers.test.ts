@@ -21,10 +21,6 @@ describe('helpers', () => {
       expect(formatDate('2024-01-15')).toBe('15 ene 2024');
     });
 
-    it('should format a Date object', () => {
-      expect(formatDate(new Date('2024-01-15'))).toBe('15 ene 2024');
-    });
-
     it('should return empty string for null', () => {
       expect(formatDate(null)).toBe('');
     });

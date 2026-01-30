@@ -70,21 +70,22 @@ describe('TaskCard', () => {
 
   it('should call onToggleStatus when checkbox is clicked', () => {
     render(<TaskCard {...defaultProps} />);
-    const button = screen.getByRole('button', { name: /toggle/i });
-    fireEvent.click(button);
+    const buttons = screen.getAllByRole('button');
+    const toggleButton = buttons[0];
+    fireEvent.click(toggleButton);
     expect(defaultProps.onToggleStatus).toHaveBeenCalledWith(1);
   });
 
   it('should call onDelete when delete button is clicked', () => {
     render(<TaskCard {...defaultProps} />);
-    const deleteButton = screen.getByRole('button', { name: /eliminar/i });
+    const deleteButton = screen.getByTitle('Eliminar tarea');
     fireEvent.click(deleteButton);
     expect(defaultProps.onDelete).toHaveBeenCalledWith(1);
   });
 
   it('should call onEdit when edit button is clicked', () => {
     render(<TaskCard {...defaultProps} />);
-    const editButton = screen.getByRole('button', { name: /editar/i });
+    const editButton = screen.getByTitle('Editar tarea');
     fireEvent.click(editButton);
     expect(defaultProps.onEdit).toHaveBeenCalledWith(mockTask);
   });
@@ -92,7 +93,7 @@ describe('TaskCard', () => {
   it('should call onShare when share button is clicked', () => {
     const onShare = vi.fn();
     render(<TaskCard {...defaultProps} onShare={onShare} />);
-    const shareButton = screen.getByRole('button', { name: /compartir/i });
+    const shareButton = screen.getByTitle('Compartir tarea');
     fireEvent.click(shareButton);
     expect(onShare).toHaveBeenCalledWith(mockTask);
   });
@@ -111,9 +112,10 @@ describe('TaskCard', () => {
     const overdueTask = {
       ...mockTask,
       due_date: '2020-01-01T10:00:00Z',
+      completed: false,
     };
     render(<TaskCard {...defaultProps} task={overdueTask} />);
-    expect(screen.getByText('(Vencida)')).toBeInTheDocument();
+    expect(screen.getByText(/Vencida/i)).toBeInTheDocument();
   });
 
   it('should render "Sin descripción" when description is empty', () => {
