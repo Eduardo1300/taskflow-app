@@ -174,6 +174,11 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     });
   };
 
+  const removeRecentAction = (actionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRecentActions(prev => prev.filter(id => id !== actionId));
+  };
+
   const executeAction = (action: QuickAction) => {
     action.action();
     addToRecentActions(action.id);
@@ -248,7 +253,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Acciones Recientes
                     </h4>
-                    <div className="space-y-2">
+                      <div className="space-y-2">
                       {getRecentActions().map(action => (
                         <button
                           key={`recent-${action.id}`}
@@ -256,24 +261,33 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                             executeAction(action);
                             setIsExpanded(false);
                           }}
-                          className="w-full flex items-center justify-between p-3 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 transition-colors"
+                          className="w-full flex items-center justify-between p-3 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 transition-colors"
                         >
                           <div className="flex items-center space-x-3">
-                            <div className="p-1 bg-indigo-100 dark:bg-indigo-900/50 rounded">
+                            <div className="p-1.5 bg-indigo-100 dark:bg-indigo-800/60 rounded text-indigo-600 dark:text-indigo-400">
                               {action.icon}
                             </div>
                             <div className="text-left">
                               <div className="font-medium">{action.title}</div>
-                              <div className="text-xs text-indigo-600/70 dark:text-indigo-400/70">
+                              <div className="text-xs text-indigo-600/80 dark:text-indigo-400/80">
                                 {action.description}
                               </div>
                             </div>
                           </div>
-                          {action.shortcut && (
-                            <span className="text-xs bg-indigo-200 dark:bg-indigo-800 px-2 py-1 rounded">
-                              {action.shortcut}
-                            </span>
-                          )}
+                          <div className="flex items-center space-x-2">
+                            {action.shortcut && (
+                              <span className="text-xs bg-indigo-200 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
+                                {action.shortcut}
+                              </span>
+                            )}
+                            <button
+                              onClick={(e) => removeRecentAction(action.id, e)}
+                              className="p-1 hover:bg-indigo-200 dark:hover:bg-indigo-700 rounded transition-colors"
+                              title="Quitar de recientes"
+                            >
+                              <X className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                            </button>
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -287,7 +301,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                       {category.icon}
                       <span className="ml-2">{category.title}</span>
                     </h4>
-                    <div className="space-y-2">
+                      <div className="space-y-2">
                       {getCategoryActions(category.id as QuickAction['category']).map(action => (
                         <button
                           key={action.id}
@@ -298,7 +312,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                           className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
                         >
                           <div className="flex items-center space-x-3">
-                            <div className="p-1 bg-gray-100 dark:bg-gray-700 rounded group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
+                            <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                               {action.icon}
                             </div>
                             <div className="text-left">
