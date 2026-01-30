@@ -191,10 +191,10 @@ const HelpPageEnhanced: React.FC = () => {
         <div className="text-center py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 mb-4">
             <HelpCircle className="h-10 w-10 sm:h-10 sm:w-10 text-purple-600 dark:text-purple-400 mx-auto sm:mx-0" />
-            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">Centro de Ayuda</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">Soporte y Ayuda de TaskFlow: Guías y FAQ para Productividad</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-2">
-            Encuentra respuestas, guías paso a paso y aprende a usar TaskFlow al máximo potencial
+            Encuentra respuestas rápidas, guías paso a paso y consejos para desarrolladores, freelancers y startups. Aprende a usar TaskFlow al máximo y optimiza tu productividad.
           </p>
         </div>
 
@@ -334,9 +334,9 @@ const HelpPageEnhanced: React.FC = () => {
                     onClick={() => toggleFAQ(faq.id)}
                     className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors rounded-lg"
                   >
-                    <span className="font-semibold text-gray-900 dark:text-white text-lg">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
                       {faq.question}
-                    </span>
+                    </h3>
                     <div className="flex-shrink-0 ml-4">
                       {expandedFAQ === faq.id ? (
                         <ChevronDown className="h-5 w-5 text-purple-600 dark:text-purple-400" />

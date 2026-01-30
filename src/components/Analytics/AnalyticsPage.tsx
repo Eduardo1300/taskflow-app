@@ -207,10 +207,10 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
-                Analytics Completo
+                Analytics de Productividad y Gestión de Tareas para Desarrolladores y Equipos
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-                Análisis completo de productividad, tareas y calendario
+                Análisis completo de productividad, gestión de tareas y rendimiento de calendario, diseñado para potenciar a desarrolladores, freelancers y startups.
               </p>
             </div>
           </div>
@@ -367,7 +367,7 @@ const OverviewContent: React.FC<{
           <div className="flex items-center mb-4">
             <Lightbulb className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
             <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100">
-              Insights Personalizados
+              Insights de Productividad Personalizados
             </h3>
           </div>
           <div className="space-y-2">
@@ -462,7 +462,7 @@ const OverviewContent: React.FC<{
           <div className="flex items-center mb-6">
             <Calendar className="h-5 w-5 text-indigo-600 mr-2" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Resumen del Calendario
+              Resumen de tu Calendario y Eventos
             </h3>
           </div>
           
@@ -506,7 +506,7 @@ const ProductivityContent: React.FC<{
         <div className="flex items-center mb-6">
           <Activity className="h-5 w-5 text-green-600 mr-2" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Estadísticas de Productividad
+            Estadísticas Detalladas de Productividad y Rendimiento
           </h3>
         </div>
         
@@ -552,7 +552,7 @@ const ProductivityContent: React.FC<{
         <div className="flex items-center mb-6">
           <BarChart3 className="h-5 w-5 text-indigo-600 mr-2" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Actividad de los Últimos 7 Días
+            Actividad de Tareas: Últimos 7 Días
           </h3>
         </div>
         
@@ -580,7 +580,7 @@ const ProductivityContent: React.FC<{
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
             <div className="flex items-center mb-4">
               <TrendingUp className="h-5 w-5 text-orange-500 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Horas Productivas</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">              Horas Pico de Productividad</h3>
             </div>
             
             <div className="space-y-3">
@@ -608,7 +608,7 @@ const ProductivityContent: React.FC<{
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
             <div className="flex items-center mb-4">
               <Users className="h-5 w-5 text-blue-500 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Balance Vida-Trabajo</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">              Análisis del Balance Vida-Trabajo</h3>
             </div>
 
             <div className="space-y-4">
@@ -674,7 +674,7 @@ const CalendarContent: React.FC<{
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
         <div className="flex items-center mb-6">
           <Brain className="h-5 w-5 text-purple-500 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Desglose de Salud del Calendario</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Desglose de la Salud de tu Calendario</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -722,7 +722,7 @@ const CalendarContent: React.FC<{
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
         <div className="flex items-center mb-4">
           <CheckCircle className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recomendaciones</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recomendaciones Personalizadas para tu Calendario</h3>
         </div>
 
         <div className="space-y-3">
@@ -760,7 +760,7 @@ const CalendarContent: React.FC<{
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
           <div className="flex items-center mb-4">
             <Clock className="h-5 w-5 text-indigo-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Bloques de Tiempo Disponibles</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Bloques de Tiempo de Enfoque Disponibles</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
