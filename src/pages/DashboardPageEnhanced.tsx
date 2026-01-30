@@ -259,28 +259,28 @@ const DashboardPageEnhanced: React.FC = () => {
   return (
     <>
       <MainLayout currentPage="dashboard">
-          {/* Dashboard Header */}
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-start lg:items-center justify-between gap-4 sm:gap-6">
-              <div className="flex items-start sm:items-center space-x-3 sm:space-x-4">
-                <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white shadow-lg flex-shrink-0">
-                  <Target className="h-5 w-5 sm:h-6 sm:w-6" />
+          {/* Hero Banner with Image */}
+          <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shadow-2xl">
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/4"></div>
+            
+            <div className="relative px-6 py-8 sm:px-8 sm:py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white">
                     Dashboard
                   </h1>
-                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+                  <p className="text-blue-100 text-sm sm:text-base mt-1">
                     Bienvenido de vuelta, {user?.email?.split('@')[0]}
                   </p>
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Notification Center */}
-
-                
-                {/* Quick Actions */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <QuickActions
                   onCreateTask={handleCreateTask}
                   onCreateHighPriorityTask={handleCreateHighPriorityTask}
@@ -291,80 +291,92 @@ const DashboardPageEnhanced: React.FC = () => {
                   onExportTasks={handleExportTasks}
                 />
                 
-                {/* New Task Button */}
                 <button
                   onClick={handleCreateTask}
-                  className="w-full sm:w-auto flex items-center justify-center sm:justify-start px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                  className="flex items-center justify-center px-5 py-2.5 bg-white text-purple-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Nueva tarea</span>
-                  <span className="sm:hidden">Nueva</span>
+                  <Plus className="h-5 w-5 mr-2" />
+                  Nueva tarea
                 </button>
               </div>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div className="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Total Tareas</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Tareas</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                     {stats.pending} pendientes
                   </p>
                 </div>
-                <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex-shrink-0">
-                  <Target className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform">
+                  <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
+              </div>
+              <div className="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
               </div>
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+            <div className="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Completadas</p>
-                  <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{stats.completed}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Completadas</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{stats.completed}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                     {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% progreso
                   </p>
                 </div>
-                <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-xl flex-shrink-0">
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+                <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl group-hover:scale-110 transition-transform">
+                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
+              </div>
+              <div className="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-green-500 rounded-full transition-all duration-500" 
+                     style={{ width: stats.total > 0 ? `${(stats.completed / stats.total) * 100}%` : '0%' }}></div>
               </div>
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+            <div className="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Alta Prioridad</p>
-                  <p className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">{stats.highPriority}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Alta Prioridad</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{stats.highPriority}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                     Requieren atención
                   </p>
                 </div>
-                <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/30 rounded-xl flex-shrink-0">
-                  <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl group-hover:scale-110 transition-transform">
+                  <Zap className="h-6 w-6 text-red-600 dark:text-red-400" />
                 </div>
+              </div>
+              <div className="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-red-500 rounded-full" style={{ width: stats.highPriority > 0 ? '60%' : '20%' }}></div>
               </div>
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-200 hover-lift">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+            <div className="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Productividad</p>
-                  <p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Productividad</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
                     {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                     Esta semana
                   </p>
                 </div>
-                <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex-shrink-0">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-xl group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
+              </div>
+              <div className="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                     style={{ width: stats.total > 0 ? `${(stats.completed / stats.total) * 100}%` : '0%' }}></div>
               </div>
             </div>
           </div>
@@ -383,24 +395,76 @@ const DashboardPageEnhanced: React.FC = () => {
             <GoalsSystem tasks={tasks} />
           </div>
 
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                Tus Tareas
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {filteredTasks.length} tarea{filteredTasks.length !== 1 ? 's' : ''} encontrada{filteredTasks.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+            
+            {/* Filter Pills */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setStatusFilter('all'); setPriorityFilter('all'); }}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  statusFilter === 'all' && priorityFilter === 'all'
+                    ? 'bg-blue-500 text-white shadow-lg'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                Todas
+              </button>
+              <button
+                onClick={handleFilterPending}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  statusFilter === 'pending'
+                    ? 'bg-yellow-500 text-white shadow-lg'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                Pendientes
+              </button>
+              <button
+                onClick={handleFilterCompleted}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  statusFilter === 'completed'
+                    ? 'bg-green-500 text-white shadow-lg'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                Completadas
+              </button>
+            </div>
+          </div>
+
           {/* Tasks Grid */}
-          <div className="mb-8">
+          <div className="mb-12">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mr-3"></div>
-                <p className="text-gray-600 dark:text-gray-400">Cargando tareas...</p>
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="relative">
+                  <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
+                  <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 mt-4 font-medium">Cargando tareas...</p>
               </div>
             ) : filteredTasks.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                  <Sparkles className="h-12 w-12 text-gray-400" />
+              <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 rounded-3xl p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-700">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                
+                <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mb-6 shadow-xl">
+                  <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 text-blue-500" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  {tasks.length === 0 ? '¡Comienza a ser más productivo!' : 'No se encontraron tareas'}
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  {tasks.length === 0 ? '¡Comienza tu productividad!' : 'No se encontraron tareas'}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
                   {tasks.length === 0 
-                    ? 'Crea tu primera tarea y organiza tu trabajo de manera efectiva.'
+                    ? 'Crea tu primera tarea y organiza tu trabajo de manera efectiva. Tu futuro yo te lo agradecerá.'
                     : 'Intenta ajustar los filtros para encontrar lo que buscas.'
                   }
                 </p>
@@ -409,19 +473,19 @@ const DashboardPageEnhanced: React.FC = () => {
                     setEditingTask(null);
                     setIsModalOpen(true);
                   }}
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Crear primera tarea
+                  <Plus className="h-5 w-5 mr-2" />
+                  {tasks.length === 0 ? 'Crear primera tarea' : 'Crear nueva tarea'}
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredTasks.map((task, index) => (
                   <div
                     key={task.id}
-                    className="animate-slide-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="animate-fade-in-up"
+                    style={{ animationDelay: `${index * 0.05}s`, animationFillMode: 'both' }}
                   >
                     <TaskCardEnhanced
                       task={task}

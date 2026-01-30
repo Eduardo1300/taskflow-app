@@ -38,6 +38,7 @@ dist/
 node_modules/
 
 # IDE
+*.sql
 .vscode/
 .idea/
 

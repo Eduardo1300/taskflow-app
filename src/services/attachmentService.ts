@@ -154,40 +154,30 @@ class AttachmentService {
     }
   }
 
-  // Descargar archivo
-  async downloadAttachment(filePath: string): Promise<Blob> {
+  // Descargar archivo - usa URL pública directamente
+  async downloadAttachment(publicUrl: string, fileName: string): Promise<void> {
     try {
-      const { data, error } = await supabase.storage
-        .from(this.BUCKET_NAME)
-        .download(filePath);
-
-      if (error) {
-        throw error;
-      }
-
-      return data;
+      // Crear link de descarga directo
+      const link = document.createElement('a');
+      link.href = publicUrl;
+      link.setAttribute('download', fileName);
+      link.setAttribute('target', '_blank');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
       console.error('Error in downloadAttachment:', error);
-      throw error;
+      // Fallback: abrir en nueva pestaña
+      window.open(publicUrl, '_blank');
     }
   }
 
-  // Obtener URL firmada para descarga segura
-  async getSignedUrl(filePath: string, expiresIn: number = 3600): Promise<string> {
-    try {
-      const { data, error } = await supabase.storage
-        .from(this.BUCKET_NAME)
-        .createSignedUrl(filePath, expiresIn);
-
-      if (error) {
-        throw error;
-      }
-
-      return data.signedUrl;
-    } catch (error) {
-      console.error('Error in getSignedUrl:', error);
-      throw error;
-    }
+  // Obtener URL pública (el bucket es público)
+  getPublicUrl(filePath: string): string {
+    const { data } = supabase.storage
+      .from(this.BUCKET_NAME)
+      .getPublicUrl(filePath);
+    return data.publicUrl;
   }
 
   // Formatear tamaño de archivo
