@@ -46,8 +46,18 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
 }) => {
   const { logout } = useAuth();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [sidebarSearch, setSidebarSearch] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleSidebarSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (sidebarSearch.trim()) {
+      localStorage.setItem('taskflow_search_query', sidebarSearch.trim());
+      navigate('/dashboard');
+      setSidebarSearch('');
+    }
+  };
 
   const menuItems: MenuItem[] = [
     { 
@@ -130,12 +140,9 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
     }
   ];
 
-  // Track previous pathname to only close sidebar on actual navigation
   const previousPathnameRef = useRef(location.pathname);
 
-  // Cerrar sidebar en móvil al navegar
   useEffect(() => {
-    // Solo cerrar si la ruta realmente cambió (para móvil)
     if (previousPathnameRef.current !== location.pathname && onClose) {
       console.log('🚪 SidebarEnhanced useEffect calling onClose (route changed from:', previousPathnameRef.current, 'to:', location.pathname, ')');
       onClose();
@@ -164,7 +171,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Sidebar */}
       <div
         className={`
           fixed inset-y-0 left-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl transform transition-all duration-300 ease-out
@@ -173,7 +179,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           ${isCollapsed ? 'w-20' : 'w-64 lg:w-64'}
         `}
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
           <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
             <div className="relative">
@@ -194,7 +199,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
             )}
           </div>
           
-          {/* Close button - mobile only */}
           <button 
             onClick={onClose}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -205,21 +209,21 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Search Bar */}
         {!isCollapsed && (
           <div className="p-4">
-            <div className="relative">
+            <form onSubmit={handleSidebarSearch} className="relative">
               <input
                 type="text"
+                value={sidebarSearch}
+                onChange={(e) => setSidebarSearch(e.target.value)}
                 placeholder="Buscar..."
                 className="w-full pl-9 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
+            </form>
           </div>
         )}
 
-        {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2">
           <div className="space-y-1">
             {menuItems.map((item) => {
@@ -254,7 +258,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
                       <>
                         <span className="flex-1 text-left">{item.label}</span>
                         
-                        {/* Badges */}
                         <div className="flex items-center space-x-2">
                           {item.premium && (
                             <span className="px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-yellow-400 to-yellow-500 text-white rounded-full">
@@ -271,7 +274,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
                     )}
                   </button>
 
-                  {/* Tooltip for collapsed sidebar */}
                   {isCollapsed && hovered && (
                     <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-sm px-3 py-2 rounded-lg shadow-lg z-50 whitespace-nowrap">
                       <div>{item.label}</div>
@@ -282,7 +284,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
                     </div>
                   )}
 
-                  {/* Active indicator */}
                   {active && (
                     <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r-full" />
                   )}
@@ -291,10 +292,8 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
             })}
           </div>
 
-          {/* Divider */}
           <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
 
-          {/* Secondary Items */}
           <div className="space-y-1">
             {secondaryItems.map((item) => {
               const Icon = item.icon;
@@ -321,12 +320,10 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
                     {!isCollapsed && item.label}
                   </button>
 
-                  {/* Active indicator */}
                   {active && (
                     <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r-full" />
                   )}
 
-                  {/* Tooltip for collapsed sidebar */}
                   {isCollapsed && hovered && (
                     <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-sm px-3 py-2 rounded-lg shadow-lg z-50 whitespace-nowrap">
                       <div>{item.label}</div>
@@ -342,7 +339,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           </div>
         </nav>
 
-        {/* User Section */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={logout}
@@ -355,7 +351,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Productivity Stats */}
         {!isCollapsed && (
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl p-4 border border-blue-500/10">
@@ -388,7 +383,6 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Backdrop */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"

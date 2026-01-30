@@ -64,9 +64,14 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
     };
   }, [isMenuOpen]);
 
-    const handleSearch = (e: React.FormEvent) => {
+     const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality
+    if (searchQuery.trim()) {
+      localStorage.setItem('taskflow_search_query', searchQuery.trim());
+      navigate('/dashboard');
+      setSearchQuery('');
+      setIsSearchOpen(false);
+    }
   };
 
   return (

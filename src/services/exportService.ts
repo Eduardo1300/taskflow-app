@@ -5,6 +5,69 @@ import html2canvas from 'html2canvas';
 import { Task } from '../types';
 import { AnalyticsData } from './analyticsService';
 
+// Helper function to clean text for PDF (remove or replace problematic characters)
+const cleanTextForPDF = (text: string): string => {
+  if (!text) return '';
+  return text
+    // Replace Latin-1 extended characters (commonly appearing as corruption)
+    .replace(/Ø/g, 'O')
+    .replace(/Ü/g, 'U')
+    .replace(/Ê/g, 'E')
+    .replace(/À/g, 'A')
+    .replace(/È/g, 'E')
+    .replace(/Î/g, 'I')
+    .replace(/Ô/g, 'O')
+    .replace(/Û/g, 'U')
+    .replace(/Â/g, 'A')
+    .replace(/É/g, 'E')
+    .replace(/Í/g, 'I')
+    .replace(/Ó/g, 'O')
+    .replace(/Ú/g, 'U')
+    .replace(/Ñ/g, 'N')
+    .replace(/ñ/g, 'n')
+    .replace(/Ý/g, 'Y')
+    .replace(/Þ/g, 'B')
+    .replace(/þ/g, 'b')
+    .replace(/Ë/g, 'E')
+    .replace(/Ï/g, 'I')
+    .replace(/Œ/g, 'OE')
+    .replace(/œ/g, 'oe')
+    .replace(/Æ/g, 'AE')
+    .replace(/æ/g, 'ae')
+    .replace(/¿/g, '')
+    .replace(/¡/g, '')
+    // Replace regular accented characters
+    .replace(/á/g, 'a')
+    .replace(/é/g, 'e')
+    .replace(/í/g, 'i')
+    .replace(/ó/g, 'o')
+    .replace(/ú/g, 'u')
+    .replace(/Á/g, 'A')
+    .replace(/É/g, 'E')
+    .replace(/Í/g, 'I')
+    .replace(/Ó/g, 'O')
+    .replace(/Ú/g, 'U')
+    .replace(/ñ/g, 'n')
+    .replace(/Ñ/g, 'N')
+    // Replace punctuation and special characters
+    .replace(/"/g, '"')
+    .replace(/"/g, '"')
+    .replace(/'/g, "'")
+    .replace(/'/g, "'")
+    .replace(/–/g, '-')
+    .replace(/—/g, '-')
+    .replace(/…/g, '...')
+    .replace(/™/g, '(TM)')
+    .replace(/©/g, '(C)')
+    .replace(/®/g, '(R)')
+    .replace(/°/g, ' grados')
+    .replace(/¼/g, ' 1/4')
+    .replace(/½/g, ' 1/2')
+    .replace(/¾/g, ' 3/4')
+    // Remove any remaining non-ASCII characters
+    .replace(/[^\x00-\x7F]/g, '');
+};
+
 export interface ExportOptions {
   includeCompleted?: boolean;
   includeDescription?: boolean;
@@ -34,7 +97,7 @@ class ExportService {
     // Header del documento
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('TaskFlow - Reporte de Tareas', margin, 25);
+    doc.text(cleanTextForPDF('TaskFlow - Reporte de Tareas'), margin, 25);
     
     // Información del reporte
     doc.setFontSize(10);
@@ -52,16 +115,16 @@ class ExportService {
     // Preparar datos para la tabla
     const tableData = filteredTasks.map(task => {
       const row = [
-        task.title,
+        cleanTextForPDF(task.title),
         task.completed ? '✓' : '○',
-        task.priority || 'Media',
-        task.category || 'Sin categoría',
+        cleanTextForPDF(task.priority || 'Media'),
+        cleanTextForPDF(task.category || 'Sin categoría'),
         task.due_date ? new Date(task.due_date).toLocaleDateString('es-ES') : '-',
-        task.tags?.join(', ') || '-'
+        cleanTextForPDF(task.tags?.join(', ') || '-')
       ];
       
       if (options.includeDescription) {
-        row.push(task.description || '-');
+        row.push(cleanTextForPDF(task.description || '-'));
       }
       
       return row;
@@ -69,16 +132,16 @@ class ExportService {
     
     // Headers de la tabla
     const headers = [
-      'Título',
-      'Estado', 
-      'Prioridad',
-      'Categoría',
-      'Vencimiento',
-      'Etiquetas'
+      cleanTextForPDF('Título'),
+      cleanTextForPDF('Estado'), 
+      cleanTextForPDF('Prioridad'),
+      cleanTextForPDF('Categoría'),
+      cleanTextForPDF('Vencimiento'),
+      cleanTextForPDF('Etiquetas')
     ];
     
     if (options.includeDescription) {
-      headers.push('Descripción');
+      headers.push(cleanTextForPDF('Descripción'));
     }
     
     // Crear tabla
@@ -193,7 +256,7 @@ class ExportService {
     // Header
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('TaskFlow - Reporte de Analytics', margin, 25);
+    doc.text(cleanTextForPDF('TaskFlow - Reporte de Analytics'), margin, 25);
     
     // Fecha del reporte
     doc.setFontSize(10);
@@ -205,18 +268,18 @@ class ExportService {
     // Estadísticas generales
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Estadísticas Generales', margin, currentY);
+    doc.text(cleanTextForPDF('Estadísticas Generales'), margin, currentY);
     currentY += 10;
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     
     const stats = [
-      [`Total de tareas: ${analyticsData.taskStats.total}`],
-      [`Tareas completadas: ${analyticsData.taskStats.completed}`],
-      [`Tareas pendientes: ${analyticsData.taskStats.pending}`],
-      [`Tareas vencidas: ${analyticsData.taskStats.overdue}`],
-      [`Tasa de finalización: ${analyticsData.taskStats.completionRate}%`]
+      [cleanTextForPDF(`Total de tareas: ${analyticsData.taskStats.total}`)],
+      [cleanTextForPDF(`Tareas completadas: ${analyticsData.taskStats.completed}`)],
+      [cleanTextForPDF(`Tareas pendientes: ${analyticsData.taskStats.pending}`)],
+      [cleanTextForPDF(`Tareas vencidas: ${analyticsData.taskStats.overdue}`)],
+      [cleanTextForPDF(`Tasa de finalizacion: ${analyticsData.taskStats.completionRate}%`)]
     ];
     
     autoTable(doc, {
@@ -232,20 +295,20 @@ class ExportService {
     // Productividad
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Métricas de Productividad', margin, currentY);
+    doc.text(cleanTextForPDF('Métricas de Productividad'), margin, currentY);
     currentY += 10;
     
     const productivityStats = [
-      ['Tareas completadas hoy', analyticsData.productivityStats.tasksCompletedToday.toString()],
-      ['Tareas completadas esta semana', analyticsData.productivityStats.tasksCompletedThisWeek.toString()],
-      ['Tareas completadas este mes', analyticsData.productivityStats.tasksCompletedThisMonth.toString()],
-      ['Tiempo promedio de finalización', `${analyticsData.productivityStats.averageCompletionTime.toFixed(1)} días`],
-      ['Día más productivo', analyticsData.productivityStats.mostProductiveDay],
-      ['Racha actual', `${analyticsData.productivityStats.currentStreak} días`]
+      [cleanTextForPDF('Tareas completadas hoy'), analyticsData.productivityStats.tasksCompletedToday.toString()],
+      [cleanTextForPDF('Tareas completadas esta semana'), analyticsData.productivityStats.tasksCompletedThisWeek.toString()],
+      [cleanTextForPDF('Tareas completadas este mes'), analyticsData.productivityStats.tasksCompletedThisMonth.toString()],
+      [cleanTextForPDF('Tiempo promedio de finalizacion'), `${analyticsData.productivityStats.averageCompletionTime.toFixed(1)} dias`],
+      [cleanTextForPDF('Dia mas productivo'), cleanTextForPDF(analyticsData.productivityStats.mostProductiveDay)],
+      [cleanTextForPDF('Racha actual'), `${analyticsData.productivityStats.currentStreak} dias`]
     ];
     
     autoTable(doc, {
-      head: [['Métrica', 'Valor']],
+      head: [[cleanTextForPDF('Metrica'), cleanTextForPDF('Valor')]],
       body: productivityStats,
       startY: currentY,
       margin: { left: margin, right: margin },
@@ -258,22 +321,22 @@ class ExportService {
     
     currentY = (doc as any).lastAutoTable.finalY + 15;
     
-    // Distribución por categorías
+    // Distribucion por categorias
     if (analyticsData.categoryStats.length > 0) {
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('Distribución por Categorías', margin, currentY);
+      doc.text(cleanTextForPDF('Distribucion por Categorias'), margin, currentY);
       currentY += 10;
       
       const categoryData = analyticsData.categoryStats.map(cat => [
-        cat.name,
+        cleanTextForPDF(cat.name),
         cat.total.toString(),
         cat.completed.toString(),
         `${cat.percentage}%`
       ]);
       
       autoTable(doc, {
-        head: [['Categoría', 'Total', 'Completadas', 'Porcentaje']],
+        head: [[cleanTextForPDF('Categoria'), cleanTextForPDF('Total'), cleanTextForPDF('Completadas'), cleanTextForPDF('Porcentaje')]],
         body: categoryData,
         startY: currentY,
         margin: { left: margin, right: margin },
@@ -423,19 +486,19 @@ class ExportService {
     // Header
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text('TaskFlow Analytics - Reporte Completo', margin, yPosition);
+    doc.text(cleanTextForPDF('TaskFlow Analytics - Reporte Completo'), margin, yPosition);
     yPosition += 15;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}`, margin, yPosition);
+    doc.text(cleanTextForPDF(`Generado: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}`), margin, yPosition);
     yPosition += 20;
     
     // Resumen General
     checkNewPage(60);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('📊 Resumen General', margin, yPosition);
+    doc.text(cleanTextForPDF('Resumen General'), margin, yPosition);
     yPosition += 10;
     
     doc.setFontSize(10);
@@ -443,20 +506,29 @@ class ExportService {
     
     const { taskStats, productivityStats, predictions } = analyticsData;
     
-    // Crear tabla de resumen
+    // Función para obtener indicador de estado
+    const getStatusIndicator = (rate: number, overdue: number, streak: number): string => {
+      if (overdue > 0) return '!';
+      if (streak > 7) return '*';
+      if (rate > 75) return '+';
+      if (rate > 50) return '~';
+      return '-';
+    };
+    
+    // Crear tabla de resumen SIN emojis
     autoTable(doc, {
       startY: yPosition,
-      head: [['Métrica', 'Valor', 'Estado']],
+      head: [[cleanTextForPDF('Metrica'), cleanTextForPDF('Valor'), cleanTextForPDF('Estado')]],
       body: [
-        ['Total de Tareas', taskStats.total.toString(), '📋'],
-        ['Tareas Completadas', taskStats.completed.toString(), '✅'],
-        ['Tasa de Finalización', `${taskStats.completionRate.toFixed(1)}%`, taskStats.completionRate > 75 ? '🟢' : taskStats.completionRate > 50 ? '🟡' : '🔴'],
-        ['Tareas Vencidas', taskStats.overdue.toString(), taskStats.overdue === 0 ? '✅' : '⚠️'],
-        ['Racha Actual', `${productivityStats.currentStreak} días`, productivityStats.currentStreak > 7 ? '🔥' : '📈'],
-        ['Día Más Productivo', productivityStats.mostProductiveDay, '⭐'],
+        [cleanTextForPDF('Total de Tareas'), taskStats.total.toString(), ''],
+        [cleanTextForPDF('Tareas Completadas'), taskStats.completed.toString(), ''],
+        [cleanTextForPDF('Tasa de Finalizacion'), `${taskStats.completionRate.toFixed(1)}%`, getStatusIndicator(taskStats.completionRate, taskStats.overdue, productivityStats.currentStreak)],
+        [cleanTextForPDF('Tareas Vencidas'), taskStats.overdue.toString(), taskStats.overdue > 0 ? '!' : ''],
+        [cleanTextForPDF('Racha Actual'), `${productivityStats.currentStreak} dias`, productivityStats.currentStreak > 7 ? '*' : ''],
+        [cleanTextForPDF('Dia Mas Productivo'), cleanTextForPDF(productivityStats.mostProductiveDay), ''],
       ],
       margin: { left: margin },
-      styles: { fontSize: 9 },
+      styles: { fontSize: 9, cellPadding: 3 },
       headStyles: { fillColor: [79, 70, 229], textColor: 255 },
       alternateRowStyles: { fillColor: [248, 250, 252] }
     });
@@ -467,31 +539,31 @@ class ExportService {
     checkNewPage(80);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('🔮 Predicciones y Análisis Avanzado', margin, yPosition);
+    doc.text(cleanTextForPDF('Predicciones y Análisis Avanzado'), margin, yPosition);
     yPosition += 15;
     
     // Predicciones para la próxima semana
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Predicciones para la Próxima Semana:', margin, yPosition);
+    doc.text(cleanTextForPDF('Predicciones para la Proxima Semana:'), margin, yPosition);
     yPosition += 8;
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`• Tareas estimadas a completar: ${predictions.nextWeekPrediction.estimatedTasksToComplete}`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Tareas estimadas a completar: ${predictions.nextWeekPrediction.estimatedTasksToComplete}`), margin + 5, yPosition);
     yPosition += 6;
-    doc.text(`• Tasa de finalización estimada: ${predictions.nextWeekPrediction.estimatedCompletionRate}%`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Tasa de finalizacion estimada: ${predictions.nextWeekPrediction.estimatedCompletionRate}%`), margin + 5, yPosition);
     yPosition += 6;
-    doc.text(`• Confianza de la predicción: ${Math.round(predictions.nextWeekPrediction.confidence * 100)}%`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Confianza de la prediccion: ${Math.round(predictions.nextWeekPrediction.confidence * 100)}%`), margin + 5, yPosition);
     yPosition += 12;
     
     // Análisis de Riesgo de Burnout
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     const burnoutColor = predictions.burnoutRisk.level === 'high' ? [220, 38, 38] : 
-                        predictions.burnoutRisk.level === 'medium' ? [245, 158, 11] : [34, 197, 94];
+                         predictions.burnoutRisk.level === 'medium' ? [245, 158, 11] : [34, 197, 94];
     doc.setTextColor(burnoutColor[0], burnoutColor[1], burnoutColor[2]);
-    doc.text(`Riesgo de Burnout: ${predictions.burnoutRisk.level.toUpperCase()} (${predictions.burnoutRisk.score}/100)`, margin, yPosition);
+    doc.text(cleanTextForPDF(`Riesgo de Burnout: ${predictions.burnoutRisk.level.toUpperCase()} (${predictions.burnoutRisk.score}/100)`), margin, yPosition);
     yPosition += 8;
     
     doc.setTextColor(0, 0, 0);
@@ -499,11 +571,11 @@ class ExportService {
     doc.setFont('helvetica', 'normal');
     
     if (predictions.burnoutRisk.factors.length > 0) {
-      doc.text('Factores de riesgo identificados:', margin + 5, yPosition);
+      doc.text(cleanTextForPDF('Factores de riesgo identificados:'), margin + 5, yPosition);
       yPosition += 6;
       predictions.burnoutRisk.factors.forEach((factor, index) => {
-        if (index < 3) { // Limitar a 3 factores
-          doc.text(`  ${index + 1}. ${factor}`, margin + 10, yPosition);
+        if (index < 3) {
+          doc.text(cleanTextForPDF(`${index + 1}. ${factor}`), margin + 10, yPosition);
           yPosition += 5;
         }
       });
@@ -511,10 +583,10 @@ class ExportService {
     }
     
     if (predictions.burnoutRisk.suggestions.length > 0) {
-      doc.text('Sugerencias para mitigación:', margin + 5, yPosition);
+      doc.text(cleanTextForPDF('Sugerencias para mitigacion:'), margin + 5, yPosition);
       yPosition += 6;
       predictions.burnoutRisk.suggestions.slice(0, 2).forEach((suggestion, index) => {
-        const lines = doc.splitTextToSize(`${index + 1}. ${suggestion}`, pageWidth - margin - 15);
+        const lines = doc.splitTextToSize(cleanTextForPDF(`${index + 1}. ${suggestion}`), pageWidth - margin - 15);
         doc.text(lines, margin + 10, yPosition);
         yPosition += lines.length * 5 + 2;
       });
@@ -525,12 +597,12 @@ class ExportService {
     checkNewPage(60);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('📈 Análisis de Tendencias (Últimas 12 Semanas)', margin, yPosition);
+    doc.text(cleanTextForPDF('Análisis de Tendencias (Últimas 12 Semanas)'), margin, yPosition);
     yPosition += 15;
     
     if (analyticsData.trends.length > 0) {
-      const trendData = analyticsData.trends.map(trend => [
-        trend.period,
+      const trendData = analyticsData.trends.slice(-8).map(trend => [
+        cleanTextForPDF(trend.period),
         trend.created.toString(),
         trend.completed.toString(),
         `${trend.completionRate}%`
@@ -538,10 +610,10 @@ class ExportService {
       
       autoTable(doc, {
         startY: yPosition,
-        head: [['Período', 'Creadas', 'Completadas', 'Tasa Finalización']],
-        body: trendData.slice(-8), // Últimas 8 semanas para ahorrar espacio
+        head: [[cleanTextForPDF('Periodo'), cleanTextForPDF('Creadas'), cleanTextForPDF('Completadas'), cleanTextForPDF('Tasa Finalizacion')]],
+        body: trendData,
         margin: { left: margin },
-        styles: { fontSize: 8 },
+        styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [34, 197, 94], textColor: 255 },
         alternateRowStyles: { fillColor: [240, 253, 244] }
       });
@@ -553,7 +625,7 @@ class ExportService {
     checkNewPage(80);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('💡 Insights Avanzados', margin, yPosition);
+    doc.text(cleanTextForPDF('Insights Avanzados'), margin, yPosition);
     yPosition += 15;
     
     const { advancedInsights } = analyticsData;
@@ -561,7 +633,7 @@ class ExportService {
     // Balance de Carga de Trabajo
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Balance de Carga de Trabajo:', margin, yPosition);
+    doc.text(cleanTextForPDF('Balance de Carga de Trabajo:'), margin, yPosition);
     yPosition += 8;
     
     doc.setFontSize(10);
@@ -569,28 +641,28 @@ class ExportService {
     const workloadColor = advancedInsights.workloadBalance.status === 'optimal' ? [34, 197, 94] :
                          advancedInsights.workloadBalance.status === 'overloaded' ? [220, 38, 38] : [245, 158, 11];
     doc.setTextColor(workloadColor[0], workloadColor[1], workloadColor[2]);
-    doc.text(`• Estado: ${advancedInsights.workloadBalance.status.toUpperCase()} (${advancedInsights.workloadBalance.score}/100)`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`• Estado: ${advancedInsights.workloadBalance.status.toUpperCase()} (${advancedInsights.workloadBalance.score}/100)`), margin + 5, yPosition);
     yPosition += 6;
     
     doc.setTextColor(0, 0, 0);
-    const recLines = doc.splitTextToSize(`• Recomendación: ${advancedInsights.workloadBalance.recommendation}`, pageWidth - margin - 10);
+    const recLines = doc.splitTextToSize(cleanTextForPDF(`• Recomendación: ${advancedInsights.workloadBalance.recommendation}`), pageWidth - margin - 10);
     doc.text(recLines, margin + 5, yPosition);
     yPosition += recLines.length * 5 + 8;
     
     // Eficiencia de Tiempo
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Gestión del Tiempo:', margin, yPosition);
+    doc.text(cleanTextForPDF('Gestion del Tiempo:'), margin, yPosition);
     yPosition += 8;
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`• Eficiencia en horas pico: ${advancedInsights.timeManagement.efficiency}%`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Eficiencia en horas pico: ${advancedInsights.timeManagement.efficiency}%`), margin + 5, yPosition);
     yPosition += 6;
-    doc.text(`• Horas más productivas: ${advancedInsights.timeManagement.peakHours.join(', ')}:00`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Horas mas productivas: ${advancedInsights.timeManagement.peakHours.join(', ')}:00`), margin + 5, yPosition);
     yPosition += 6;
     if (advancedInsights.timeManagement.suggestions.length > 0) {
-      const timeLines = doc.splitTextToSize(`• Sugerencia: ${advancedInsights.timeManagement.suggestions[0]}`, pageWidth - margin - 10);
+      const timeLines = doc.splitTextToSize(cleanTextForPDF(`Sugerencia: ${advancedInsights.timeManagement.suggestions[0]}`), pageWidth - margin - 10);
       doc.text(timeLines, margin + 5, yPosition);
       yPosition += timeLines.length * 5 + 8;
     }
@@ -598,14 +670,14 @@ class ExportService {
     // Balance de Categorías
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Balance de Categorías:', margin, yPosition);
+    doc.text(cleanTextForPDF('Balance de Categorias:'), margin, yPosition);
     yPosition += 8;
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`• Categoría que necesita atención: ${advancedInsights.categoryBalance.mostNegglected}`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Categoria que necesita atencion: ${advancedInsights.categoryBalance.mostNegglected}`), margin + 5, yPosition);
     yPosition += 6;
-    const catLines = doc.splitTextToSize(`• Recomendación: ${advancedInsights.categoryBalance.recommendation}`, pageWidth - margin - 10);
+    const catLines = doc.splitTextToSize(cleanTextForPDF(`Recomendacion: ${advancedInsights.categoryBalance.recommendation}`), pageWidth - margin - 10);
     doc.text(catLines, margin + 5, yPosition);
     yPosition += catLines.length * 5 + 10;
     
@@ -613,21 +685,21 @@ class ExportService {
     checkNewPage(50);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('🎯 Objetivos Recomendados', margin, yPosition);
+    doc.text(cleanTextForPDF('Objetivos Recomendados'), margin, yPosition);
     yPosition += 15;
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`• Objetivo diario recomendado: ${predictions.goalRecommendations.dailyTarget} tareas`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Objetivo diario recomendado: ${predictions.goalRecommendations.dailyTarget} tareas`), margin + 5, yPosition);
     yPosition += 6;
-    doc.text(`• Objetivo semanal recomendado: ${predictions.goalRecommendations.weeklyTarget} tareas`, margin + 5, yPosition);
+    doc.text(cleanTextForPDF(`Objetivo semanal recomendado: ${predictions.goalRecommendations.weeklyTarget} tareas`), margin + 5, yPosition);
     yPosition += 8;
     
     if (predictions.goalRecommendations.focusAreas.length > 0) {
-      doc.text('Áreas de enfoque recomendadas:', margin + 5, yPosition);
+      doc.text(cleanTextForPDF('Areas de enfoque recomendadas:'), margin + 5, yPosition);
       yPosition += 6;
       predictions.goalRecommendations.focusAreas.forEach((area, index) => {
-        doc.text(`  ${index + 1}. ${area}`, margin + 10, yPosition);
+        doc.text(cleanTextForPDF(`  ${index + 1}. ${area}`), margin + 10, yPosition);
         yPosition += 5;
       });
     }
