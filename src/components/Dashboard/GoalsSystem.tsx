@@ -9,7 +9,8 @@ import {
   Award,
   Zap,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { GoalsService } from '../../services/goalsService';
@@ -420,179 +421,206 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
   const completedGoals = goals.filter(g => g.completed);
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={`bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg ${className}`}>
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors flex-1"
+            className="flex items-center space-x-4 hover:bg-gray-100 dark:hover:bg-gray-700/50 p-3 rounded-xl transition-all flex-1 group"
           >
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg text-white">
-              <Target className="h-5 w-5" />
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl text-white shadow-lg group-hover:scale-110 transition-transform">
+              <Target className="h-6 w-6" />
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Objetivos y Metas
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {completedGoals.length} de {goals.length} objetivos completados
               </p>
             </div>
-            {isCollapsed ? (
-              <ChevronDown className="h-5 w-5 text-gray-400" />
-            ) : (
-              <ChevronUp className="h-5 w-5 text-gray-400" />
-            )}
+            <div className={`p-2 rounded-xl transition-all ${isCollapsed ? 'bg-gray-100 dark:bg-gray-700' : 'bg-purple-100 dark:bg-purple-900/30'}`}>
+              {isCollapsed ? (
+                <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <ChevronUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              )}
+            </div>
           </button>
           
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm ml-4"
+            className="flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 ml-4"
           >
-            <Plus className="h-4 w-4 mr-1" />
+            <Plus className="h-5 w-5 mr-2" />
             Nuevo objetivo
           </button>
         </div>
 
         {/* Goals List */}
         {!isCollapsed && (
-        <div className="space-y-4">
-          {goals.length === 0 ? (
-            <div className="text-center py-8">
-              <Target className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600 dark:text-gray-400">No tienes objetivos aún</p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="mt-2 text-purple-600 hover:text-purple-700 text-sm"
-              >
-                Crear tu primer objetivo
-              </button>
-            </div>
-          ) : (
-            goals.map(goal => {
-              const percentage = Math.min((goal.current / goal.target) * 100, 100);
-              
-              return (
-                <div
-                  key={goal.id}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                    goal.completed 
-                      ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' 
-                      : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start space-x-3 flex-1">
-                      <div className={`p-2 rounded-lg ${
-                        goal.completed 
-                          ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-                          : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
-                      }`}>
-                        {goal.completed ? <Award className="h-4 w-4" /> : getTypeIcon(goal.type)}
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-medium text-gray-900 dark:text-white">
-                            {goal.title}
-                          </h4>
-                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                            {getTypeLabel(goal.type)}
-                          </span>
-                          {goal.completed && (
-                            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs rounded-full flex items-center">
-                              <Zap className="h-3 w-3 mr-1" />
-                              ¡Completado!
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {goal.description}
-                        </p>
-                        
-                        {/* Progress */}
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-gray-600 dark:text-gray-400">
-                              Progreso: {goal.current} / {goal.target}
-                            </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
-                              {Math.round(percentage)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div
-                              className={`h-2 rounded-full bg-gradient-to-r ${getProgressColor(percentage, goal.completed)} transition-all duration-500`}
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+          <div className="space-y-4">
+            {goals.length === 0 ? (
+              <div className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 text-center border border-purple-200 dark:border-purple-800">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/30 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-pink-200/30 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                
+                <div className="relative">
+                  <div className="w-20 h-20 mx-auto bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-xl mb-4">
+                    <Target className="h-10 w-10 text-purple-500" />
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 font-medium">No tienes objetivos aún</p>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium shadow-lg transition-all duration-300 hover:scale-105"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Crear tu primer objetivo
+                  </button>
+                </div>
+              </div>
+            ) : (
+              goals.map(goal => {
+                const percentage = Math.min((goal.current / goal.target) * 100, 100);
+                
+                return (
+                  <div
+                    key={goal.id}
+                    className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 hover:shadow-lg ${
+                      goal.completed 
+                        ? 'border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:border-green-800 dark:from-green-900/20 dark:to-emerald-900/20' 
+                        : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 hover:border-purple-300 dark:hover:border-purple-600'
+                    }`}
+                  >
+                    {/* Progress bar background */}
+                    <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" style={{ width: `${percentage}%` }} />
                     
-                    <div className="flex items-center space-x-1 ml-4">
-                      <button
-                        onClick={() => {
-                          setEditingGoal(goal);
-                          setIsModalOpen(true);
-                        }}
-                        className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteGoal(goal.id)}
-                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start space-x-4 flex-1">
+                          <div className={`p-3 rounded-xl shadow-md ${
+                            goal.completed 
+                              ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white' 
+                              : 'bg-gradient-to-br from-purple-500 to-pink-600 text-white'
+                          }`}>
+                            {goal.completed ? <Award className="h-5 w-5" /> : getTypeIcon(goal.type)}
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center flex-wrap gap-2">
+                              <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                                {goal.title}
+                              </h4>
+                              <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full">
+                                {getTypeLabel(goal.type)}
+                              </span>
+                              {goal.completed && (
+                                <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full flex items-center shadow-sm">
+                                  <Zap className="h-3 w-3 mr-1" />
+                                  ¡Completado!
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
+                              {goal.description}
+                            </p>
+                            
+                            {/* Progress */}
+                            <div className="mt-4">
+                              <div className="flex items-center justify-between text-sm mb-2">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
+                                  Progreso: <span className="text-gray-900 dark:text-white">{goal.current}</span> / <span className="text-gray-900 dark:text-white">{goal.target}</span>
+                                </span>
+                                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                                  {Math.round(percentage)}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-inner">
+                                <div
+                                  className={`h-3 rounded-full bg-gradient-to-r ${getProgressColor(percentage, goal.completed)} transition-all duration-500 shadow-sm`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 ml-4">
+                          <button
+                            onClick={() => { setEditingGoal(goal); setIsModalOpen(true); }}
+                            className="p-2.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
+                          >
+                            <Edit className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => deleteGoal(goal.id)}
+                            className="p-2.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                );
+              })
+            )}
+          </div>
         )}
       </div>
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              {editingGoal ? 'Editar Objetivo' : 'Nuevo Objetivo'}
-            </h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-up">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl text-white">
+                  <Target className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  {editingGoal ? 'Editar Objetivo' : 'Nuevo Objetivo'}
+                </h3>
+              </div>
+              <button
+                onClick={() => { setIsModalOpen(false); setEditingGoal(null); }}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
             
-            <div className="space-y-4">
+            <div className="p-6 space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Título
                 </label>
                 <input
                   type="text"
                   value={newGoal.title}
                   onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+                  placeholder="Ej: Completar 10 tareas esta semana"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Descripción
                 </label>
                 <textarea
                   value={newGoal.description}
                   onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all resize-none"
+                  placeholder="Describe tu objetivo..."
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Meta
                   </label>
                   <input
