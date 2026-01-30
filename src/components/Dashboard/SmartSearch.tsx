@@ -11,6 +11,7 @@ interface SmartSearchProps {
   tasks: any[];
   onFilteredResults: (results: any[]) => void;
   className?: string;
+  initialQuery?: string;
 }
 
 interface SavedFilter {
@@ -37,10 +38,11 @@ interface SearchFilters {
 const SmartSearch: React.FC<SmartSearchProps> = ({ 
   tasks, 
   onFilteredResults, 
-  className 
+  className,
+  initialQuery = ''
 }) => {
-  const [query, setQuery] = useState('');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [query, setQuery] = useState(initialQuery);
+  const [isExpanded, setIsExpanded] = useState(!!initialQuery);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
