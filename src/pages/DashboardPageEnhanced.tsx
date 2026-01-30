@@ -68,6 +68,16 @@ const DashboardPageEnhanced: React.FC = () => {
     loadTasks();
   }, [user]);
 
+  const [initialSearchQuery, setInitialSearchQuery] = useState('');
+
+  useEffect(() => {
+    const savedQuery = localStorage.getItem('taskflow_search_query');
+    if (savedQuery) {
+      setInitialSearchQuery(savedQuery);
+      localStorage.removeItem('taskflow_search_query');
+    }
+  }, []);
+
   useEffect(() => {
     let filtered = [...tasks];
 
@@ -387,6 +397,7 @@ const DashboardPageEnhanced: React.FC = () => {
               tasks={tasks}
               onFilteredResults={handleSmartSearchResults}
               className="w-full"
+              initialQuery={initialSearchQuery}
             />
           </div>
 

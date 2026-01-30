@@ -186,67 +186,46 @@ const HelpPageEnhanced: React.FC = () => {
 
   return (
     <MainLayout currentPage="help">
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="text-center py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 mb-4">
-            <HelpCircle className="h-10 w-10 sm:h-10 sm:w-10 text-purple-600 dark:text-purple-400 mx-auto sm:mx-0" />
-            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">Soporte y Ayuda de TaskFlow: Guías y FAQ para Productividad</h1>
+      <div className="p-4 sm:p-6 lg:p-8 space-y-8">
+        <header className="text-center py-4">
+          <div className="flex items-center justify-center mb-4">
+            <div className="p-4 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl shadow-xl">
+              <HelpCircle className="h-8 w-8 text-white" />
+            </div>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-2">
-            Encuentra respuestas rápidas, guías paso a paso y consejos para desarrolladores, freelancers y startups. Aprende a usar TaskFlow al máximo y optimiza tu productividad.
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+            Centro de Ayuda
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-3">
+            Encuentra respuestas, guías y soporte para usar TaskFlow al máximo
           </p>
-        </div>
+        </header>
 
-        {/* Search Bar */}
-        <div className="relative max-w-2xl mx-auto px-4 sm:px-0">
-          <Search className="absolute left-6 sm:left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="relative max-w-2xl mx-auto">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Busca en la ayuda..."
+            placeholder="Busca tu pregunta..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-6 py-3 sm:py-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-800 dark:text-white text-sm sm:text-base shadow-sm"
+            className="w-full pl-12 pr-6 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-white shadow-xl text-base"
           />
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/50 rounded-xl p-6 border border-blue-200 dark:border-blue-800 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-blue-600 rounded-lg">
-                <MessageCircle className="h-6 w-6 text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { icon: MessageCircle, title: 'Chat en Vivo', desc: 'Habla con soporte', color: 'blue' },
+            { icon: Mail, title: 'Email', desc: 'soporte@taskflow.com', color: 'green' },
+            { icon: Book, title: 'Guías', desc: 'Explorar tutoriales', color: 'purple' }
+          ].map((item, idx) => (
+            <div key={idx} className={`bg-gradient-to-br from-${item.color}-50 to-${item.color}-100 dark:from-${item.color}-900/20 dark:to-${item.color}-900/40 rounded-2xl p-5 border border-${item.color}-200 dark:border-${item.color}-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer`}>
+              <div className={`p-3 bg-${item.color}-600 rounded-xl w-fit mb-3`}>
+                <item.icon className="h-5 w-5 text-white" />
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Chat en Vivo</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Habla con nuestro equipo en tiempo real</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">{item.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
             </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/50 rounded-xl p-6 border border-green-200 dark:border-green-800 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-green-600 rounded-lg">
-                <Mail className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Email Soporte</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">support@taskflow.com</p>
-              </div>
-            </div>
-          </div>
-
-          <a href="/guides" className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/50 rounded-xl p-6 border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-purple-600 rounded-lg">
-                <Book className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Guías paso a paso</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Explora todas las guías</p>
-              </div>
-            </div>
-          </a>
+          ))}
         </div>
 
         {/* Guides Section */}

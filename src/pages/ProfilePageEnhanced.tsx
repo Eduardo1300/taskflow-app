@@ -49,7 +49,6 @@ const ProfilePageEnhanced: React.FC = () => {
       
       if (error) {
         console.error('Error loading profile:', error);
-        // Si no existe, crear uno nuevo
         const newProfile: UserProfile = {
           id: user.id,
           name: user.name || '',
@@ -144,29 +143,31 @@ const ProfilePageEnhanced: React.FC = () => {
 
   return (
     <MainLayout currentPage="profile">
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Gestiona tu información personal, estadísticas y preferencias
-            </p>
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 sm:p-4 rounded-2xl shadow-xl">
+              <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona tu información y estadísticas</p>
+            </div>
           </div>
           
           {!isEditing ? (
             <button
               onClick={handleEdit}
-              className="w-full sm:w-auto flex items-center justify-center sm:justify-start px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
             >
               <Edit2 className="h-5 w-5 mr-2" />
-              <span>Editar Perfil</span>
+              Editar Perfil
             </button>
           ) : (
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex gap-3">
               <button
                 onClick={handleCancel}
-                className="flex items-center justify-center px-4 sm:px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl transition-colors text-sm sm:text-base"
+                className="flex items-center px-4 py-2.5 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors"
               >
                 <X className="h-5 w-5 mr-2" />
                 Cancelar
@@ -174,150 +175,94 @@ const ProfilePageEnhanced: React.FC = () => {
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex items-center justify-center px-4 sm:px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-xl transition-colors text-sm sm:text-base"
+                className="flex items-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 text-white rounded-xl font-medium shadow-lg transition-all"
               >
                 <Save className="h-5 w-5 mr-2" />
                 {loading ? 'Guardando...' : 'Guardar'}
               </button>
             </div>
           )}
-        </div>
+        </header>
 
-        {/* Profile Header Card */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-lg p-6 sm:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+        <div className="bg-gradient-to-br from-purple-500 via-blue-500 to-purple-600 rounded-2xl shadow-2xl p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
             <div className="relative">
-              <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl ring-4 ring-white/20">
                 {profile.avatar ? (
-                  <img 
-                    src={profile.avatar} 
-                    alt="Avatar" 
-                    className="w-28 h-28 rounded-full object-cover"
-                  />
+                  <img src={profile.avatar} alt="Avatar" className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover" />
                 ) : (
-                  <User className="h-14 w-14 text-purple-600" />
+                  <User className="h-14 w-14 sm:h-16 sm:w-16 text-white" />
                 )}
               </div>
               {isEditing && (
-                <button className="absolute bottom-0 right-0 p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-lg">
+                <button className="absolute bottom-0 right-0 p-3 bg-white text-purple-600 rounded-full hover:bg-gray-100 shadow-lg transition-all hover:scale-110">
                   <Camera className="h-5 w-5" />
                 </button>
               )}
             </div>
             
-            <div className="text-white text-center sm:text-left">
-              <h2 className="text-2xl sm:text-3xl font-bold">{profile.name}</h2>
-              <p className="text-blue-100 mt-1">{profile.email}</p>
-              <div className="flex items-center mt-3 text-blue-100">
-                <Calendar className="h-5 w-5 mr-2" />
-                <span>Miembro desde {formatDate(profile.joined_date)}</span>
+            <div className="text-white text-center sm:text-left flex-1">
+              <h2 className="text-2xl sm:text-3xl font-bold">{profile.name || 'Usuario'}</h2>
+              <p className="text-blue-100 mt-1 text-sm sm:text-base">{profile.email}</p>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3 text-sm text-blue-100">
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-1.5" />
+                  <span>Miembro desde {formatDate(profile.joined_date)}</span>
+                </div>
+                {stats.streakDays > 0 && (
+                  <div className="flex items-center px-3 py-1 bg-white/20 rounded-full">
+                    <Award className="h-4 w-4 mr-1.5" />
+                    <span>{stats.streakDays} días de racha</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Tareas Completadas</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.tasksCompleted}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'Tareas Completadas', value: stats.tasksCompleted, icon: Target, bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400' },
+            { label: 'Proyectos Activos', value: stats.activeProjects, icon: TrendingUp, bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
+            { label: 'Racha Actual', value: `${stats.streakDays}d`, icon: Award, bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400' },
+            { label: 'Tasa Éxito', value: `${stats.averageCompletionRate}%`, icon: Badge, bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' },
+          ].map((stat, idx) => (
+            <div key={idx} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`p-2.5 rounded-xl ${stat.bg}`}>
+                  <stat.icon className={`h-5 w-5 ${stat.text}`} />
+                </div>
               </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <Target className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-              </div>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{stat.label}</p>
             </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Proyectos Activos</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.activeProjects}</p>
-              </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <TrendingUp className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Racha de Días</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.streakDays}</p>
-              </div>
-              <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                <Award className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Tasa de Finalización</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.averageCompletionRate}%</p>
-              </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                <Badge className="h-8 w-8 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Horas Registradas</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.totalHours}h</p>
-              </div>
-              <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                <Clock className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Colaboradores</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.collaborators}</p>
-              </div>
-              <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
-                <User className="h-8 w-8 text-pink-600 dark:text-pink-400" />
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Profile Information */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basic Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Información Básica</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+              <User className="h-5 w-5 mr-2 text-purple-600" />
+              Información Personal
+            </h3>
             
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Nombre completo
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre completo</label>
                 {isEditing ? (
                   <input
                     type="text"
                     value={editedProfile.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
                 ) : (
-                  <p className="text-gray-900 dark:text-white font-medium">{profile.name}</p>
+                  <p className="text-gray-900 dark:text-white font-medium">{profile.name || 'No especificado'}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
                 <div className="flex items-center">
                   <Mail className="h-5 w-5 text-gray-400 mr-2" />
                   <p className="text-gray-900 dark:text-white font-medium">{profile.email}</p>
@@ -325,84 +270,72 @@ const ProfilePageEnhanced: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Teléfono
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono</label>
                 {isEditing ? (
                   <input
                     type="tel"
                     value={editedProfile.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     placeholder="Número de teléfono"
                   />
                 ) : (
                   <div className="flex items-center">
                     <Phone className="h-5 w-5 text-gray-400 mr-2" />
-                    <p className="text-gray-900 dark:text-white font-medium">
-                      {profile.phone || 'No especificado'}
-                    </p>
+                    <p className="text-gray-900 dark:text-white font-medium">{profile.phone || 'No especificado'}</p>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Ubicación
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ubicación</label>
                 {isEditing ? (
                   <input
                     type="text"
                     value={editedProfile.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     placeholder="Tu ubicación"
                   />
                 ) : (
                   <div className="flex items-center">
                     <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                    <p className="text-gray-900 dark:text-white font-medium">
-                      {profile.location || 'No especificada'}
-                    </p>
+                    <p className="text-gray-900 dark:text-white font-medium">{profile.location || 'No especificada'}</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Additional Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Información Adicional</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+              <Clock className="h-5 w-5 mr-2 text-blue-600" />
+              Configuración Adicional
+            </h3>
             
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Biografía
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Biografía</label>
                 {isEditing ? (
                   <textarea
                     value={editedProfile.bio}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
-                    placeholder="Cuéntanos un poco sobre ti..."
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+                    placeholder="Cuéntanos sobre ti..."
                   />
                 ) : (
-                  <p className="text-gray-900 dark:text-white font-medium">
-                    {profile.bio || 'No hay biografía disponible'}
-                  </p>
+                  <p className="text-gray-900 dark:text-white">{profile.bio || 'No hay biografía disponible'}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Zona horaria
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zona horaria</label>
                 {isEditing ? (
                   <select
                     value={editedProfile.timezone}
                     onChange={(e) => handleInputChange('timezone', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   >
                     <option value="America/Mexico_City">Ciudad de México</option>
                     <option value="America/New_York">Nueva York</option>
@@ -411,19 +344,17 @@ const ProfilePageEnhanced: React.FC = () => {
                     <option value="Asia/Tokyo">Tokio</option>
                   </select>
                 ) : (
-                  <p className="text-gray-900 dark:text-white font-medium">{profile.timezone}</p>
+                  <p className="text-gray-900 dark:text-white">{profile.timezone}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Idioma
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Idioma</label>
                 {isEditing ? (
                   <select
                     value={editedProfile.language}
                     onChange={(e) => handleInputChange('language', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   >
                     <option value="es">Español</option>
                     <option value="en">English</option>
@@ -431,10 +362,8 @@ const ProfilePageEnhanced: React.FC = () => {
                     <option value="de">Deutsch</option>
                   </select>
                 ) : (
-                  <p className="text-gray-900 dark:text-white font-medium">
-                    {profile.language === 'es' ? 'Español' : 
-                     profile.language === 'en' ? 'English' :
-                     profile.language === 'fr' ? 'Français' : 'Deutsch'}
+                  <p className="text-gray-900 dark:text-white">
+                    {profile.language === 'es' ? 'Español' : profile.language === 'en' ? 'English' : profile.language === 'fr' ? 'Français' : 'Deutsch'}
                   </p>
                 )}
               </div>
