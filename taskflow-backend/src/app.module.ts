@@ -10,6 +10,7 @@ import { CollaborationsModule } from './collaborations/collaborations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { SetupController } from './setup/setup.controller';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         logging: false,
+        schema: 'taskflow',
       }),
       inject: [ConfigService],
     }),
@@ -37,5 +39,6 @@ import { WebhooksModule } from './webhooks/webhooks.module';
     IntegrationsModule,
     WebhooksModule,
   ],
+  controllers: [SetupController],
 })
 export class AppModule {}
