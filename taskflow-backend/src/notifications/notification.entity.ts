@@ -5,24 +5,24 @@ export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text' })
+  @Column()
   title: string;
 
-  @Column({ type: 'text' })
+  @Column()
   message: string;
 
-  @Column({ type: 'text' })
+  @Column({ default: 'info' })
   type: string;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ default: false })
   read: boolean;
 
-  @Column({ type: 'uuid' })
+  @Column()
   user_id: string;
 
   @Column({ type: 'jsonb', nullable: true })
   data: any;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn()
   created_at: Date;
 }

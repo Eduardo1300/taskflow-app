@@ -2,18 +2,18 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeor
 
 @Entity('categories')
 export class Category {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' })
+  @Column()
   name: string;
 
-  @Column({ type: 'text' })
+  @Column()
   color: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  user_id: string | null;
+  @Column({ nullable: true })
+  user_id: string;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn()
   created_at: Date;
 }

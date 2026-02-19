@@ -5,39 +5,39 @@ export class Goal {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text' })
+  @Column()
   title: string;
 
-  @Column({ type: 'text', nullable: true })
-  description: string | null;
+  @Column({ nullable: true })
+  description: string;
 
-  @Column({ type: 'int' })
+  @Column()
   target: number;
 
-  @Column({ type: 'int', nullable: true })
-  current: number | null;
+  @Column({ nullable: true })
+  current: number;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ default: false })
   completed: boolean;
 
-  @Column({ type: 'character varying' })
+  @Column()
   category: string;
 
-  @Column({ type: 'character varying' })
+  @Column()
   type: string;
 
-  @Column({ type: 'uuid' })
+  @Column()
   user_id: string;
 
-  @CreateDateColumn({ type: 'timestamp without time zone' })
+  @CreateDateColumn()
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp without time zone' })
+  @UpdateDateColumn()
   updated_at: Date;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  start_date: Date | null;
+  @Column({ nullable: true })
+  start_date: Date;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  end_date: Date | null;
+  @Column({ nullable: true })
+  end_date: Date;
 }
