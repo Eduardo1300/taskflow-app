@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('tasks')
 export class Task {
@@ -31,16 +31,4 @@ export class Task {
 
   @Column({ type: 'text', nullable: true })
   priority: string | null;
-
-  @Column({ type: 'text', nullable: true })
-  ai_priority_suggestion: string | null;
-
-  @Column({ type: 'text', nullable: true })
-  ai_category_suggestion: string | null;
-
-  @Column({ type: 'text', nullable: true })
-  ai_due_date_suggestion: Date | null;
-
-  @Column({ type: 'text', nullable: true })
-  calendar_event_id: string | null;
 }
