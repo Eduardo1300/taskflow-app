@@ -2,33 +2,33 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeor
 
 @Entity('tasks')
 export class Task {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' })
+  @Column()
   title: string;
 
-  @Column({ type: 'text', nullable: true })
-  description: string | null;
+  @Column({ nullable: true })
+  description: string;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ default: false })
   completed: boolean;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn()
   created_at: Date;
 
-  @Column({ type: 'uuid' })
+  @Column()
   user_id: string;
 
-  @Column({ type: 'text', nullable: true })
-  category: string | null;
+  @Column({ nullable: true })
+  category: string;
 
-  @Column({ type: 'text', array: true, nullable: true })
-  tags: string[] | null;
+  @Column('simple-array', { nullable: true })
+  tags: string[];
 
-  @Column({ type: 'timestamp with time zone', nullable: true })
-  due_date: Date | null;
+  @Column({ nullable: true })
+  due_date: Date;
 
-  @Column({ type: 'text', nullable: true })
-  priority: string | null;
+  @Column({ nullable: true })
+  priority: string;
 }
