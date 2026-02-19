@@ -1,0 +1,77 @@
+[
+  {
+    "create_table_sql": "CREATE TABLE ai_suggestions_history (id uuid NOT NULL, user_id uuid, feedback character varying, suggested_value text NOT NULL, suggestion_type character varying NOT NULL, task_id integer, confidence numeric NOT NULL, was_applied boolean, created_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE api_keys (created_at timestamp with time zone, user_id uuid, id uuid NOT NULL, permissions ARRAY NOT NULL, name character varying NOT NULL, key character varying NOT NULL, rate_limit integer, is_active boolean, last_used_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE api_rate_limits (window_start timestamp with time zone, id uuid NOT NULL, api_key_id uuid, requests_count integer, created_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE automation_rules (id uuid NOT NULL, name character varying NOT NULL, last_executed_at timestamp with time zone, created_at timestamp with time zone, is_active boolean, actions jsonb NOT NULL, trigger_config jsonb NOT NULL, user_id uuid);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE calendar_events (sync_status character varying, external_event_id character varying NOT NULL, id uuid NOT NULL, user_id uuid, task_id integer, integration_id uuid, event_data jsonb NOT NULL, created_at timestamp with time zone, updated_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE categories (color text NOT NULL, user_id uuid, created_at timestamp with time zone, id bigint NOT NULL, name text NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE collaboration_invitations (invited_email text NOT NULL, message text, id uuid NOT NULL, task_id bigint NOT NULL, invited_by uuid NOT NULL, created_at timestamp with time zone, expires_at timestamp with time zone NOT NULL, status text NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE email_preferences (task_overdue boolean, task_reminder boolean, created_at timestamp with time zone, updated_at timestamp with time zone, id uuid NOT NULL, user_id uuid NOT NULL, task_created boolean, email character varying NOT NULL, task_completed boolean);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE goals (created_at timestamp without time zone, updated_at timestamp without time zone, category character varying NOT NULL, type character varying NOT NULL, title text NOT NULL, description text, id uuid NOT NULL, user_id uuid NOT NULL, target integer NOT NULL, current integer, completed boolean, start_date timestamp without time zone, end_date timestamp without time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE integration_sync_history (integration_type character varying NOT NULL, error_message text, external_id character varying, id uuid NOT NULL, status character varying NOT NULL, integration_id uuid NOT NULL, synced_at timestamp with time zone, created_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE integrations (user_id uuid, config jsonb NOT NULL, name character varying NOT NULL, id uuid NOT NULL, last_sync_at timestamp with time zone, created_at timestamp with time zone, is_active boolean, type character varying NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE notification_configs (config jsonb NOT NULL, is_active boolean, created_at timestamp with time zone, user_id uuid, type character varying NOT NULL, events ARRAY NOT NULL, id uuid NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE notifications (user_id uuid NOT NULL, data jsonb, created_at timestamp with time zone, title text NOT NULL, read boolean, message text NOT NULL, type text NOT NULL, id uuid NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE productivity_insights (is_dismissed boolean, title character varying NOT NULL, description text NOT NULL, type character varying NOT NULL, id uuid NOT NULL, user_id uuid, score integer NOT NULL, data jsonb, created_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE productivity_metrics (avg_completion_time_hours numeric, id uuid NOT NULL, user_id uuid, date date NOT NULL, tasks_created integer, tasks_completed integer, completion_rate numeric, overdue_tasks integer, high_priority_completed integer, productivity_score integer, created_at timestamp with time zone, categories_used ARRAY);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE profiles (email text NOT NULL, id uuid NOT NULL, created_at timestamp with time zone NOT NULL, full_name text);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE task_activity (id bigint NOT NULL, action character varying NOT NULL, details text, user_id uuid NOT NULL, created_at timestamp with time zone NOT NULL, task_id bigint NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE task_assignments (assigned_by uuid NOT NULL, created_at timestamp with time zone, id uuid NOT NULL, task_id bigint NOT NULL, assigned_to uuid NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE task_attachments (task_id bigint NOT NULL, id uuid NOT NULL, user_id uuid NOT NULL, file_size bigint NOT NULL, created_at timestamp with time zone, file_name text NOT NULL, file_type text NOT NULL, file_url text NOT NULL, storage_path text NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE task_collaborators (shared_by uuid NOT NULL, task_id bigint NOT NULL, user_id uuid NOT NULL, id bigint NOT NULL, permission character varying, created_at timestamp with time zone NOT NULL);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE task_comments (parent_id uuid, updated_at timestamp with time zone, content text NOT NULL, id uuid NOT NULL, task_id bigint NOT NULL, user_id uuid NOT NULL, created_at timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE tasks (ai_priority_suggestion character varying, title text NOT NULL, description text, due_date timestamp with time zone, user_id uuid NOT NULL, created_at timestamp with time zone NOT NULL, priority text, ai_category_suggestion character varying, category text, tags ARRAY, id bigint NOT NULL, completed boolean NOT NULL, calendar_event_id character varying, ai_due_date_suggestion timestamp with time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE user_profiles (timezone character varying, avatar text, updated_at timestamp without time zone, created_at timestamp without time zone, joined_date timestamp without time zone, id uuid NOT NULL, name text, email text NOT NULL, phone text, location text, bio text, language character varying);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE user_settings (created_at timestamp without time zone, id uuid NOT NULL, user_id uuid NOT NULL, notifications jsonb, privacy jsonb, appearance jsonb, updated_at timestamp without time zone);"
+  },
+  {
+    "create_table_sql": "CREATE TABLE webhooks (id uuid NOT NULL, created_at timestamp with time zone, events ARRAY NOT NULL, url character varying NOT NULL, secret character varying NOT NULL, user_id uuid, is_active boolean);"
+  }
+]
