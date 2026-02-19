@@ -11,6 +11,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { SetupController } from './setup/setup.controller';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -39,6 +40,6 @@ import { SetupController } from './setup/setup.controller';
     IntegrationsModule,
     WebhooksModule,
   ],
-  controllers: [SetupController],
+  controllers: [SetupController, HealthController],
 })
 export class AppModule {}
