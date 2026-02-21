@@ -5,13 +5,13 @@ export class Goal {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ default: 'Untitled' })
   title: string;
 
   @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({ default: 1 })
   target: number;
 
   @Column({ nullable: true })
@@ -20,10 +20,10 @@ export class Goal {
   @Column({ default: false })
   completed: boolean;
 
-  @Column()
+  @Column({ default: 'general' })
   category: string;
 
-  @Column()
+  @Column({ default: 'daily' })
   type: string;
 
   @Column()
