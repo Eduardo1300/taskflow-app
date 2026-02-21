@@ -143,7 +143,7 @@ const handleTaskDelete = (task: Task) => {
   };
 
   const confirmDeleteTask = async () => {
-    if (!deleteConfirmTask) return;
+    if (!deleteConfirmTask || !deleteConfirmTask.id) return;
     try {
       await TaskService.deleteTask(deleteConfirmTask.id);
       await loadTasks();
@@ -558,7 +558,7 @@ const handleTaskDelete = (task: Task) => {
               Confirmar eliminación
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              ¿Estás seguro de que deseas eliminar la tarea <strong>"{deleteConfirmTask.title}"</strong>? 
+              ¿Estás seguro de que deseas eliminar la tarea <strong>"{deleteConfirmTask?.title || 'esta tarea'}"</strong>? 
               Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end gap-3">
