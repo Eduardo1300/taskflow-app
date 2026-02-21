@@ -23,7 +23,7 @@ export class SetupController {
         `CREATE TABLE categories (id SERIAL PRIMARY KEY, name TEXT NOT NULL, color TEXT NOT NULL, user_id UUID, created_at TIMESTAMP DEFAULT NOW())`,
         
 `DROP TABLE IF EXISTS goals CASCADE`,
-        `CREATE TABLE goals (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title TEXT DEFAULT 'Untitled', description TEXT, target INTEGER DEFAULT 1, current INTEGER, completed BOOLEAN DEFAULT FALSE, category TEXT DEFAULT 'general', type TEXT DEFAULT 'daily', user_id UUID NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), start_date TIMESTAMP, end_date TIMESTAMP)`,
+        `CREATE TABLE goals (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title TEXT, description TEXT, target INTEGER, current INTEGER, completed BOOLEAN DEFAULT FALSE, category TEXT, type TEXT, user_id UUID NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), start_date TIMESTAMP, end_date TIMESTAMP)`,
         
         `DROP TABLE IF EXISTS notifications CASCADE`,
         `CREATE TABLE notifications (id UUID PRIMARY KEY, title TEXT NOT NULL, message TEXT NOT NULL, type TEXT DEFAULT 'info', read BOOLEAN DEFAULT FALSE, user_id UUID NOT NULL, data JSONB, created_at TIMESTAMP DEFAULT NOW())`,

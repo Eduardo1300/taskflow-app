@@ -5,25 +5,25 @@ export class Goal {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ default: 'Untitled' })
+  @Column({ nullable: true })
   title: string;
 
   @Column({ nullable: true })
   description: string;
 
-  @Column({ default: 1 })
+  @Column({ nullable: true })
   target: number;
 
   @Column({ nullable: true })
   current: number;
 
-  @Column({ default: false })
+  @Column({ nullable: true })
   completed: boolean;
 
-  @Column({ default: 'general' })
+  @Column({ nullable: true })
   category: string;
 
-  @Column({ default: 'daily' })
+  @Column({ nullable: true })
   type: string;
 
   @Column()
