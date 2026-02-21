@@ -18,9 +18,9 @@ export interface Database {
           created_at: string
           user_id: string
           category: string | null
-          tags: string[] | null
+          tags: string | null
           due_date: string | null
-          priority: 'low' | 'medium' | 'high' | null
+          priority: string | null
         }
         Insert: {
           id?: number
@@ -30,9 +30,9 @@ export interface Database {
           created_at?: string
           user_id: string
           category?: string | null
-          tags?: string[] | null
+          tags?: string | null
           due_date?: string | null
-          priority?: 'low' | 'medium' | 'high' | null
+          priority?: string | null
         }
         Update: {
           id?: number
@@ -42,9 +42,9 @@ export interface Database {
           created_at?: string
           user_id?: string
           category?: string | null
-          tags?: string[] | null
+          tags?: string | null
           due_date?: string | null
-          priority?: 'low' | 'medium' | 'high' | null
+          priority?: string | null
         }
       }
       profiles: {
@@ -67,191 +67,52 @@ export interface Database {
           created_at?: string
         }
       }
-      task_collaborators: {
-        Row: {
-          id: number
-          task_id: number
-          user_id: string
-          permission: 'view' | 'edit' | 'admin'
-          shared_by: string
-          created_at: string
-        }
-        Insert: {
-          id?: number
-          task_id: number
-          user_id: string
-          permission?: 'view' | 'edit' | 'admin'
-          shared_by: string
-          created_at?: string
-        }
-        Update: {
-          id?: number
-          task_id?: number
-          user_id?: string
-          permission?: 'view' | 'edit' | 'admin'
-          shared_by?: string
-          created_at?: string
-        }
-      }
-      collaboration_invitations: {
-        Row: {
-          id: number
-          task_id: number
-          invited_email: string
-          invited_by: string
-          permission: 'view' | 'edit' | 'admin'
-          status: 'pending' | 'accepted' | 'declined'
-          created_at: string
-          expires_at: string
-        }
-        Insert: {
-          id?: number
-          task_id: number
-          invited_email: string
-          invited_by: string
-          permission?: 'view' | 'edit' | 'admin'
-          status?: 'pending' | 'accepted' | 'declined'
-          created_at?: string
-          expires_at?: string
-        }
-        Update: {
-          id?: number
-          task_id?: number
-          invited_email?: string
-          invited_by?: string
-          permission?: 'view' | 'edit' | 'admin'
-          status?: 'pending' | 'accepted' | 'declined'
-          created_at?: string
-          expires_at?: string
-        }
-      }
-      task_activity: {
-        Row: {
-          id: number
-          task_id: number
-          user_id: string
-          action: string
-          details: any
-          created_at: string
-        }
-        Insert: {
-          id?: number
-          task_id: number
-          user_id: string
-          action: string
-          details?: any
-          created_at?: string
-        }
-        Update: {
-          id?: number
-          task_id?: number
-          user_id?: string
-          action?: string
-          details?: any
-          created_at?: string
-        }
-      };
-      api_keys: {
-        Row: {
-          id: string;
-          name: string;
-          key: string;
-          user_id: string;
-          permissions: ('read' | 'write' | 'delete')[];
-          created_at: string;
-          last_used_at: string | null;
-          is_active: boolean;
-          rate_limit: number;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          key: string;
-          user_id: string;
-          permissions: ('read' | 'write' | 'delete')[];
-          created_at?: string;
-          last_used_at?: string | null;
-          is_active?: boolean;
-          rate_limit?: number;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          key?: string;
-          user_id?: string;
-          permissions?: ('read' | 'write' | 'delete')[];
-          created_at?: string;
-          last_used_at?: string | null;
-          is_active?: boolean;
-          rate_limit?: number;
-        };
-      };
-      webhooks: {
-        Row: {
-          id: string;
-          user_id: string;
-          url: string;
-          events: ('task.created' | 'task.updated' | 'task.deleted' | 'task.completed')[];
-          secret: string;
-          is_active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          url: string;
-          events: ('task.created' | 'task.updated' | 'task.deleted' | 'task.completed')[];
-          secret: string;
-          is_active?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          url?: string;
-          events?: ('task.created' | 'task.updated' | 'task.deleted' | 'task.completed')[];
-          secret?: string;
-          is_active?: boolean;
-          created_at?: string;
-        };
-      };
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
     }
   }
 }
 
-// Tipos auxiliares para las tareas
 export type Task = Database['public']['Tables']['tasks']['Row']
 export type TaskInsert = Database['public']['Tables']['tasks']['Insert']
 export type TaskUpdate = Database['public']['Tables']['tasks']['Update']
 
-// Tipos auxiliares para los perfiles
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type ProfileInsert = Database['public']['Tables']['profiles']['Insert']
 export type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
 
-// Tipos auxiliares para colaboradores
-export type TaskCollaborator = Database['public']['Tables']['task_collaborators']['Row']
-export type TaskCollaboratorInsert = Database['public']['Tables']['task_collaborators']['Insert']
-export type TaskCollaboratorUpdate = Database['public']['Tables']['task_collaborators']['Update']
+export type TaskCollaborator = {
+  id: number
+  task_id: number
+  user_id: string
+  permission: 'view' | 'edit' | 'admin'
+  shared_by: string
+  created_at: string
+}
 
-// Tipos auxiliares para invitaciones
-export type CollaborationInvitation = Database['public']['Tables']['collaboration_invitations']['Row']
-export type CollaborationInvitationInsert = Database['public']['Tables']['collaboration_invitations']['Insert']
-export type CollaborationInvitationUpdate = Database['public']['Tables']['collaboration_invitations']['Update']
+export type TaskCollaboratorInsert = Partial<TaskCollaborator>
+export type TaskCollaboratorUpdate = Partial<TaskCollaborator>
 
-// Tipos auxiliares para actividad
-export type TaskActivity = Database['public']['Tables']['task_activity']['Row']
-export type TaskActivityInsert = Database['public']['Tables']['task_activity']['Insert']
-export type TaskActivityUpdate = Database['public']['Tables']['task_activity']['Update']
+export type CollaborationInvitation = {
+  id: number
+  task_id: number
+  invited_email: string
+  invited_by: string
+  permission: 'view' | 'edit' | 'admin'
+  status: 'pending' | 'accepted' | 'declined'
+  created_at: string
+  expires_at: string
+}
+
+export type CollaborationInvitationInsert = Partial<CollaborationInvitation>
+export type CollaborationInvitationUpdate = Partial<CollaborationInvitation>
+
+export type TaskActivity = {
+  id: number
+  task_id: number
+  user_id: string
+  action: string
+  details: Json
+  created_at: string
+}
+
+export type TaskActivityInsert = Partial<TaskActivity>
+export type TaskActivityUpdate = Partial<TaskActivity>

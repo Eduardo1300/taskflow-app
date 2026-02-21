@@ -48,12 +48,17 @@ const SettingsPageEnhanced: React.FC = () => {
   });
 
   const [appearance, setAppearance] = useState<AppearanceSettings>({
-    theme: theme as 'light' | 'dark',
+    theme: theme || 'dark',
     language: 'es',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     dateFormat: 'dd/mm/yyyy',
     timeFormat: '24h'
   });
+
+  // Sincronizar tema cuando cambia el estado
+  useEffect(() => {
+    setAppearance(prev => ({ ...prev, theme: theme }));
+  }, [theme]);
 
   useEffect(() => {
     if (user?.id) {
