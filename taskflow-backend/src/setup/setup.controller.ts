@@ -10,9 +10,6 @@ export class SetupController {
   async initDatabase(@Res() res: Response) {
     try {
       const queries = [
-        `CREATE SCHEMA IF NOT EXISTS taskflow`,
-        `SET search_path TO taskflow`,
-        
         `DROP TABLE IF EXISTS profiles CASCADE`,
         `CREATE TABLE profiles (id UUID PRIMARY KEY, email VARCHAR(255) NOT NULL, full_name VARCHAR(255), created_at TIMESTAMP DEFAULT NOW())`,
         
@@ -22,7 +19,7 @@ export class SetupController {
         `DROP TABLE IF EXISTS categories CASCADE`,
         `CREATE TABLE categories (id SERIAL PRIMARY KEY, name TEXT NOT NULL, color TEXT NOT NULL, user_id UUID, created_at TIMESTAMP DEFAULT NOW())`,
         
-`DROP TABLE IF EXISTS goals CASCADE`,
+        `DROP TABLE IF EXISTS goals CASCADE`,
         `CREATE TABLE goals (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title TEXT, description TEXT, target INTEGER, current INTEGER, completed BOOLEAN DEFAULT FALSE, category TEXT, type TEXT, user_id UUID NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), start_date TIMESTAMP, end_date TIMESTAMP)`,
         
         `DROP TABLE IF EXISTS notifications CASCADE`,

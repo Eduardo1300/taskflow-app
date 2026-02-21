@@ -26,7 +26,6 @@ import { HealthController } from './health/health.controller';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         logging: false,
-        schema: 'taskflow',
       }),
       inject: [ConfigService],
     }),
