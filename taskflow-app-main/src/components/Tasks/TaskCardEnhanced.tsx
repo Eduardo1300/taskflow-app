@@ -188,7 +188,12 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   <>
                     <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
                     <button
-                      onClick={() => { onDelete(task.id); setIsMenuOpen(false); }}
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        console.log('Delete clicked for task:', task.id);
+                        onDelete(Number(task.id)); 
+                        setIsMenuOpen(false); 
+                      }}
                       className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
                       <Trash2 className="h-4 w-4 mr-3" />
