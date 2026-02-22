@@ -172,7 +172,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
     
     try {
       for (const goal of defaultGoals) {
-        await GoalsService.createGoal(user.id, goal);
+        await GoalsService.createGoal(goal);
       }
       await loadGoals();
     } catch (error) {
@@ -371,7 +371,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
       // Guardar en Supabase
       if (user?.id) {
         try {
-          await GoalsService.createGoal(user.id, newGoalObj);
+          await GoalsService.createGoal(newGoalObj);
         } catch (error) {
           console.error('Error creating goal:', error);
         }
