@@ -230,7 +230,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                       onClick={(e) => { 
                         e.stopPropagation(); 
                         console.log('Delete clicked, passing full task:', task);
-                        onDelete(task); 
+                        onDelete(task.id); 
                         setIsMenuOpen(false); 
                       }}
                       className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"

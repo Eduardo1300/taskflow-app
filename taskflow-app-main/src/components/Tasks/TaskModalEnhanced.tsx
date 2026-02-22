@@ -69,7 +69,8 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
       
       setTitle(task.title);
       setDescription(task.description || '');
-      setPriority(task.priority || 'medium');
+      const validPriority = ['low', 'medium', 'high'].includes(task.priority) ? (task.priority as 'low' | 'medium' | 'high') : 'medium';
+      setPriority(validPriority);
       setDueDate(task.due_date ? (typeof task.due_date === 'string' ? task.due_date.split('T')[0] : '') : '');
       setCategory(task.category || '');
       setTags(taskTags);
@@ -207,10 +208,10 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
       const taskData = {
         title: title.trim(),
         description: description.trim(),
-        priority,
+        priority: priority as 'low' | 'medium' | 'high',
         due_date: dueDate || null,
         category: category || null,
-        tags,
+        tags: tags.length > 0 ? tags.join(',') : '',
       };
 
       let result;

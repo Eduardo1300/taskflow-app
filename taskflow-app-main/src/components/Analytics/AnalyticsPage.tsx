@@ -294,13 +294,17 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
             />
           )}
 
-          {activeTab === 'charts' && timeAnalysis && calendarMetrics && (
+          {activeTab === 'charts' && timeAnalysis && calendarMetrics && analyticsData && (
             <div data-export-chart="main-charts">
               <AnalyticsCharts
                 hourlyDistribution={timeAnalysis.hourlyDistribution}
                 dailyDistribution={timeAnalysis.dailyDistribution}
                 categoryDistribution={calendarMetrics.categoryDistribution}
-                priorityDistribution={analyticsData?.priorityStats || { high: 0, medium: 0, low: 0 }}
+                priorityDistribution={{
+                  high: analyticsData.priorityStats?.high || 0,
+                  medium: analyticsData.priorityStats?.medium || 0,
+                  low: analyticsData.priorityStats?.low || 0
+                }}
                 weeklyTrends={timeAnalysis.weeklyTrends}
                 monthlyTrends={timeAnalysis.monthlyTrends}
                 completionTrends={analyticsData?.completionTrends || []}

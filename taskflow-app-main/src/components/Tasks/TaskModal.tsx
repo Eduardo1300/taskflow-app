@@ -59,7 +59,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
           category: editingTask.category || '',
           tags: taskTags,
           due_date: editingTask.due_date ? editingTask.due_date.split('T')[0] : '',
-          priority: editingTask.priority || ''
+          priority: ['low', 'medium', 'high'].includes(editingTask.priority) ? (editingTask.priority as 'low' | 'medium' | 'high') : ''
         });
       } else {
         // Cuando se crea una nueva tarea, usar selectedDate si está disponible
@@ -93,11 +93,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
     if (!formData.title.trim()) return;
     
     const submitData = {
-      ...formData,
-      priority: formData.priority || undefined,
-      due_date: formData.due_date || undefined,
+      title: formData.title,
+      description: formData.description,
+      completed: formData.completed,
       category: formData.category || undefined,
-      tags: formData.tags.length > 0 ? formData.tags.join(',') : undefined
+      tags: formData.tags.length > 0 ? formData.tags : undefined,
+      due_date: formData.due_date || undefined,
+      priority: formData.priority || undefined
     };
     
     onSave(submitData);
