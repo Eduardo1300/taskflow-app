@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Plus, MoreHorizontal, Calendar, Tag, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Task } from '../../types';
 
+const getTagsArray = (tags: string | string[] | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  return tags.split(',').filter(t => t.trim());
+};
+
 interface Column {
   id: string;
   title: string;
@@ -318,24 +324,27 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     </div>
 
                     {/* Tags */}
-                    {task.tags && task.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {task.tags.slice(0, 3).map(tag => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
-                          >
-                            <Tag className="w-2.5 h-2.5 mr-1" />
-                            {tag}
-                          </span>
-                        ))}
-                        {task.tags.length > 3 && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
-                            +{task.tags.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    {(() => {
+                      const tagsArray = getTagsArray(task.tags);
+                      return tagsArray.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {tagsArray.slice(0, 3).map(tag => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
+                            >
+                              <Tag className="w-2.5 h-2.5 mr-1" />
+                              {tag}
+                            </span>
+                          ))}
+                          {tagsArray.length > 3 && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
+                              +{tagsArray.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      ) : null;
+                    })()}
 
                     {/* Footer con fecha y prioridad */}
                     <div className="flex items-center justify-between">

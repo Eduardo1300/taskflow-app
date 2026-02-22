@@ -82,7 +82,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
       priority: formData.priority || undefined,
       due_date: formData.due_date || undefined,
       category: formData.category || undefined,
-      tags: formData.tags.length > 0 ? formData.tags : undefined
+      tags: formData.tags.length > 0 ? formData.tags.join(',') : undefined
     };
     
     onSave(submitData);

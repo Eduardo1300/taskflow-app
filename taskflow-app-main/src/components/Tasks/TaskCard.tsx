@@ -1,6 +1,12 @@
 import { CheckCircle, Circle, Calendar, Trash2, Edit, Users, Share2, Tag, AlertTriangle, Clock } from 'lucide-react';
 import { Task } from '../../types/database';
 
+const getTagsArray = (tags: string | string[] | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  return tags.split(',').filter(t => t.trim());
+};
+
 interface TaskCardProps {
   task: Task;
   onToggleStatus: (id: number) => void;
@@ -102,19 +108,22 @@ const TaskCard: React.FC<TaskCardProps> = ({
               )}
 
               {/* Tags */}
-              {task.tags && task.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {task.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                    >
-                      <Tag className="h-3 w-3 mr-1" />
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const tagsArray = getTagsArray(task.tags);
+                return tagsArray.length > 0 ? (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {tagsArray.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                      >
+                        <Tag className="h-3 w-3 mr-1" />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
 
               {/* Priority and Due Date */}
               <div className="flex items-center justify-between mt-3 flex-wrap gap-2">

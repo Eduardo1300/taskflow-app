@@ -7,6 +7,12 @@ import {
   History
 } from 'lucide-react';
 
+const getTagsArray = (tags: string | string[] | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  return tags.split(',').filter(t => t.trim());
+};
+
 interface SmartSearchProps {
   tasks: any[];
   onFilteredResults: (results: any[]) => void;
@@ -117,8 +123,9 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
       }
       
       // Tags
-      if (task.tags) {
-        task.tags.forEach((tag: string) => {
+      const tagsArray = getTagsArray(task.tags);
+      if (tagsArray.length > 0) {
+        tagsArray.forEach((tag: string) => {
           if (tag.toLowerCase().includes(query.toLowerCase())) {
             searchTerms.add(`#${tag}`);
           }

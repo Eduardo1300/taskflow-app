@@ -17,6 +17,12 @@ import {
 import { useState } from 'react';
 import { Task } from '../../types/database';
 
+const getTagsArray = (tags: string | string[] | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  return tags.split(',').filter(t => t.trim());
+};
+
 interface TaskCardProps {
   task: Task;
   onToggleStatus: (id: number) => void;
@@ -207,7 +213,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         {/* Tags */}
-        {(task.tags && task.tags.length > 0) || task.category ? (
+const tagsArray = getTagsArray(task.tags);
+        {(tagsArray.length > 0) || task.category ? (
           <div className="flex flex-wrap gap-2 mb-4">
             {task.category && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700">
@@ -215,7 +222,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 {task.category}
               </span>
             )}
-            {task.tags && task.tags.slice(0, 3).map((tag, index) => (
+            {tagsArray.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
                 className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
@@ -224,9 +231,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 {tag}
               </span>
             ))}
-            {task.tags && task.tags.length > 3 && (
+            {tagsArray.length > 3 && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                +{task.tags.length - 3}
+                +{tagsArray.length - 3}
               </span>
             )}
           </div>
