@@ -10,6 +10,7 @@ import {
   Users,
   Zap
 } from 'lucide-react';
+import { TaskWithCollaboration } from '../../types';
 
 interface BoardMetrics {
   total_tasks: number;
@@ -26,44 +27,63 @@ interface KanbanMetricsProps {
   boardId: string;
   isOpen: boolean;
   onClose: () => void;
+  tasks: TaskWithCollaboration[];
 }
 
-const KanbanMetrics: React.FC<KanbanMetricsProps> = ({ boardId, isOpen, onClose }) => {
+const KanbanMetrics: React.FC<KanbanMetricsProps> = ({ boardId, isOpen, onClose, tasks }) => {
   const [metrics, setMetrics] = useState<BoardMetrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen && boardId) {
-      loadMetrics();
+    if (isOpen) {
+      calculateMetrics();
     }
-  }, [isOpen, boardId]);
+  }, [isOpen, tasks]);
 
-  const loadMetrics = async () => {
+  const calculateMetrics = () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Simular carga de métricas
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Datos mock para las métricas
-      const mockMetrics: BoardMetrics = {
-        total_tasks: 24,
-        completed_tasks: 18,
-        in_progress_tasks: 4,
-        overdue_tasks: 2,
-        completion_rate: 75,
-        avg_cycle_time: 3.5,
-        throughput_week: 12,
-        bottleneck_column: 'En revisión'
-      };
-      
-      setMetrics(mockMetrics);
+      // Simular un pequeño delay
+      setTimeout(() => {
+        const today = new Date();
+        
+        const completed = tasks.filter(t => t.completed).length;
+        const inProgress = tasks.filter(t => !t.completed && t.priority === 'medium').length;
+        const overdue = tasks.filter(t => {
+          if (t.completed) return false;
+          if (!t.due_date) return false;
+          return new Date(t.due_date) < today;
+        }).length;
+        
+        const competionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
+        
+        // Calcular tareas completadas esta semana (simulated)
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const throughputWeek = tasks.filter(t => 
+          t.completed && t.updated_at && new Date(t.updated_at) >= weekAgo
+        ).length;
+        
+        const calculatedMetrics: BoardMetrics = {
+          total_tasks: tasks.length,
+          completed_tasks: completed,
+          in_progress_tasks: inProgress,
+          overdue_tasks: overdue,
+          completion_rate: competionRate,
+          avg_cycle_time: 3.5,
+          throughput_week: throughputWeek,
+          bottleneck_column: 'En revisión'
+        };
+        
+        setMetrics(calculatedMetrics);
+        setLoading(false);
+      }, 300);
     } catch (err) {
       setError('Error al cargar métricas');
       console.error('Error loading metrics:', err);
-    } finally {
       setLoading(false);
     }
   };
@@ -115,7 +135,7 @@ const KanbanMetrics: React.FC<KanbanMetricsProps> = ({ boardId, isOpen, onClose 
                 <span className="text-red-700 dark:text-red-300">{error}</span>
               </div>
               <button
-                onClick={loadMetrics}
+                onClick={calculateMetrics}
                 className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 rounded text-sm transition-colors"
               >
                 Reintentar

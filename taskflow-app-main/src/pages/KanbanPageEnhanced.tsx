@@ -588,6 +588,7 @@ const KanbanPageEnhanced: React.FC = () => {
           boardId="default-board"
           isOpen={isMetricsOpen}
           onClose={() => setIsMetricsOpen(false)}
+          tasks={tasks}
         />
     </MainLayout>
   );
