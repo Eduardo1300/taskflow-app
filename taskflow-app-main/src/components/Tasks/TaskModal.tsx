@@ -42,13 +42,23 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
       document.body.style.overflow = 'hidden';
       
       if (editingTask) {
+        // Convert tags from string to array if needed
+        let taskTags: string[] = [];
+        if (editingTask.tags) {
+          if (Array.isArray(editingTask.tags)) {
+            taskTags = editingTask.tags;
+          } else if (typeof editingTask.tags === 'string') {
+            taskTags = editingTask.tags.split(',').filter(t => t.trim());
+          }
+        }
+        
         setFormData({
           title: editingTask.title,
           description: editingTask.description || '',
           completed: editingTask.completed,
           category: editingTask.category || '',
-          tags: editingTask.tags || [],
-          due_date: editingTask.due_date || '',
+          tags: taskTags,
+          due_date: editingTask.due_date ? editingTask.due_date.split('T')[0] : '',
           priority: editingTask.priority || ''
         });
       } else {
