@@ -7,20 +7,35 @@ async function bootstrap() {
   
   const allowedOrigins = [
     'http://localhost:3000',
-    'http://localhost:5173', // Vite dev server
+    'http://localhost:5173',
     'https://taskflow.christophervaldivia.me',
-    'https://api.christophervaldivia.me',
+    'https://taskflow-app.vercel.app',
+    /vercel\.app$/i, // Allow all Vercel preview deployments
   ];
 
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests without origin (mobile apps, curl, etc)
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      // Check if origin matches allowed list
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (typeof allowed === 'string') {
+          return origin === allowed;
+        }
+        return allowed.test(origin);
+      });
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('CORS not allowed'));
       }
     },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
   
