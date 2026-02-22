@@ -1,6 +1,27 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// Determine API URL based on environment
+const getApiUrl = (): string => {
+  // Use explicit env variable if set
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // For development
+  if (import.meta.env.DEV) {
+    return 'http://localhost:3000/api';
+  }
+
+  // For production, use relative path or infer from window.location
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  
+  // If API is on same domain, use relative path
+  // Otherwise, construct full URL
+  return `${protocol}//${host}/api`;
+};
+
+const API_URL = getApiUrl();
 
 class ApiClient {
   private client: AxiosInstance;
