@@ -36,7 +36,26 @@ export class SetupController {
         await this.dataSource.query(query);
       }
 
-      return res.json({ success: true, message: 'Database initialized successfully with all tables' });
+      const adminId = crypto.randomUUID();
+      await this.dataSource.query(
+        'INSERT INTO profiles (id, email, full_name, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())',
+        [adminId, 'admin@taskflow.com', 'Admin']
+      );
+
+      await this.dataSource.query(
+        `INSERT INTO tasks (title, description, completed, favorite, created_at, user_id, category, priority) VALUES 
+        ('Bienvenido a TaskFlow', 'Esta es tu primera tarea. ¡Organiza tu vida productiva!', false, true, NOW(), $1, 'general', 'medium'),
+        ('Explora el dashboard', 'Revisa todas las funcionalidades disponibles', false, false, NOW(), $1, 'general', 'low'),
+        ('Crea tu primera tarea', 'Usa el botón + para agregar nuevas tareas', false, false, NOW(), $1, 'general', 'high')`,
+        [adminId]
+      );
+
+      return res.json({ 
+        success: true, 
+        message: 'Database initialized with admin user',
+        email: 'admin@taskflow.com',
+        password: 'admin123'
+      });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
