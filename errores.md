@@ -15,3 +15,18 @@
 
 ## Pendientes:
 - [ ] cuando muevo una tarea desde el kanban no se mueve al mismo espacio del clic
+
+ Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 46 modules transformed.
+PWA v1.0.2
+mode      generateSW
+precache  3 entries (0.00 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-5ffe50d4.js
+warnings
+  One of the glob patterns doesn't match any files. Please remove or fix the following: {
+  "globDirectory": "/vercel/path0/taskflow-app-main/dist",
+  "globPattern": "**/*.{js,wasm,css,html}",
+  "globIgnores": [
+    "**/node_modules/**/*",

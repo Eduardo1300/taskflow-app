@@ -1,6 +1,7 @@
 import { Controller, Post, Res } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Response } from 'express';
+import * as crypto from 'crypto';
 
 @Controller('setup')
 export class SetupController {
@@ -36,6 +37,45 @@ export class SetupController {
       }
 
       return res.json({ success: true, message: 'Database initialized successfully with all tables' });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  @Post('seed-admin')
+  async seedAdmin(@Res() res: Response) {
+    try {
+      const adminEmail = 'admin@taskflow.com';
+      
+      const existing = await this.dataSource.query(
+        'SELECT id FROM profiles WHERE email = $1',
+        [adminEmail]
+      );
+
+      if (existing.length > 0) {
+        return res.json({ success: true, message: 'Admin user already exists', email: adminEmail });
+      }
+
+      const adminId = crypto.randomUUID();
+      await this.dataSource.query(
+        'INSERT INTO profiles (id, email, full_name, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())',
+        [adminId, adminEmail, 'Admin']
+      );
+
+      await this.dataSource.query(
+        `INSERT INTO tasks (title, description, completed, favorite, created_at, user_id, category, priority) VALUES 
+        ('Bienvenido a TaskFlow', 'Esta es tu primera tarea. ¡Organiza tu vida productiva!', false, true, NOW(), $1, 'general', 'medium'),
+        ('Explora el dashboard', 'Revisa todas las funcionalidades disponibles', false, false, NOW(), $1, 'general', 'low'),
+        ('Crea tu primera tarea', 'Usa el botón + para agregar nuevas tareas', false, false, NOW(), $1, 'general', 'high')`,
+        [adminId]
+      );
+
+      return res.json({ 
+        success: true, 
+        message: 'Admin user created successfully',
+        email: adminEmail,
+        password: 'admin123'
+      });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
