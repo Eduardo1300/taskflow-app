@@ -300,7 +300,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
                 hourlyDistribution={timeAnalysis.hourlyDistribution}
                 dailyDistribution={timeAnalysis.dailyDistribution}
                 categoryDistribution={calendarMetrics.categoryDistribution}
-                priorityDistribution={calendarMetrics.priorityDistribution}
+                priorityDistribution={analyticsData?.priorityStats || { high: 0, medium: 0, low: 0 }}
                 weeklyTrends={timeAnalysis.weeklyTrends}
                 monthlyTrends={timeAnalysis.monthlyTrends}
                 completionTrends={analyticsData?.completionTrends || []}

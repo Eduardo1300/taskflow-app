@@ -68,10 +68,12 @@ const CalendarPageEnhanced = () => {
     priority?: 'low' | 'medium' | 'high';
   }) => {
     try {
-      // Convert tags array to string if needed
+      // Ensure due_date is properly formatted for the database (YYYY-MM-DD)
       const taskPayload = {
         ...taskData,
         tags: taskData.tags ? taskData.tags.join(',') : undefined,
+        // Ensure the due_date is kept exactly as provided
+        due_date: taskData.due_date
       };
       
       if (editingTask?.id) {

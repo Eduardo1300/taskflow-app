@@ -70,7 +70,7 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
       setTitle(task.title);
       setDescription(task.description || '');
       setPriority(task.priority || 'medium');
-      setDueDate(task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '');
+      setDueDate(task.due_date ? (typeof task.due_date === 'string' ? task.due_date.split('T')[0] : '') : '');
       setCategory(task.category || '');
       setTags(taskTags);
       addActivity('Tarea abierta', `Se abrió la tarea "${task.title}"`);
