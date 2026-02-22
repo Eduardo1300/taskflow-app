@@ -5,8 +5,10 @@ const getApiUrl = (): string => {
   // Use environment variable if explicitly set
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl) {
-    // Always add /api suffix if not already present
-    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+    // Remove trailing slash and ensure proper format
+    const cleanUrl = envUrl.replace(/\/$/, '');
+    // Add /api suffix if not already present
+    return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
   }
 
   // Fallback for development
