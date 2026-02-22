@@ -89,7 +89,7 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
     if (!user?.id) return;
     
     try {
-      const { data, error } = await GoalsService.getGoals(user.id);
+      const { data, error } = await GoalsService.getGoals();
       if (error) {
         console.error('Error loading goals:', error);
         return;
@@ -694,8 +694,8 @@ const GoalsSystem: React.FC<GoalsSystemProps> = ({ tasks, className }) => {
               </button>
             </div>
           </div>
+        </div>
         )}
-      </div>
 
       {/* Delete Confirmation Modal */}
       {goalToDelete && (
