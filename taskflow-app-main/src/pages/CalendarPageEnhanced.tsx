@@ -490,10 +490,11 @@ const CalendarPageEnhanced = () => {
 
         <TaskModal
           isOpen={isModalOpen}
-          onClose={() => { setIsModalOpen(false); setEditingTask(null); }}
+          onClose={() => { setIsModalOpen(false); setEditingTask(null); setSelectedDate(null); }}
           editingTask={editingTask}
           onSave={handleTaskSaved}
           categories={categories}
+          selectedDate={selectedDate}
         />
 
         <RecurringEventModal

@@ -19,9 +19,10 @@ interface TaskModalProps {
   }) => void;
   editingTask?: Task | null;
   categories?: Category[];
+  selectedDate?: Date | null;
 }
 
-const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingTask, categories = [] }) => {
+const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingTask, categories = [], selectedDate }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -51,13 +52,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
           priority: editingTask.priority || ''
         });
       } else {
+        // Cuando se crea una nueva tarea, usar selectedDate si está disponible
+        const initialDueDate = selectedDate 
+          ? selectedDate.toISOString().split('T')[0] 
+          : '';
         setFormData({
           title: '',
           description: '',
           completed: false,
           category: '',
           tags: [],
-          due_date: '',
+          due_date: initialDueDate,
           priority: ''
         });
       }
@@ -71,7 +76,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, editingT
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [isOpen, editingTask]);
+  }, [isOpen, editingTask, selectedDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
