@@ -79,10 +79,12 @@ const SettingsPageEnhanced: React.FC = () => {
       } else if (data) {
         setNotifications(data.notifications);
         setPrivacy(data.privacy);
-        setAppearance(data.appearance);
-        if (data.appearance.theme && data.appearance.theme !== theme) {
-          setTheme(data.appearance.theme as 'light' | 'dark');
-        }
+        // Only update appearance state, don't force theme change
+        // Theme should remain as user's current preference
+        setAppearance({
+          ...data.appearance,
+          theme: theme // Keep current theme preference
+        });
       }
     } catch (error) {
       console.error('Error loading settings:', error);
