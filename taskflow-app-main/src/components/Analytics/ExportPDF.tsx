@@ -392,6 +392,9 @@ const ExportPDF: React.FC<ExportPDFProps> = ({
     setIsExporting(true);
 
     try {
+      // Wait for charts to fully render
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Find chart containers
       const chartElements = document.querySelectorAll('[data-export-chart]');
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -401,7 +404,7 @@ const ExportPDF: React.FC<ExportPDFProps> = ({
       // Add title
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TaskFlow - Gráficos de Analytics', pageWidth / 2, 20, { align: 'center' });
+      pdf.text('TaskFlow - Graficos de Analytics', pageWidth / 2, 20, { align: 'center' });
 
       let currentY = 40;
 
@@ -414,16 +417,27 @@ const ExportPDF: React.FC<ExportPDFProps> = ({
         }
 
         try {
-          const canvas = await html2canvas(element, {
+          // Clone the element to avoid modifying the original
+          const clone = element.cloneNode(true) as HTMLElement;
+          clone.style.backgroundColor = '#ffffff';
+          
+          const canvas = await html2canvas(clone, {
             backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true,
-            logging: false
+            logging: false,
+            allowTaint: true
           });
 
           const imgData = canvas.toDataURL('image/png');
           const imgWidth = pageWidth - 40;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          // Check if we need a new page
+          if (currentY + imgHeight > 280) {
+            pdf.addPage();
+            currentY = 20;
+          }
 
           pdf.addImage(imgData, 'PNG', 20, currentY, imgWidth, imgHeight);
           currentY += imgHeight + 20;
@@ -431,18 +445,24 @@ const ExportPDF: React.FC<ExportPDFProps> = ({
         } catch (error) {
           console.warn('Error capturing chart:', error);
           pdf.setFontSize(12);
-          pdf.text(`Error capturando gráfico ${i + 1}`, 20, currentY);
+          pdf.text(`Error capturando grafico ${i + 1}`, 20, currentY);
           currentY += 20;
         }
 
         isFirstPage = false;
       }
 
+      // If no charts were captured, add a message
+      if (chartElements.length === 0) {
+        pdf.setFontSize(12);
+        pdf.text('No se encontraron graficos para exportar', pageWidth / 2, 60, { align: 'center' });
+      }
+
       pdf.save(`taskflow-charts-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 
     } catch (error) {
       console.error('Error exporting charts:', error);
-      alert('Error exportando gráficos');
+      alert('Error exportando graficos');
     } finally {
       setIsExporting(false);
     }
