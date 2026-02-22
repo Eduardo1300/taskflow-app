@@ -11,7 +11,7 @@
 - [x] modal de confirmar eliminar objetivos - FIXED
 - [x] modal de compartir tarea oscuro - FIXED
 - [x] mas tareas en base de datos - FIXED
+- [x] perfil - modificar datos de usuario - FIXED
 
 ## Pendientes:
 - [ ] cuando muevo una tarea desde el kanban no se mueve al mismo espacio del clic
-- [ ] en perfil deberia poder modificar mis datos y eso se envia en la base de datos
