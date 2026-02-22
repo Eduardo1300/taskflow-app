@@ -68,10 +68,16 @@ const CalendarPageEnhanced = () => {
     priority?: 'low' | 'medium' | 'high';
   }) => {
     try {
+      // Convert tags array to string if needed
+      const taskPayload = {
+        ...taskData,
+        tags: taskData.tags ? taskData.tags.join(',') : undefined,
+      };
+      
       if (editingTask?.id) {
-        await TaskService.updateTask(editingTask.id, taskData);
+        await TaskService.updateTask(editingTask.id, taskPayload);
       } else {
-        await TaskService.createTask(taskData);
+        await TaskService.createTask(taskPayload);
       }
       
       const result = await TaskService.getTasks();
