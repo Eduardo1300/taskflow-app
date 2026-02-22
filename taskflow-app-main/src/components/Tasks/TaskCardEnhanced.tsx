@@ -14,7 +14,7 @@ import {
   Users,
   MoreHorizontal
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Task } from '../../types/database';
 
 const getTagsArray = (tags: string | string[] | undefined): string[] => {
@@ -52,6 +52,32 @@ const TaskCard: React.FC<TaskCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isMenuOpen]);
+
+  // Close all other menus when one opens
+  useEffect(() => {
+    if (isMenuOpen) {
+      const closeOtherMenus = () => {
+        setIsMenuOpen(false);
+      };
+      // Dispatch event to close other menus
+      window.dispatchEvent(new CustomEvent('closeTaskMenus', { detail: { excludeId: task.id } }));
+    }
+  }, [isMenuOpen, task.id]);
 
   const canEdit = userPermission === 'owner' || userPermission === 'edit' || userPermission === 'admin';
   const canDelete = userPermission === 'owner' || userPermission === 'admin';
@@ -165,7 +191,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
             </button>
 
             {isMenuOpen && (
-              <div className="absolute right-0 top-10 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in">
+              <div ref={menuRef} className="absolute right-0 top-10 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-[100] animate-fade-in">
                 {canEdit && (
                   <button
                     onClick={() => { onEdit(task); setIsMenuOpen(false); }}
