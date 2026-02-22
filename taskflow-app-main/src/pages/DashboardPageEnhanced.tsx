@@ -143,12 +143,18 @@ const handleTaskDelete = (task: Task) => {
   };
 
   const confirmDeleteTask = async () => {
-    if (!deleteConfirmTask || !deleteConfirmTask.id) return;
+    console.log('confirmDeleteTask called', deleteConfirmTask);
+    if (!deleteConfirmTask || !deleteConfirmTask.id) {
+      console.log('Early return - no task or no id');
+      return;
+    }
     try {
-      await TaskService.deleteTask(deleteConfirmTask.id);
+      console.log('Deleting task with id:', deleteConfirmTask.id);
+      await TaskService.deleteTask(Number(deleteConfirmTask.id));
       await loadTasks();
       setDeleteConfirmTask(null);
     } catch (error) {
+      console.error('Error deleting task:', error);
       setError('Error al eliminar la tarea');
     }
   };
