@@ -1,5 +1,10 @@
-en la vista analytics en exportar, al darle exportar a un grafico no sale nada en el pdf,
-no hay ningun filtro para las tareas favoritas en la vista dashboard,
-en la vista dashboard cuando el doy a los tres puntos de una tarea el modal que sale se pone por la espalda de las otras tareas y deberia ponerse por delante,
-al darle a crear tarea en la vista dashboard, el modal de tarea no tiene scrolbar y al añadir una etiqueta los botones de crear y cancelar salen del modal de crear tarea,
-le di a editar a una tarea en la vista dashboard y me salio la pantalla blanca,
+# Errores
+
+## Arreglados:
+- [x] al darle a editar a una tarea en la vista dashboard y me salio la pantalla blanca - FIXED
+- [x] al crear tarea en la vista dashboard, el modal de tarea no tiene scrolbar y los botones salen del modal - FIXED
+- [x] en la vista dashboard cuando el doy a los tres puntos de una tarea el modal sale por detras - FIXED
+- [x] no hay ningun filtro para las tareas favoritas en la vista dashboard - FIXED
+
+## Pendientes:
+- [ ] en la vista analytics en exportar, al darle exportar a un grafico no sale nada en el pdf
