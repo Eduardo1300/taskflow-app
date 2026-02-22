@@ -1,10 +1,10 @@
 {
-  "buildCommand": "VITE_API_URL=https://taskflow-backend.onrender.com/api npm run build",
+  "buildCommand": "VITE_API_URL=https://taskflow-app-a9p2.onrender.com/api npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
-    "VITE_API_URL": "https://taskflow-backend.onrender.com/api"
+    "VITE_API_URL": "https://taskflow-app-a9p2.onrender.com/api"
   }
 }

@@ -10,7 +10,9 @@ async function bootstrap() {
     'http://localhost:5173',
     'https://taskflow.christophervaldivia.me',
     'https://taskflow-app.vercel.app',
+    'https://taskflow-app-a9p2.onrender.com',
     /vercel\.app$/i, // Allow all Vercel preview deployments
+    /onrender\.com$/i, // Allow all Render deployments
   ];
 
   app.enableCors({
