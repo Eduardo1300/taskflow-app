@@ -4,8 +4,8 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles, CheckCircle2, Loader2 } 
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPageEnhanced: React.FC = () => {
-  const [email, setEmail] = useState('prueba@gmail.com');
-  const [password, setPassword] = useState('12345678');
+  const [email, setEmail] = useState('admin@taskflow.com');
+  const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,11 +70,11 @@ const LoginPageEnhanced: React.FC = () => {
                 <div className="mt-2 flex flex-col items-center gap-1">
                   <span>
                     <span className="font-semibold">Correo:</span>
-                    <span className="font-mono bg-white/60 dark:bg-gray-800/60 px-2 py-1 rounded ml-2">prueba@gmail.com</span>
+                    <span className="font-mono bg-white/60 dark:bg-gray-800/60 px-2 py-1 rounded ml-2">admin@taskflow.com</span>
                   </span>
                   <span>
                     <span className="font-semibold">Contraseña:</span>
-                    <span className="font-mono bg-white/60 dark:bg-gray-800/60 px-2 py-1 rounded ml-2">12345678</span>
+                    <span className="font-mono bg-white/60 dark:bg-gray-800/60 px-2 py-1 rounded ml-2">admin123</span>
                   </span>
                 </div>
                 <div className="mt-2 text-xs text-blue-600 dark:text-blue-300">
