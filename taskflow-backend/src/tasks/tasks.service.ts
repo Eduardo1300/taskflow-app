@@ -28,6 +28,11 @@ export class TasksService {
   }
 
   async create(data: Partial<Task>, userId: string): Promise<Task> {
+    // Convert tags string to array if needed
+    if (data.tags && typeof data.tags === 'string') {
+      data.tags = (data.tags as string).split(',').map(t => t.trim()).filter(t => t);
+    }
+    
     const task = this.taskRepository.create({
       ...data,
       user_id: userId,
@@ -38,6 +43,12 @@ export class TasksService {
 
   async update(id: number, data: Partial<Task>, userId: string): Promise<Task> {
     await this.findOne(id, userId);
+    
+    // Convert tags string to array if needed
+    if (data.tags && typeof data.tags === 'string') {
+      data.tags = (data.tags as string).split(',').map(t => t.trim()).filter(t => t);
+    }
+    
     await this.taskRepository.update({ id, user_id: userId }, data);
     return this.findOne(id, userId);
   }
