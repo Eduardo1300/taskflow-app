@@ -165,7 +165,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
             </button>
 
             {isMenuOpen && (
-              <div className="absolute right-0 top-10 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-20 animate-fade-in">
+              <div className="absolute right-0 top-10 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in">
                 {canEdit && (
                   <button
                     onClick={() => { onEdit(task); setIsMenuOpen(false); }}

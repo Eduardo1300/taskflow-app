@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, CheckCircle, Target, TrendingUp, Zap, Sparkles } from 'lucide-react';
+import { Plus, CheckCircle, Target, TrendingUp, Zap, Sparkles, Star } from 'lucide-react';
 import MainLayout from '../components/Layout/MainLayout';
 import TaskCardEnhanced from '../components/Tasks/TaskCardEnhanced';
 import TaskModalEnhanced from '../components/Tasks/TaskModalEnhanced';
@@ -23,6 +23,7 @@ const DashboardPageEnhanced: React.FC = () => {
   const [filteredTasks, setFilteredTasks] = useState<TaskWithCollaboration[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
+  const [favoriteFilter, setFavoriteFilter] = useState<boolean | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
@@ -94,6 +95,11 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
       filtered = filtered.filter(task => task.priority === priorityFilter);
     }
 
+    // Filter by favorite
+    if (favoriteFilter !== null) {
+      filtered = filtered.filter(task => task.favorite === favoriteFilter);
+    }
+
     // Sort by priority and due date
     filtered.sort((a, b) => {
       const priorityOrder: Record<string, number> = { high: 3, medium: 2, low: 1 };
@@ -112,7 +118,7 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
     });
 
     setFilteredTasks(filtered);
-  }, [tasks, statusFilter, priorityFilter]);
+  }, [tasks, statusFilter, priorityFilter, favoriteFilter]);
 
   const handleTaskSaved = async () => {
     await loadTasks();
@@ -480,6 +486,17 @@ const handleTaskDelete = (task: Task) => {
                 }`}
               >
                 Completadas
+              </button>
+              <button
+                onClick={() => setFavoriteFilter(favoriteFilter === true ? null : true)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  favoriteFilter === true
+                    ? 'bg-yellow-500 text-white shadow-lg'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                <Star className="h-3.5 w-3.5 mr-1 inline" />
+                Favoritas
               </button>
             </div>
           </div>

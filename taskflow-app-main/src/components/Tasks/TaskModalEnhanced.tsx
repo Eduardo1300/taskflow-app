@@ -57,12 +57,22 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
   // Efectos de entrada
   useEffect(() => {
     if (isOpen && task) {
+      // Convert tags from string to array if needed
+      let taskTags: string[] = [];
+      if (task.tags) {
+        if (Array.isArray(task.tags)) {
+          taskTags = task.tags;
+        } else if (typeof task.tags === 'string') {
+          taskTags = task.tags.split(',').filter(t => t.trim());
+        }
+      }
+      
       setTitle(task.title);
       setDescription(task.description || '');
       setPriority(task.priority || 'medium');
       setDueDate(task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '');
       setCategory(task.category || '');
-      setTags(task.tags || []);
+      setTags(taskTags);
       addActivity('Tarea abierta', `Se abrió la tarea "${task.title}"`);
       loadTaskAttachments(task.id);
     } else {
@@ -254,9 +264,9 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-up">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-up">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-8 py-6 text-white overflow-hidden">
+        <div className="flex-shrink-0 relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-8 py-6 text-white overflow-hidden">
           {/* Background Effects */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20 backdrop-blur-3xl" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 animate-pulse" />
@@ -296,7 +306,7 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
         )}
 
         {/* Content */}
-        <div className="flex flex-col h-full max-h-[calc(90vh-120px)]">
+        <div className="flex flex-col h-full max-h-[calc(90vh-120px)] overflow-y-auto">
           {/* Tabs */}
           <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             {[
