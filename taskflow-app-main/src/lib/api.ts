@@ -5,7 +5,8 @@ const getApiUrl = (): string => {
   // Use environment variable if explicitly set
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl) {
-    return envUrl;
+    // Always add /api suffix if not already present
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
   }
 
   // Fallback for development
