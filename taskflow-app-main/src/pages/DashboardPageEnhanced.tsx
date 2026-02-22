@@ -143,14 +143,20 @@ const handleTaskDelete = (task: Task) => {
   };
 
   const confirmDeleteTask = async () => {
-    console.log('confirmDeleteTask called', deleteConfirmTask);
-    if (!deleteConfirmTask || !deleteConfirmTask.id) {
-      console.log('Early return - no task or no id');
+    console.log('confirmDeleteTask called, task:', deleteConfirmTask);
+    if (!deleteConfirmTask) {
+      console.log('Early return - no task');
+      return;
+    }
+    const taskId = Number(deleteConfirmTask.id);
+    console.log('Task ID:', taskId, 'isNaN:', isNaN(taskId));
+    if (!taskId || isNaN(taskId)) {
+      console.log('Early return - no valid id');
       return;
     }
     try {
-      console.log('Deleting task with id:', deleteConfirmTask.id);
-      await TaskService.deleteTask(Number(deleteConfirmTask.id));
+      console.log('Deleting task with id:', taskId);
+      await TaskService.deleteTask(taskId);
       await loadTasks();
       setDeleteConfirmTask(null);
     } catch (error) {
