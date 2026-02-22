@@ -222,7 +222,7 @@ const KanbanPageEnhanced: React.FC = () => {
 
   return (
     <MainLayout currentPage="kanban">
-      <div className="h-full px-4 sm:px-6 lg:px-6">
+      <div className="h-full px-4 sm:px-6 lg:px-6 flex flex-col">
         {/* Header del Kanban */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 sm:gap-6">
@@ -476,8 +476,9 @@ const KanbanPageEnhanced: React.FC = () => {
           )}
 
           {/* Kanban Board */}
-          <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 min-h-[calc(100vh-400px)]">
+          <div className="flex-1 overflow-hidden">
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 min-h-[calc(100vh-400px)]">
               {columns.map((column) => {
                 const columnTasks = getTasksByStatus(column.id);
                 const isOverWipLimit = column.wipLimit && columnTasks.length > column.wipLimit;
@@ -569,7 +570,8 @@ const KanbanPageEnhanced: React.FC = () => {
                 );
               })}
             </div>
-          </DragDropContext>
+            </DragDropContext>
+          </div>
         </div>
 
         {/* Task Modal */}

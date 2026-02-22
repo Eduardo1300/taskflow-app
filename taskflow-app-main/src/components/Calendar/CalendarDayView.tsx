@@ -19,6 +19,12 @@ interface CalendarDayViewProps {
   onCreateEvent: (date: Date, hour?: number) => void;
 }
 
+// Función para parsear fecha sin problemas de timezone
+const parseLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   tasks,
   selectedDate,
@@ -39,7 +45,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     return tasks
       .filter(task => {
         if (!task.due_date) return false;
-        const taskDate = new Date(task.due_date);
+        const taskDate = parseLocalDate(task.due_date);
         return taskDate.toDateString() === dateStr;
       })
       .map(task => {

@@ -10,6 +10,13 @@ interface CalendarViewProps {
   onCreateTask: (date: Date) => void;
 }
 
+// Función para parsear fecha sin problemas de timezone
+const parseLocalDate = (dateString: string): Date => {
+  // Si es un string ISO (YYYY-MM-DD), crear la fecha en zona horaria local
+  const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export const CalendarView: React.FC<CalendarViewProps> = ({
   tasks,
   onTaskClick,
@@ -21,7 +28,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   // Filtrar tareas por mes actual
   const currentMonthTasks = tasks.filter(task => {
     if (!task.due_date) return false;
-    const taskDate = new Date(task.due_date);
+    const taskDate = parseLocalDate(task.due_date);
     return taskDate.getMonth() === currentDate.getMonth() && 
            taskDate.getFullYear() === currentDate.getFullYear();
   });
@@ -42,7 +49,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       
       const dayTasks = currentMonthTasks.filter(task => 
         task.due_date && 
-        new Date(task.due_date).toDateString() === date.toDateString()
+        parseLocalDate(task.due_date).toDateString() === date.toDateString()
       );
       
       days.push({

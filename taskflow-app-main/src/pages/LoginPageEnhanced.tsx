@@ -4,8 +4,8 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles, CheckCircle2, Loader2 } 
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPageEnhanced: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('prueba@gmail.com');
+  const [password, setPassword] = useState('12345678');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
