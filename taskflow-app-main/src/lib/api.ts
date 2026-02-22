@@ -87,6 +87,11 @@ class ApiClient {
     return data;
   }
 
+  async updateProfile(profile: any) {
+    const { data } = await this.client.put('/profiles/me', profile);
+    return data.data;
+  }
+
   async logout() {
     this.clearToken();
   }

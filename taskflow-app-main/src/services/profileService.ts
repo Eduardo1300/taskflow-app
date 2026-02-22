@@ -32,9 +32,10 @@ export class ProfileService {
 
   static async updateProfile(...args: any[]): Promise<{ data: UserProfile | null; error: string | null }> {
     const profile = args[0] as Partial<UserProfile>;
+    const userId = args[1];
     try {
-      console.log('[ProfileService] Updating profile:', profile);
-      return { data: profile, error: null };
+      const updatedProfile = await api.updateProfile(profile);
+      return { data: updatedProfile, error: null };
     } catch (error: any) {
       console.error('Error updating profile:', error);
       return { data: null, error: error.message || 'Error al actualizar el perfil' };

@@ -7,6 +7,18 @@ import { ProfilesService } from './profiles.service';
 export class ProfilesController {
   constructor(private profilesService: ProfilesService) {}
 
+  @Get('me')
+  async findMe(@Request() req) {
+    const profile = await this.profilesService.findById(req.user.userId);
+    return { data: profile };
+  }
+
+  @Put('me')
+  async updateMe(@Request() req, @Body() body: any) {
+    const profile = await this.profilesService.update(req.user.userId, body);
+    return { data: profile };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const profile = await this.profilesService.findById(id);

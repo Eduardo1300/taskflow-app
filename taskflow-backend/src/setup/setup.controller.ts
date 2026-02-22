@@ -11,7 +11,7 @@ export class SetupController {
     try {
       const queries = [
         `DROP TABLE IF EXISTS profiles CASCADE`,
-        `CREATE TABLE profiles (id UUID PRIMARY KEY, email VARCHAR(255) NOT NULL, full_name VARCHAR(255), created_at TIMESTAMP DEFAULT NOW())`,
+        `CREATE TABLE profiles (id UUID PRIMARY KEY, email VARCHAR(255) NOT NULL, full_name VARCHAR(255), phone TEXT, location TEXT, bio TEXT, avatar TEXT, timezone TEXT, language TEXT, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`,
         
         `DROP TABLE IF EXISTS tasks CASCADE`,
         `CREATE TABLE tasks (id SERIAL PRIMARY KEY, title TEXT NOT NULL, description TEXT, completed BOOLEAN DEFAULT FALSE, favorite BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), user_id UUID NOT NULL, category VARCHAR(100), tags TEXT, due_date TIMESTAMP, priority VARCHAR(20))`,
