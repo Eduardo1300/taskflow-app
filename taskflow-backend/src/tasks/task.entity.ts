@@ -23,8 +23,8 @@ export class Task {
   @Column({ nullable: true })
   category: string;
 
-  @Column('simple-array', { nullable: true })
-  tags: string[];
+  @Column({ nullable: true })
+  tags: string;
 
   @Column({ nullable: true })
   due_date: Date;
