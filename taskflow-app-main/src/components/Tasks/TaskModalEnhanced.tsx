@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Task } from '../../types';
 import { TaskService } from '../../services/taskService';
-import { supabase } from '../../lib/supabase';
 import { X, Flag, Upload, FileText, Target, AlertCircle, CheckCircle2, Sparkles, Plus, Hash, Paperclip, MessageSquare, Clock, Trash2, Download, AlertTriangle, Eye } from 'lucide-react';
 
 interface TaskModalProps {
@@ -71,34 +70,10 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
     }
   }, [isOpen, task]);
 
-  // Cargar adjuntos de la tarea
+  // Cargar adjuntos de la tarea (funcionalidad暂不可用)
   const loadTaskAttachments = async (taskId: number) => {
-    try {
-      const { data, error } = await supabase
-        .from('task_attachments')
-        .select('*')
-        .eq('task_id', taskId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error loading attachments:', error);
-        return;
-      }
-
-      if (data) {
-        const loadedAttachments: Attachment[] = data.map(item => ({
-          id: item.id.toString(),
-          name: item.file_name,
-          url: item.file_url,
-          type: item.file_type,
-          size: item.file_size,
-          created_at: item.created_at
-        }));
-        setAttachments(loadedAttachments);
-      }
-    } catch (err) {
-      console.error('Error loading attachments:', err);
-    }
+    // Adjuntos暂不支持 - 需要后端支持
+    setAttachments([]);
   };
 
   const resetForm = () => {
@@ -181,55 +156,10 @@ const TaskModalEnhanced: React.FC<TaskModalProps> = ({ isOpen, onClose, task, on
     addActivity('Archivo eliminado', `Se eliminó "${attachment.name}"`);
   };
 
+  // Subir adjuntos (funcionalidad暂不可用)
   const uploadAttachments = async (savedTaskId: number, userId: string) => {
-    const uploadedAttachments: Attachment[] = [];
-    
-    for (let i = 0; i < pendingFiles.length; i++) {
-      const file = pendingFiles[i];
-      const attachment = attachments[i];
-      if (!attachment) continue;
-      
-      const filePath = `tasks/${savedTaskId}/${userId}/${attachment.id}-${file.name}`;
-      
-      const { data, error } = await supabase.storage
-        .from('task-attachments')
-        .upload(filePath, file);
-
-      if (error) {
-        console.error('Error uploading file:', error);
-        continue;
-      }
-
-      if (data) {
-        // Generar URL pública
-        const { data: urlData } = supabase.storage
-          .from('task-attachments')
-          .getPublicUrl(filePath);
-        
-        // Guardar en la base de datos
-        const { error: dbError } = await supabase
-          .from('task_attachments')
-          .insert({
-            task_id: savedTaskId,
-            user_id: userId,
-            file_name: file.name,
-            file_url: urlData.publicUrl,
-            file_type: file.type,
-            file_size: file.size
-          });
-
-        if (dbError) {
-          console.error('Error saving attachment to DB:', dbError);
-        } else {
-          uploadedAttachments.push({
-            ...attachment,
-            url: urlData.publicUrl
-          });
-        }
-      }
-    }
-    
-    return uploadedAttachments;
+    // Adjuntos暂不支持 - 需要后端支持
+    return [];
   };
 
   const formatFileSize = (bytes: number): string => {

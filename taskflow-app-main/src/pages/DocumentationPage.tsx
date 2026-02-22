@@ -442,12 +442,9 @@ taskflow.tasks.subscribe(taskId, (update) => {
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Client Initialization</h4>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto mb-4">
               <pre className="text-green-400 text-sm font-mono">
-{`import { createClient } from '@taskflow/client';
+{`import api from './lib/api';
 
-const client = createClient({
-  supabaseUrl: 'your-supabase-url',
-  supabaseKey: 'your-supabase-anon-key'
-});`}
+const API_URL = 'https://your-api-url.com/api';`}
               </pre>
             </div>
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Authentication Methods</h4>
