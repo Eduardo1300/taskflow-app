@@ -12,7 +12,8 @@ import {
   Target,
   Sparkles,
   TrendingUp,
-  HelpCircle
+  HelpCircle,
+  Book
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
@@ -137,6 +138,14 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
       route: '/help',
       color: 'text-gray-500',
       description: 'Soporte y documentación'
+    },
+    { 
+      id: 'docs', 
+      label: 'Documentación', 
+      icon: Book,
+      route: '/docs',
+      color: 'text-indigo-500',
+      description: 'API y guías técnicas'
     }
   ];
 
