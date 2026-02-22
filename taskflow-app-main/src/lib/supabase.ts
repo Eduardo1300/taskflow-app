@@ -3,15 +3,31 @@ import api from './api';
 export const supabase = {
   from: (table: string) => {
     return {
-      select: (columns?: string) => ({
-        eq: (field: string, value: any) => ({
-          order: (field: string, options?: any) => api.get(`/${table.replace('task_', '')}`).then(res => ({ data: res.data, error: null }))
-        }),
-        order: (field: string, options?: any) => api.get(`/${table.replace('task_', '')}`).then(res => ({ data: res.data, error: null }))
-      }),
-      insert: (data: any) => api.post(`/${table.replace('task_', '')}`, data).then(res => ({ data: res.data, error: null })),
-      update: (data: any) => api.put(`/${table.replace('task_', '')}`, data).then(res => ({ data: res.data, error: null })),
-      delete: () => api.delete(`/${table.replace('task_', '')}`).then(res => ({ data: res.data, error: null })),
+      select: (columns?: string) => {
+        let queryTable = table.replace('task_', '');
+        return {
+          eq: (field: string, value: any) => {
+            return {
+              order: (field: string, options?: any) => 
+                api.get(`/${queryTable}`).then(res => ({ data: res.data, error: null }))
+            };
+          },
+          order: (field: string, options?: any) => 
+            api.get(`/${queryTable}`).then(res => ({ data: res.data, error: null }))
+        };
+      },
+      insert: (data: any) => {
+        const queryTable = table.replace('task_', '');
+        return api.post(`/${queryTable}`, data).then(res => ({ data: res.data, error: null }));
+      },
+      update: (data: any) => {
+        const queryTable = table.replace('task_', '');
+        return api.put(`/${queryTable}`, data).then(res => ({ data: res.data, error: null }));
+      },
+      delete: () => {
+        const queryTable = table.replace('task_', '');
+        return api.delete(`/${queryTable}`).then(res => ({ data: res.data, error: null }));
+      },
     };
   },
   storage: {
