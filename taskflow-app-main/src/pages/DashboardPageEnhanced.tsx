@@ -133,6 +133,15 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
     }
   };
 
+  const handleTaskFavoriteToggle = async (taskId: number) => {
+    try {
+      await TaskService.toggleFavorite(taskId);
+      await loadTasks();
+    } catch (error) {
+      setError('Error al actualizar favorita');
+    }
+  };
+
   const handleTaskEdit = (task: Task) => {
     setEditingTask(task);
     setIsModalOpen(true);
@@ -524,6 +533,7 @@ const handleTaskDelete = (task: Task) => {
                     <TaskCardEnhanced
                       task={task}
                       onToggleStatus={handleTaskToggle}
+                      onToggleFavorite={handleTaskFavoriteToggle}
                       onEdit={handleTaskEdit}
                       onDelete={handleTaskDelete}
                       onShare={handleShareTask}

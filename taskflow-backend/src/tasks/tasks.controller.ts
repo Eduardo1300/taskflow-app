@@ -55,6 +55,12 @@ export class TasksController {
     return { data: task };
   }
 
+  @Put(':id/favorite')
+  async toggleFavorite(@Param('id') id: string, @Request() req) {
+    const task = await this.tasksService.toggleFavorite(+id, req.user.userId);
+    return { data: task };
+  }
+
   @Delete(':id')
   async delete(@Param('id') id: string, @Request() req) {
     await this.tasksService.delete(+id, req.user.userId);

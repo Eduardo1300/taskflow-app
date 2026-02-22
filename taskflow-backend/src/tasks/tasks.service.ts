@@ -52,6 +52,11 @@ export class TasksService {
     return this.update(id, { completed: !task.completed }, userId);
   }
 
+  async toggleFavorite(id: number, userId: string): Promise<Task> {
+    const task = await this.findOne(id, userId);
+    return this.update(id, { favorite: !task.favorite }, userId);
+  }
+
   async getStats(userId: string): Promise<{ total: number; completed: number; pending: number }> {
     const tasks = await this.taskRepository.find({ where: { user_id: userId } });
     return {

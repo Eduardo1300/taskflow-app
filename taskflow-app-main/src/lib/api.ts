@@ -102,6 +102,11 @@ class ApiClient {
     return data.data;
   }
 
+  async toggleFavorite(id: number) {
+    const { data } = await this.client.put(`/tasks/${id}/favorite`);
+    return data.data;
+  }
+
   async deleteTask(id: number) {
     const { data } = await this.client.delete(`/tasks/${id}`);
     return data.success;

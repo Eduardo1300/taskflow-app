@@ -28,6 +28,7 @@ interface TaskCardProps {
   onToggleStatus: (id: number) => void;
   onDelete: (id: number) => void;
   onEdit: (task: Task) => void;
+  onToggleFavorite?: (id: number) => void;
   onShare?: (task: Task) => void;
   isShared?: boolean;
   userPermission?: 'owner' | 'view' | 'edit' | 'admin';
@@ -41,6 +42,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onToggleStatus, 
   onDelete, 
   onEdit, 
+  onToggleFavorite,
   onShare,
   isShared = false,
   userPermission = 'owner',
@@ -185,11 +187,15 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 )}
 
                 <button
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (onToggleFavorite) onToggleFavorite(task.id);
+                    setIsMenuOpen(false); 
+                  }}
                   className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <Star className="h-4 w-4 mr-3 text-yellow-500" />
-                  Favorita
+                  <Star className={`h-4 w-4 mr-3 ${task.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-yellow-500'}`} />
+                  {task.favorite ? 'Quitar de favoritas' : 'Favorita'}
                 </button>
 
                 {canDelete && (

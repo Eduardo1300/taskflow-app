@@ -38,6 +38,15 @@ export class TaskService {
     }
   }
 
+  static async toggleFavorite(id: number): Promise<{ data: Task | null; error: string | null }> {
+    try {
+      const task = await api.toggleFavorite(id);
+      return { data: task, error: null };
+    } catch (error: any) {
+      return { data: null, error: error.message || 'Error al cambiar favorite' };
+    }
+  }
+
   static async deleteTask(id: number): Promise<{ error: string | null }> {
     try {
       await api.deleteTask(id);

@@ -15,6 +15,7 @@ export interface Database {
           title: string
           description: string | null
           completed: boolean
+          favorite: boolean
           created_at: string
           user_id: string
           category: string | null
@@ -27,6 +28,7 @@ export interface Database {
           title: string
           description?: string | null
           completed?: boolean
+          favorite?: boolean
           created_at?: string
           user_id: string
           category?: string | null
@@ -39,6 +41,7 @@ export interface Database {
           title?: string
           description?: string | null
           completed?: boolean
+          favorite?: boolean
           created_at?: string
           user_id?: string
           category?: string | null

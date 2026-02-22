@@ -14,7 +14,7 @@ export class SetupController {
         `CREATE TABLE profiles (id UUID PRIMARY KEY, email VARCHAR(255) NOT NULL, full_name VARCHAR(255), created_at TIMESTAMP DEFAULT NOW())`,
         
         `DROP TABLE IF EXISTS tasks CASCADE`,
-        `CREATE TABLE tasks (id SERIAL PRIMARY KEY, title TEXT NOT NULL, description TEXT, completed BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), user_id UUID NOT NULL, category VARCHAR(100), tags TEXT, due_date TIMESTAMP, priority VARCHAR(20))`,
+        `CREATE TABLE tasks (id SERIAL PRIMARY KEY, title TEXT NOT NULL, description TEXT, completed BOOLEAN DEFAULT FALSE, favorite BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), user_id UUID NOT NULL, category VARCHAR(100), tags TEXT, due_date TIMESTAMP, priority VARCHAR(20))`,
         
         `DROP TABLE IF EXISTS categories CASCADE`,
         `CREATE TABLE categories (id SERIAL PRIMARY KEY, name TEXT NOT NULL, color TEXT NOT NULL, user_id UUID, created_at TIMESTAMP DEFAULT NOW())`,

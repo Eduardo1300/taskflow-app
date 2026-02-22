@@ -31,4 +31,7 @@ export class Task {
 
   @Column({ nullable: true })
   priority: string;
+
+  @Column({ default: false })
+  favorite: boolean;
 }
