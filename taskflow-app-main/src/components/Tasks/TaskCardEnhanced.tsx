@@ -85,6 +85,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
     });
   };
 
+  const tagsArray = getTagsArray(task.tags);
+
   return (
     <div
       className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl border border-gray-100 dark:border-gray-700 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.01] ${
@@ -213,7 +215,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         {/* Tags */}
-const tagsArray = getTagsArray(task.tags);
         {(tagsArray.length > 0) || task.category ? (
           <div className="flex flex-wrap gap-2 mb-4">
             {task.category && (
