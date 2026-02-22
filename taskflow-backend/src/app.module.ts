@@ -26,6 +26,7 @@ import { HealthController } from './health/health.controller';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         logging: false,
+        ssl: process.env.DATABASE_URL?.includes('render.com') ? { rejectUnauthorized: false } : false,
       }),
       inject: [ConfigService],
     }),
