@@ -476,9 +476,9 @@ const KanbanPageEnhanced: React.FC = () => {
           )}
 
           {/* Kanban Board */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-visible">
             <DragDropContext onDragEnd={onDragEnd}>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 min-h-[calc(100vh-400px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 h-full">
               {columns.map((column) => {
                 const columnTasks = getTasksByStatus(column.id);
                 const isOverWipLimit = column.wipLimit && columnTasks.length > column.wipLimit;
@@ -535,15 +535,10 @@ const KanbanPageEnhanced: React.FC = () => {
                                     {...provided.dragHandleProps}
                                     className={`transition-all duration-200 ${
                                       snapshot.isDragging 
-                                        ? 'opacity-90 shadow-2xl' 
+                                        ? 'opacity-90 shadow-2xl scale-105' 
                                         : 'hover:shadow-lg'
                                     }`}
-                                    style={{
-                                      ...provided.draggableProps.style,
-                                      transform: snapshot.isDragging 
-                                        ? provided.draggableProps.style?.transform 
-                                        : undefined
-                                    }}
+                                    style={provided.draggableProps.style}
                                   >
                                     <TaskCardEnhanced
                                       task={task}
