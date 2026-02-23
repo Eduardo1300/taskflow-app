@@ -532,22 +532,26 @@ const KanbanPageEnhanced: React.FC = () => {
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={`transition-all duration-200 ${
-                                      snapshot.isDragging 
-                                        ? 'transform rotate-2 scale-105 shadow-2xl' 
-                                        : 'hover:shadow-lg'
-                                    }`}
+                                    className="transition-all duration-200"
                                   >
-                                    <TaskCardEnhanced
-                                      task={task}
-                                      onToggleStatus={() => {}}
-                                      onDelete={() => {}}
-                                      onEdit={() => {
-                                        setEditingTask(task);
-                                        setIsModalOpen(true);
-                                      }}
-                                    />
+                                    <div
+                                      {...provided.dragHandleProps}
+                                      className={`cursor-grab active:cursor-grabbing ${
+                                        snapshot.isDragging 
+                                          ? 'opacity-90' 
+                                          : 'hover:shadow-lg'
+                                      }`}
+                                    >
+                                      <TaskCardEnhanced
+                                        task={task}
+                                        onToggleStatus={() => {}}
+                                        onDelete={() => {}}
+                                        onEdit={() => {
+                                          setEditingTask(task);
+                                          setIsModalOpen(true);
+                                        }}
+                                      />
+                                    </div>
                                   </div>
                                 )}
                               </Draggable>

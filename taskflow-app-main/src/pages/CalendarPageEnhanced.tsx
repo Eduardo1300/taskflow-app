@@ -272,7 +272,7 @@ const CalendarPageEnhanced = () => {
                         <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                       </button>
                       <h2 className="text-xl font-bold text-gray-900 dark:text-white capitalize">
-                        {getMonthName(currentDate)} {currentDate.getFullYear()}
+                        {getMonthName(currentDate)}
                       </h2>
                       <button 
                         onClick={() => navigateMonth('next')} 
