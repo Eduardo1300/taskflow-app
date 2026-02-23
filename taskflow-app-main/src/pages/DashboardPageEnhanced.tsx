@@ -12,6 +12,7 @@ import GoalsSystem from '../components/Dashboard/GoalsSystem';
 import QuickActions from '../components/Dashboard/QuickActions';
 import SmartSearch from '../components/Dashboard/SmartSearch';
 import { useAuth } from '../contexts/AuthContext';
+import { useTaskContext } from '../contexts/TaskContext';
 import { Task, TaskWithCollaboration } from '../types';
 import { TaskService } from '../services/taskService';
 import { useRealtime } from '../hooks/useRealtime';
@@ -19,6 +20,7 @@ import { useOffline } from '../hooks/useOffline';
 
 const DashboardPageEnhanced: React.FC = () => {
   const { user } = useAuth();
+  const { setTasks: setTaskContext } = useTaskContext();
   const [tasks, setTasks] = useState<TaskWithCollaboration[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<TaskWithCollaboration[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed'>('all');
@@ -57,6 +59,7 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
       const userTasks = await TaskService.getTasks();
       if (userTasks.data) {
         setTasks(userTasks.data);
+        setTaskContext(userTasks.data);
       }
       setError(null);
     } catch (err) {

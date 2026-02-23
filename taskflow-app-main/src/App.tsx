@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { TaskProvider } from './contexts/TaskContext';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import LandingPageEnhanced from './pages/LandingPageEnhanced';
 import LoginPageEnhanced from './pages/LoginPageEnhanced';
@@ -21,7 +22,8 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
+        <TaskProvider>
+          <Router>
           <div className="App">
             <Routes>
               {/* Rutas públicas */}
@@ -132,6 +134,7 @@ function App() {
             </Routes>
           </div>
         </Router>
+        </TaskProvider>
       </AuthProvider>
     </ThemeProvider>
   );

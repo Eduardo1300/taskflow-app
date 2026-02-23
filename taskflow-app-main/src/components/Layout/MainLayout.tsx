@@ -8,9 +8,10 @@ import HelpSection from '../Help/HelpSection';
 interface MainLayoutProps {
   children: React.ReactNode;
   currentPage: string;
+  tasks?: { completed: boolean }[];
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage, tasks = [] }) => {
   const [activeSection, setActiveSection] = useState(currentPage);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -70,6 +71,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
             onSectionChange={setActiveSection}
             isCollapsed={false}
             isOpen={false}
+            tasks={tasks}
           />
         </div>
         
@@ -95,6 +97,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
             isCollapsed={false}
             isOpen={isSidebarOpen}
             onClose={handleCloseSidebar}
+            tasks={tasks}
           />
         </div>
         
@@ -110,7 +113,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPage }) => {
             }}
           />
           
-          <main className="flex-1 py-6 px-4 sm:px-6 lg:pl-8 lg:pr-6">
+          <main className="flex-1 py-6 px-6 sm:px-8 lg:px-12">
             {renderContent()}
           </main>
         </div>

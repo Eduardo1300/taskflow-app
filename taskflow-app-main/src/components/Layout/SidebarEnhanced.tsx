@@ -16,6 +16,7 @@ import {
   Book
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTaskContext } from '../../contexts/TaskContext';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -25,6 +26,7 @@ interface SidebarProps {
   isCollapsed?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
+  tasks?: { completed: boolean }[];
 }
 
 interface MenuItem {
@@ -46,10 +48,15 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
   onClose
 }) => {
   const { logout } = useAuth();
+  const { tasks } = useTaskContext();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [sidebarSearch, setSidebarSearch] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+
+  const completedCount = tasks.filter(t => t.completed).length;
+  const totalCount = tasks.length;
+  const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const handleSidebarSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -373,18 +380,11 @@ const SidebarEnhanced: React.FC<SidebarProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-400">Tareas completadas</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">5/8</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">{completedCount}/{totalCount}</span>
                 </div>
                 
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500" style={{ width: '62%' }} />
-                </div>
-                
-                <div className="flex items-center justify-center pt-1">
-                  <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                    +2 vs ayer
-                  </span>
+                  <div className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
                 </div>
               </div>
             </div>
