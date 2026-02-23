@@ -39,6 +39,7 @@ async function bootstrap() {
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    charset: 'utf-8',
   });
   
   app.useGlobalPipes(new ValidationPipe({

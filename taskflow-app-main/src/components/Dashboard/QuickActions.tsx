@@ -220,10 +220,10 @@ const QuickActions: React.FC<QuickActionsProps> = ({
         {isExpanded && (
           <>
             <div 
-              className="fixed inset-0 z-[95]"
+              className="fixed inset-0 z-[9998]"
               onClick={() => setIsExpanded(false)}
             />
-            <div className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[100] overflow-hidden animate-fade-in-up">
+            <div className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[9999] overflow-hidden animate-fade-in-up">
               {/* Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
                 <div className="flex items-center space-x-3">
