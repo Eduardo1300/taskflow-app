@@ -296,14 +296,24 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="text-lg font-bold text-gray-900 dark:text-white">
-              {tasks.filter(t => t.due_date && new Date(t.due_date).toDateString() === selectedDate.toDateString()).length}
+              {tasks.filter(t => {
+                if (!t.due_date) return false;
+                const dateStr = t.due_date.split('T')[0];
+                const selectedStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+                return dateStr === selectedStr;
+              }).length}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Eventos</div>
           </div>
           
           <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="text-lg font-bold text-green-600 dark:text-green-400">
-              {tasks.filter(t => t.due_date && new Date(t.due_date).toDateString() === selectedDate.toDateString() && t.completed).length}
+              {tasks.filter(t => {
+                if (!t.due_date) return false;
+                const dateStr = t.due_date.split('T')[0];
+                const selectedStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+                return dateStr === selectedStr && t.completed;
+              }).length}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Completados</div>
           </div>
@@ -329,7 +339,12 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                 const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i - 10);
                 const isCurrentMonth = date.getMonth() === selectedDate.getMonth();
                 const isSelected = date.toDateString() === selectedDate.toDateString();
-                const hasEvents = tasks.some(t => t.due_date && new Date(t.due_date).toDateString() === date.toDateString());
+                const hasEvents = tasks.some(t => {
+                  if (!t.due_date) return false;
+                  const dateStr = t.due_date.split('T')[0];
+                  const checkStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                  return dateStr === checkStr;
+                });
 
                 return (
                   <button

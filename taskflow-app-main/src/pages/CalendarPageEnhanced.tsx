@@ -148,8 +148,9 @@ const CalendarPageEnhanced = () => {
   const getEventsForDate = (date: Date) => {
     return events.filter(event => {
       if (!event.due_date) return false;
-      const eventDate = new Date(event.due_date);
-      return eventDate.toDateString() === date.toDateString();
+      const dateStr = event.due_date.split('T')[0];
+      const eventDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      return dateStr === eventDateStr;
     });
   };
 
@@ -166,8 +167,11 @@ const CalendarPageEnhanced = () => {
     return events
       .filter(event => {
         if (!event.due_date) return false;
-        const eventDate = new Date(event.due_date);
-        return eventDate > now && eventDate <= nextWeek;
+        const dateStr = event.due_date.split('T')[0];
+        const eventDate = new Date(dateStr + 'T12:00:00');
+        const nowDate = new Date(now.toISOString().split('T')[0] + 'T12:00:00');
+        const nextWeekDate = new Date(nextWeek.toISOString().split('T')[0] + 'T12:00:00');
+        return eventDate > nowDate && eventDate <= nextWeekDate;
       })
       .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())
       .slice(0, 5);

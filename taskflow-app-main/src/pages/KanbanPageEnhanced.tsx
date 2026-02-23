@@ -532,26 +532,28 @@ const KanbanPageEnhanced: React.FC = () => {
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
-                                    className="transition-all duration-200"
+                                    {...provided.dragHandleProps}
+                                    className={`transition-all duration-200 ${
+                                      snapshot.isDragging 
+                                        ? 'opacity-90 shadow-2xl' 
+                                        : 'hover:shadow-lg'
+                                    }`}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                      transform: snapshot.isDragging 
+                                        ? provided.draggableProps.style?.transform 
+                                        : undefined
+                                    }}
                                   >
-                                    <div
-                                      {...provided.dragHandleProps}
-                                      className={`cursor-grab active:cursor-grabbing ${
-                                        snapshot.isDragging 
-                                          ? 'opacity-90' 
-                                          : 'hover:shadow-lg'
-                                      }`}
-                                    >
-                                      <TaskCardEnhanced
-                                        task={task}
-                                        onToggleStatus={() => {}}
-                                        onDelete={() => {}}
-                                        onEdit={() => {
-                                          setEditingTask(task);
-                                          setIsModalOpen(true);
-                                        }}
-                                      />
-                                    </div>
+                                    <TaskCardEnhanced
+                                      task={task}
+                                      onToggleStatus={() => {}}
+                                      onDelete={() => {}}
+                                      onEdit={() => {
+                                        setEditingTask(task);
+                                        setIsModalOpen(true);
+                                      }}
+                                    />
                                   </div>
                                 )}
                               </Draggable>

@@ -34,15 +34,21 @@ export const CalendarAgenda: React.FC<CalendarAgendaProps> = ({
   // Filtrar tareas para la fecha seleccionada
   const dayTasks = tasks.filter(task => {
     if (!task.due_date) return false;
-    return new Date(task.due_date).toDateString() === selectedDate.toDateString();
+    const dateStr = task.due_date.split('T')[0];
+    const selectedStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    return dateStr === selectedStr;
   });
 
   // Separar tareas por estado
   const completedTasks = dayTasks.filter(task => task.completed);
   const incompleteTasks = dayTasks.filter(task => !task.completed);
-  const overdueTasks = incompleteTasks.filter(task => 
-    task.due_date && new Date(task.due_date) < new Date()
-  );
+  const overdueTasks = incompleteTasks.filter(task => {
+    if (!task.due_date) return false;
+    const dateStr = task.due_date.split('T')[0];
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    return dateStr < todayStr;
+  });
 
   // Formatear fecha
   const formatDate = (date: Date) => {
