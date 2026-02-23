@@ -1,0 +1,133 @@
+═════════════════════════════════════════════════════════════════════════════
+                    SETUP TASKFLOW EN RAILWAY
+═════════════════════════════════════════════════════════════════════════════
+
+��� CREDENCIALES RAILWAY:
+
+DATABASE_URL (Para Backend):
+postgresql://postgres:bmnAVldGPDpTEIZcRIrfngMmhOAQISNF@shortline.proxy.rlwy.net:56256/railway
+
+DATABASE_URL (Para Railway Interno):
+postgresql://postgres:bmnAVldGPDpTEIZcRIrfngMmhOAQISNF@postgres.railway.internal:5432/railway
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ PASO 1: CREAR LAS TABLAS
+
+Ejecuta este comando en tu terminal (con psql instalado):
+
+PGPASSWORD="bmnAVldGPDpTEIZcRIrfngMmhOAQISNF" psql \
+  -h shortline.proxy.rlwy.net \
+  -p 56256 \
+  -U postgres \
+  -d railway \
+  -f taskflow-complete-database.sql
+
+O si prefieres usar Railway Dashboard:
+1. Ve a: https://railway.app
+2. Selecciona tu proyecto PostgreSQL
+3. Ve a "Query" o "Connect"
+4. Copia y pega el contenido de taskflow-complete-database.sql
+5. Ejecuta
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ PASO 2: INSERTAR DATOS INICIALES
+
+Ejecuta este comando:
+
+PGPASSWORD="bmnAVldGPDpTEIZcRIrfngMmhOAQISNF" psql \
+  -h shortline.proxy.rlwy.net \
+  -p 56256 \
+  -U postgres \
+  -d railway \
+  -f taskflow-railway-init-data.sql
+
+Esto creará:
+  ✓ Usuario: admin@taskflow.com
+  ✓ Categorías de ejemplo
+  ✓ Tareas de prueba
+  ✓ Notificaciones iniciales
+  ✓ Preferencias de email
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ PASO 3: VERIFICAR CONEXIÓN
+
+Desde terminal:
+
+PGPASSWORD="bmnAVldGPDpTEIZcRIrfngMmhOAQISNF" psql \
+  -h shortline.proxy.rlwy.net \
+  -p 56256 \
+  -U postgres \
+  -d railway \
+  -c "SELECT COUNT(*) as tables FROM information_schema.tables WHERE table_schema = 'public';"
+
+Debería mostrar: 21 tablas
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ PASO 4: VERIFICAR BACKEND .env
+
+Archivo: taskflow-backend/.env
+
+Debe contener:
+DATABASE_URL=postgresql://postgres:bmnAVldGPDpTEIZcRIrfngMmhOAQISNF@shortline.proxy.rlwy.net:56256/railway
+
+✓ Verificado en el archivo
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ PASO 5: REINICIAR BACKEND
+
+Después de actualizar .env, reinicia tu servidor NestJS:
+
+npm run start:dev
+
+═════════════════════════════════════════════════════════════════════════════
+
+��� DATOS DE PRUEBA
+
+Usuario por defecto:
+  Email: admin@taskflow.com
+  Contraseña: admin123 (verificar en frontend)
+
+Usuario alternativo:
+  Email: prueba@gmail.com
+  Contraseña: 12345678
+
+═════════════════════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE
+
+1. NO commitear credenciales en GitHub
+2. .env está en .gitignore (verificado)
+3. La URL pública (shortline.proxy.rlwy.net) es para acceso externo
+4. La URL interna (postgres.railway.internal) es solo para servicios de Railway
+5. El backend debe usar la URL pública
+
+═════════════════════════════════════════════════════════════════════════════
+
+❌ SI NO FUNCIONA
+
+1. Verifica la conexión:
+   PGPASSWORD="bmnAVldGPDpTEIZcRIrfngMmhOAQISNF" psql \
+     -h shortline.proxy.rlwy.net \
+     -p 56256 \
+     -U postgres \
+     -d railway \
+     -c "SELECT 1;"
+
+2. Reinicia el contenedor de PostgreSQL en Railway
+
+3. Verifica que las tablas existan:
+   PGPASSWORD="bmnAVldGPDpTEIZcRIrfngMmhOAQISNF" psql \
+     -h shortline.proxy.rlwy.net \
+     -p 56256 \
+     -U postgres \
+     -d railway \
+     -dt
+
+4. Lee los logs del backend para errores de conexión
+
+═════════════════════════════════════════════════════════════════════════════
