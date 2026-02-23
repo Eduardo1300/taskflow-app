@@ -99,4 +99,40 @@ export class SetupController {
       return res.status(500).json({ success: false, error: error.message });
     }
   }
+
+  @Post('fix-profiles')
+  async fixProfiles(@Res() res: Response) {
+    try {
+      // Check and add missing columns
+      const columnsToAdd = [
+        { name: 'phone', type: 'TEXT' },
+        { name: 'location', type: 'TEXT' },
+        { name: 'bio', type: 'TEXT' },
+        { name: 'avatar', type: 'TEXT' },
+        { name: 'timezone', type: 'TEXT' },
+        { name: 'language', type: 'TEXT' },
+      ];
+
+      for (const col of columnsToAdd) {
+        try {
+          await this.dataSource.query(`
+            ALTER TABLE profiles ADD COLUMN ${col.name} ${col.type} NULL
+          `);
+        } catch (e) {
+          // Column likely already exists, continue
+        }
+      }
+
+      // Verify setup
+      const profileCount = await this.dataSource.query(`SELECT COUNT(*) as count FROM profiles`);
+      
+      return res.json({ 
+        success: true, 
+        message: 'Profiles table fixed with all columns',
+        profileCount: profileCount[0].count
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  }
 }
