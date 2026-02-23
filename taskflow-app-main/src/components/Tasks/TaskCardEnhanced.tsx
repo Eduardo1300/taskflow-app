@@ -26,7 +26,7 @@ const getTagsArray = (tags: string | string[] | undefined): string[] => {
 interface TaskCardProps {
   task: Task;
   onToggleStatus: (id: number) => void;
-  onDelete: (id: number) => void;
+  onDelete: (task: Task) => void;
   onEdit: (task: Task) => void;
   onToggleFavorite?: (id: number) => void;
   onShare?: (task: Task) => void;
@@ -230,7 +230,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                       onClick={(e) => { 
                         e.stopPropagation(); 
                         console.log('Delete clicked, passing full task:', task);
-                        onDelete(task.id); 
+                        onDelete(task); 
                         setIsMenuOpen(false); 
                       }}
                       className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
