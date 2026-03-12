@@ -10,6 +10,7 @@ async function bootstrap() {
     'http://localhost:5173',
     'https://taskflow.christophervaldivia.me',
     'https://taskflow-app.vercel.app',
+    'https://taskflow-app-e1rm.onrender.com',
     'https://taskflow-app-a9p2.onrender.com',
     /vercel\.app$/i, // Allow all Vercel preview deployments
     /onrender\.com$/i, // Allow all Render deployments
@@ -34,12 +35,14 @@ async function bootstrap() {
       if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error('CORS not allowed'));
+        callback(null, true); // Allow all origins for now
       }
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     charset: 'utf-8',
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    optionsSuccessStatus: 200,
   });
   
   app.useGlobalPipes(new ValidationPipe({
