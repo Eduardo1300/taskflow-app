@@ -24,14 +24,21 @@ import { HealthController } from './health/health.controller';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get('DATABASE_URL'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-        logging: false,
-        ssl: { rejectUnauthorized: false },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get('DATABASE_URL') || '';
+        
+        return {
+          type: 'postgres',
+          url: databaseUrl,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: false,
+          logging: false,
+          ssl: false,
+          extra: {
+            family: 4, // Force IPv4
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     AuthModule,
