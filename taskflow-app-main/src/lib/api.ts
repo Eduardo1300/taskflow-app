@@ -5,14 +5,12 @@ const getApiUrl = (): string => {
   // Use environment variable if explicitly set
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl) {
-    // Remove trailing slash and ensure proper format
     const cleanUrl = envUrl.replace(/\/$/, '');
-    // Add /api suffix if not already present
     return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
   }
 
-  // Fallback for development
-  return 'http://localhost:3000/api';
+  // Fallback for production - Render backend
+  return 'https://taskflow-app-e1rm.onrender.com/api';
 };
 
 const API_URL = getApiUrl();
