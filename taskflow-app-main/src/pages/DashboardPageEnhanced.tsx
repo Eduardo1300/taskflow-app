@@ -123,8 +123,16 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
     setFilteredTasks(filtered);
   }, [tasks, statusFilter, priorityFilter, favoriteFilter]);
 
-  const handleTaskSaved = async () => {
-    await loadTasks();
+  const handleTaskSaved = (savedTask?: any) => {
+    if (savedTask) {
+      setTasks(prev => {
+        const exists = prev.find(t => t.id === savedTask.id);
+        if (exists) {
+          return prev.map(t => t.id === savedTask.id ? savedTask : t);
+        }
+        return [savedTask, ...prev];
+      });
+    }
     setIsModalOpen(false);
     setEditingTask(null);
   };
@@ -134,20 +142,30 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
       const task = tasks.find(t => t.id === taskId);
       if (!task) return;
 
-      const updatedTask = { ...task, completed: !task.completed };
-      await TaskService.updateTask(taskId, updatedTask);
-      await loadTasks();
+      setTasks(prev => prev.map(t => 
+        t.id === taskId ? { ...t, completed: !t.completed } : t
+      ));
+
+      await TaskService.toggleTaskCompletion(taskId, !task.completed);
     } catch (error) {
       setError('Error al actualizar la tarea');
+      loadTasks();
     }
   };
 
   const handleTaskFavoriteToggle = async (taskId: number) => {
     try {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      setTasks(prev => prev.map(t => 
+        t.id === taskId ? { ...t, favorite: !t.favorite } : t
+      ));
+
       await TaskService.toggleFavorite(taskId);
-      await loadTasks();
     } catch (error) {
       setError('Error al actualizar favorita');
+      loadTasks();
     }
   };
 
@@ -156,30 +174,26 @@ const [shareModalTask, setShareModalTask] = useState<Task | null>(null);
     setIsModalOpen(true);
   };
 
-const handleTaskDelete = (task: Task) => {
+  const handleTaskDelete = (task: Task) => {
     setDeleteConfirmTask(task);
   };
 
   const confirmDeleteTask = async () => {
-    console.log('confirmDeleteTask called, task:', deleteConfirmTask, 'type of id:', typeof deleteConfirmTask?.id);
-    if (!deleteConfirmTask) {
-      return;
-    }
+    if (!deleteConfirmTask) return;
+    
     const taskId = deleteConfirmTask.id;
-    console.log('Task ID raw:', taskId, 'parsed:', parseInt(String(taskId)));
     const numericId = parseInt(String(taskId));
-    if (!numericId || isNaN(numericId)) {
-      console.log('Early return - no valid id');
-      return;
-    }
+    
+    if (!numericId || isNaN(numericId)) return;
+
     try {
-      console.log('Deleting task with id:', numericId);
+      setTasks(prev => prev.filter(t => t.id !== numericId));
       await TaskService.deleteTask(numericId);
-      await loadTasks();
       setDeleteConfirmTask(null);
     } catch (error) {
       console.error('Error deleting task:', error);
       setError('Error al eliminar la tarea');
+      loadTasks();
     }
   };
 
