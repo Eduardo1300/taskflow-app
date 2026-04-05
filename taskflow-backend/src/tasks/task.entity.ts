@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('tasks')
 export class Task {
@@ -14,8 +14,11 @@ export class Task {
   @Column({ default: false })
   completed: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  updated_at: Date;
 
   @Column()
   user_id: string;
@@ -23,8 +26,8 @@ export class Task {
   @Column({ nullable: true })
   category: string;
 
-  @Column({ nullable: true })
-  tags: string;
+  @Column({ type: 'text', array: true, nullable: true })
+  tags: string[];
 
   @Column({ nullable: true })
   due_date: Date;
@@ -34,4 +37,16 @@ export class Task {
 
   @Column({ default: false })
   favorite: boolean;
+
+  @Column({ nullable: true })
+  ai_priority_suggestion: string;
+
+  @Column({ nullable: true })
+  ai_category_suggestion: string;
+
+  @Column({ nullable: true })
+  ai_due_date_suggestion: Date;
+
+  @Column({ nullable: true })
+  calendar_event_id: string;
 }

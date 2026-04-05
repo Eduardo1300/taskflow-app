@@ -114,7 +114,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     }
   ];
 
-  // Keyboard shortcuts handler
+  // Quick Actions handlers
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey) {
@@ -218,12 +218,11 @@ const QuickActions: React.FC<QuickActionsProps> = ({
 
         {/* Expanded Actions Panel */}
         {isExpanded && (
-          <>
+          <div className="fixed inset-0 z-[9999]" onClick={() => setIsExpanded(false)}>
             <div 
-              className="fixed inset-0 z-[9998]"
-              onClick={() => setIsExpanded(false)}
-            />
-            <div className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[9999] overflow-hidden animate-fade-in-up">
+              className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[10000] overflow-hidden animate-fade-in-up"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
                 <div className="flex items-center space-x-3">
@@ -353,7 +352,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                 </p>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
 

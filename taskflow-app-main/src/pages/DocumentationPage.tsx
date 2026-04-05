@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Book, 
   ChevronRight, 
@@ -36,79 +36,79 @@ interface DocSubsection {
 const docSections: DocSection[] = [
   {
     id: 'getting-started',
-    title: 'Getting Started',
+    title: 'Comenzar',
     icon: Rocket,
     content: [
       {
         id: 'introduction',
-        title: 'Introduction',
+        title: 'Introducción',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              TaskFlow is a modern task management application built with React, TypeScript, and Supabase. 
-              It provides a powerful yet intuitive interface for individuals and teams to organize, track, 
-              and complete their tasks efficiently.
+              TaskFlow es una aplicación moderna de gestión de tareas construida con React, TypeScript y Supabase. 
+              Proporciona una interfaz poderosa pero intuitiva para que individuos y equipos organicen, rastreen 
+              y completen sus tareas de manera eficiente.
             </p>
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
               <h4 className="text-blue-800 dark:text-blue-300 font-semibold mb-2 flex items-center">
                 <Lightbulb className="h-5 w-5 mr-2" />
-                Key Features
+                Características Principales
               </h4>
               <ul className="text-blue-700 dark:text-blue-300 space-y-1 text-sm">
-                <li>• Smart task management with AI-powered suggestions</li>
-                <li>• Kanban and Calendar views for flexible organization</li>
-                <li>• Real-time collaboration with team members</li>
-                <li>• Detailed analytics and productivity insights</li>
-                <li>• Seamless integrations with popular tools</li>
+                <li>• Gestión inteligente de tareas con sugerencias basadas en IA</li>
+                <li>• Vistas Kanban y Calendario para organización flexible</li>
+                <li>• Colaboración en tiempo real con miembros del equipo</li>
+                <li>• Análisis detallados y conocimientos de productividad</li>
+                <li>• Integraciones fluidas con herramientas populares</li>
               </ul>
             </div>
           </>
         ),
-        example: `// Quick start example
+        example: `// Ejemplo de inicio rápido
 const task = await createTask({
-  title: "Complete project proposal",
+  title: "Completar propuesta del proyecto",
   priority: "high",
   dueDate: new Date("2024-01-15"),
-  assignee: "team-member-id"
+  assignee: "id-miembro-del-equipo"
 });`
       },
       {
         id: 'installation',
-        title: 'Installation',
+        title: 'Instalación',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              To get started with TaskFlow, you can use our hosted version or deploy it yourself.
+              Para comenzar con TaskFlow, puedes usar nuestra versión alojada o desplegarla tú mismo.
             </p>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Using npm</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Usando npm</h4>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 mb-4 overflow-x-auto">
               <pre className="text-green-400 text-sm font-mono">
-{`# Install TaskFlow CLI globally
+{`# Instalar TaskFlow CLI globalmente
 npm install -g @taskflow/cli
 
-# Create a new project
-taskflow init my-project
+# Crear un nuevo proyecto
+taskflow init mi-proyecto
 
-# Navigate to project directory
-cd my-project
+# Navegar al directorio del proyecto
+cd mi-proyecto
 
-# Install dependencies
+# Instalar dependencias
 npm install
 
-# Start development server
+# Iniciar servidor de desarrollo
 npm run dev`}
               </pre>
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Using Docker</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Usando Docker</h4>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
               <pre className="text-green-400 text-sm font-mono">
-{`# Pull the official image
+{`# Descargar la imagen oficial
 docker pull taskflow/app:latest
 
-# Run the container
+# Ejecutar el contenedor
 docker run -d -p 3000:3000 taskflow/app:latest
 
-# With custom configuration
+# Con configuración personalizada
 docker run -d -p 3000:3000 \\
   -v taskflow-config:/app/config \\
   taskflow/app:latest`}
@@ -120,11 +120,11 @@ docker run -d -p 3000:3000 \\
       },
       {
         id: 'quick-start',
-        title: 'Quick Start Guide',
+        title: 'Guía de Inicio Rápido',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Follow these steps to create your first task and start being productive.
+              Sigue estos pasos para crear tu primera tarea y empezar a ser productivo.
             </p>
             <div className="space-y-4">
               <div className="flex items-start">
@@ -132,10 +132,10 @@ docker run -d -p 3000:3000 \\
                   1
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Create an account</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Crear una cuenta</h4>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Sign up for free at <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">taskflow.app</code> 
-                    or run locally and navigate to <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/register</code>
+                    Regístrate gratis en <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">taskflow.app</code> 
+                    o ejecuta localmente y navega a <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/register</code>
                   </p>
                 </div>
               </div>
@@ -144,9 +144,9 @@ docker run -d -p 3000:3000 \\
                   2
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Create your first workspace</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Crear tu primer espacio de trabajo</h4>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Click the "+" button in the sidebar to create a new workspace for your projects
+                    Haz clic en el botón "+" en la barra lateral para crear un nuevo espacio de trabajo para tus proyectos
                   </p>
                 </div>
               </div>
@@ -155,9 +155,9 @@ docker run -d -p 3000:3000 \\
                   3
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Add tasks</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Añadir tareas</h4>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Use the "New Task" button or press <kbd className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-sm">Ctrl + K</kbd> to quickly create tasks
+                    Usa el botón "Nueva Tarea" o presiona <kbd className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-sm">Ctrl + K</kbd> para crear tareas rápidamente
                   </p>
                 </div>
               </div>
@@ -166,9 +166,9 @@ docker run -d -p 3000:3000 \\
                   4
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Organize and collaborate</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Organizar y colaborar</h4>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Drag tasks between columns, assign team members, and track progress in real-time
+                    Arrastra tareas entre columnas, asigna miembros del equipo y sigue el progreso en tiempo real
                   </p>
                 </div>
               </div>
@@ -180,40 +180,40 @@ docker run -d -p 3000:3000 \\
   },
   {
     id: 'core-concepts',
-    title: 'Core Concepts',
+    title: 'Conceptos Básicos',
     icon: Layers,
     content: [
       {
         id: 'workspaces',
-        title: 'Workspaces',
+        title: 'Espacios de Trabajo',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Workspaces are the top-level containers for your projects. Each workspace can contain 
-              multiple boards, tasks, and team members.
+              Los espacios de trabajo son los contenedores de nivel superior para tus proyectos. Cada espacio de trabajo puede contener 
+              múltiples tableros, tareas y miembros del equipo.
             </p>
             <div className="grid md:grid-cols-2 gap-4 mb-4">
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Personal Workspace</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Espacio de Trabajo Personal</h4>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  For individual task management with private projects
+                  Para gestión de tareas individuales con proyectos privados
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Team Workspace</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Espacio de Trabajo de Equipo</h4>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Shared workspace for collaboration with role-based access
+                  Espacio compartido para colaboración con acceso basado en roles
                 </p>
               </div>
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Creating a Workspace</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Crear un Espacio de Trabajo</h4>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
               <pre className="text-green-400 text-sm font-mono">
 {`import { createWorkspace } from '@taskflow/core';
 
-// Create a new workspace
+// Crear un nuevo espacio de trabajo
 const workspace = await createWorkspace({
-  name: 'Marketing Campaign',
+  name: 'Campaña de Marketing',
   type: 'team',
   members: ['user-id-1', 'user-id-2'],
   settings: {
@@ -225,83 +225,83 @@ const workspace = await createWorkspace({
             </div>
           </>
         ),
-        example: `const workspace = await taskflow.workspaces.create({ name: "My Project" });`
+        example: `const workspace = await taskflow.workspaces.create({ name: "Mi Proyecto" });`
       },
       {
         id: 'tasks',
-        title: 'Tasks',
+        title: 'Tareas',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Tasks are the fundamental units of work in TaskFlow. Each task can contain rich descriptions, 
-              subtasks, attachments, comments, and more.
+              Las tareas son las unidades fundamentales de trabajo en TaskFlow. Cada tarea puede contener descripciones ricas, 
+              subtareas, archivos adjuntos, comentarios y más.
             </p>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Task Properties</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Propiedades de la Tarea</h4>
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-4">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Property</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Type</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Description</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Propiedad</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Tipo</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Descripción</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   <tr>
                     <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400">title</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">string</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">The task title</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">El título de la tarea</td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400">description</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">string</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Rich text description</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Descripción con formato</td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400">priority</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">'low' | 'medium' | 'high' | 'urgent'</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Task urgency level</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Nivel de urgencia de la tarea</td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400">dueDate</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Date</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Task deadline</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Fecha límite de la tarea</td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400">assignee</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">User | null</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Task owner</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Responsable de la tarea</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </>
         ),
-        example: `const task = await taskflow.tasks.create({ title: "Design review", priority: "high" });`
+        example: `const task = await taskflow.tasks.create({ title: "Revisión de diseño", priority: "high" });`
       },
       {
         id: 'views',
-        title: 'Views',
+        title: 'Vistas',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              TaskFlow supports multiple views to help you visualize and manage tasks according to your needs.
+              TaskFlow soporta múltiples vistas para ayudarte a visualizar y gestionar tareas según tus necesidades.
             </p>
             <div className="grid md:grid-cols-3 gap-4 mb-4">
               <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl p-4 text-white">
                 <FolderKanban className="h-8 w-8 mb-2" />
                 <h4 className="font-semibold">Kanban</h4>
-                <p className="text-sm opacity-90">Drag and drop tasks across customizable columns</p>
+                <p className="text-sm opacity-90">Arrastra y suelta tareas entre columnas personalizables</p>
               </div>
               <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-4 text-white">
                 <CalendarIcon className="h-8 w-8 mb-2" />
-                <h4 className="font-semibold">Calendar</h4>
-                <p className="text-sm opacity-90">View tasks on a calendar timeline</p>
+                <h4 className="font-semibold">Calendario</h4>
+                <p className="text-sm opacity-90">Ver tareas en una línea de tiempo de calendario</p>
               </div>
               <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-4 text-white">
                 <BarChart3 className="h-8 w-8 mb-2" />
-                <h4 className="font-semibold">Analytics</h4>
-                <p className="text-sm opacity-90">Track productivity with detailed insights</p>
+                <h4 className="font-semibold">Análisis</h4>
+                <p className="text-sm opacity-90">Rastrea la productividad con conocimientos detallados</p>
               </div>
             </div>
           </>
@@ -311,31 +311,31 @@ const workspace = await createWorkspace({
   },
   {
     id: 'guides',
-    title: 'Guides',
+    title: 'Guías',
     icon: Book,
     content: [
       {
         id: 'task-management',
-        title: 'Task Management',
+        title: 'Gestión de Tareas',
         content: (
           <>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Learn how to effectively manage tasks in TaskFlow, from creation to completion.
+            <p className="text-gray-600 dark-text-gray-300 mb-4">
+              Aprende a gestionar tareas efectivamente en TaskFlow, desde la creación hasta la finalización.
             </p>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Creating Tasks</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Crear Tareas</h4>
             <p className="text-gray-600 dark:text-gray-300 mb-3">
-              Tasks can be created through the UI or programmatically using our API. Each task supports 
-              rich metadata including priorities, due dates, labels, and custom fields.
+              Las tareas pueden crearse a través de la UI o programáticamente usando nuestra API. Cada tarea soporta 
+              metadatos ricos incluyendo prioridades, fechas límite, etiquetas y campos personalizados.
             </p>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto mb-4">
               <pre className="text-green-400 text-sm font-mono">
-{`// Create a task with all options
+{`// Crear una tarea con todas las opciones
 const task = await taskflow.tasks.create({
-  title: 'Complete Q4 Report',
-  description: 'Prepare comprehensive quarterly report',
+  title: 'Completar Informe del Q4',
+  description: 'Preparar informe trimestral completo',
   priority: 'high',
   dueDate: new Date('2024-03-31'),
-  labels: ['work', 'report', 'q4'],
+  labels: ['trabajo', 'informe', 'q4'],
   assignee: 'user-123',
   watchers: ['user-456', 'user-789'],
   customFields: {
@@ -345,48 +345,48 @@ const task = await taskflow.tasks.create({
 });`}
               </pre>
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Subtasks</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Subtareas</h4>
             <p className="text-gray-600 dark:text-gray-300 mb-3">
-              Break down complex tasks into manageable subtasks. Progress is automatically calculated 
-              based on completed subtasks.
+              Divide tareas complejas en subtareas manejables. El progreso se calcula automáticamente 
+              basado en las subtareas completadas.
             </p>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
               <pre className="text-green-400 text-sm font-mono">
-{`// Add subtasks to a task
+{`// Añadir subtareas a una tarea
 await taskflow.tasks.addSubtask(taskId, {
-  title: 'Gather data from Q1-Q3',
+  title: 'Recopilar datos del Q1-Q3',
   completed: false
 });
 
 await taskflow.tasks.addSubtask(taskId, {
-  title: 'Create visualizations',
+  title: 'Crear visualizaciones',
   completed: false
 });
 
 await taskflow.tasks.addSubtask(taskId, {
-  title: 'Write executive summary',
+  title: 'Escribir resumen ejecutivo',
   completed: false
 });`}
               </pre>
             </div>
           </>
         ),
-        example: `await taskflow.tasks.create({ title: "New task" })`
+        example: `await taskflow.tasks.create({ title: "Nueva tarea" })`
       },
       {
         id: 'collaboration',
-        title: 'Collaboration',
+        title: 'Colaboración',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              TaskFlow makes it easy to work together with your team. Share workspaces, assign tasks, 
-              and communicate in real-time.
+              TaskFlow facilita trabajar juntos con tu equipo. Comparte espacios de trabajo, asigna tareas 
+              y comunica en tiempo real.
             </p>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Team Members</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Miembros del Equipo</h4>
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-gray-600 dark:text-gray-300">Add team members by email</span>
-                <span className="text-sm text-green-600 dark:text-green-400">✓ Invitations sent</span>
+                <span className="text-gray-600 dark:text-gray-300">Añadir miembros del equipo por email</span>
+                <span className="text-sm text-green-600 dark:text-green-400">✓ Invitaciones enviadas</span>
               </div>
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
@@ -399,63 +399,63 @@ await taskflow.tasks.addSubtask(taskId, {
                 </div>
               </div>
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Comments & Activity</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Comentarios y Actividad</h4>
             <p className="text-gray-600 dark:text-gray-300 mb-3">
-              Keep conversations organized with task-specific comments. All activity is tracked and 
-              visible in the task history.
+              Mantén las conversaciones organizadas con comentarios específicos de tareas. Toda la actividad se rastrea y 
+              es visible en el historial de la tarea.
             </p>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
               <pre className="text-green-400 text-sm font-mono">
-{`// Add a comment to a task
+{`// Añadir un comentario a una tarea
 await taskflow.comments.create({
   taskId: task.id,
-  content: 'Updated the design mockups based on feedback.',
+  content: 'Se actualizaron los mockups de diseño según los comentarios.',
   mentions: ['user-456']
 });
 
-// Subscribe to real-time updates
+// Suscribirse a actualizaciones en tiempo real
 taskflow.tasks.subscribe(taskId, (update) => {
-  console.log('Task updated:', update);
+  console.log('Tarea actualizada:', update);
 });`}
               </pre>
             </div>
           </>
         ),
-        example: `await taskflow.workspaces.addMember(workspaceId, "user@example.com")`
+        example: `await taskflow.workspaces.addMember(workspaceId, "usuario@ejemplo.com")`
       }
     ]
   },
   {
     id: 'api',
-    title: 'API Reference',
+    title: 'Referencia API',
     icon: Code,
     content: [
       {
         id: 'authentication',
-        title: 'Authentication',
+        title: 'Autenticación',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              TaskFlow uses Supabase for authentication. You can authenticate using email/password, 
-              OAuth providers, or magic links.
+              TaskFlow usa Supabase para autenticación. Puedes autenticarte usando email/contraseña, 
+              proveedores OAuth o enlaces mágicos.
             </p>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Client Initialization</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Inicialización del Cliente</h4>
             <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto mb-4">
               <pre className="text-green-400 text-sm font-mono">
 {`import api from './lib/api';
 
-const API_URL = 'https://your-api-url.com/api';`}
+const API_URL = 'https://tu-url-api.com/api';`}
               </pre>
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Authentication Methods</h4>
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Métodos de Autenticación</h4>
             <div className="space-y-3">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Email & Password</h5>
+                <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Email y Contraseña</h5>
                 <div className="bg-gray-900 dark:bg-gray-800 rounded-lg p-3 overflow-x-auto">
                   <pre className="text-green-400 text-sm font-mono">
 {`const { user, session } = await client.auth.signUp({
-  email: 'user@example.com',
-  password: 'secure-password'
+  email: 'usuario@ejemplo.com',
+  password: 'contraseña-segura'
 });`}
                   </pre>
                 </div>
@@ -480,21 +480,21 @@ const API_URL = 'https://your-api-url.com/api';`}
       },
       {
         id: 'tasks-api',
-        title: 'Tasks API',
+        title: 'API de Tareas',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Complete reference for the Tasks API.
+              Referencia completa para la API de Tareas.
             </p>
             <div className="space-y-6">
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                   <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-sm mr-2">GET</span>
-                  List Tasks
+                  Listar Tareas
                 </h4>
                 <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
                   <pre className="text-green-400 text-sm font-mono">
-{`// List all tasks in a workspace
+{`// Listar todas las tareas en un espacio de trabajo
 const tasks = await client
   .from('tasks')
   .select('*, labels(*), assignee(*)')
@@ -506,15 +506,15 @@ const tasks = await client
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                   <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded text-sm mr-2">POST</span>
-                  Create Task
+                  Crear Tarea
                 </h4>
                 <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
                   <pre className="text-green-400 text-sm font-mono">
 {`const { data, error } = await client
   .from('tasks')
   .insert({
-    title: 'New task title',
-    description: 'Task description',
+    title: 'Nuevo título de tarea',
+    description: 'Descripción de la tarea',
     workspace_id: workspaceId,
     priority: 'medium',
     due_date: '2024-12-31'
@@ -527,7 +527,7 @@ const tasks = await client
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                   <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded text-sm mr-2">PATCH</span>
-                  Update Task
+                  Actualizar Tarea
                 </h4>
                 <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
                   <pre className="text-green-400 text-sm font-mono">
@@ -546,7 +546,7 @@ const tasks = await client
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                   <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded text-sm mr-2">DELETE</span>
-                  Delete Task
+                  Eliminar Tarea
                 </h4>
                 <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
                   <pre className="text-green-400 text-sm font-mono">
@@ -565,25 +565,25 @@ const tasks = await client
   },
   {
     id: 'integrations',
-    title: 'Integrations',
+    title: 'Integraciones',
     icon: Globe,
     content: [
       {
         id: 'available-integrations',
-        title: 'Available Integrations',
+        title: 'Integraciones Disponibles',
         content: (
           <>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              TaskFlow integrates with popular tools to streamline your workflow.
+              TaskFlow se integra con herramientas populares para optimizar tu flujo de trabajo.
             </p>
             <div className="grid md:grid-cols-2 gap-4 mb-4">
               {[
-                { name: 'Slack', desc: 'Get notifications in Slack channels', icon: '💬' },
-                { name: 'GitHub', desc: 'Link commits to tasks', icon: '🐙' },
-                { name: 'Google Calendar', desc: 'Sync tasks with Calendar', icon: '📅' },
-                { name: 'Jira', desc: 'Two-way sync with Jira', icon: '🎯' },
-                { name: 'Notion', desc: 'Embed Notion pages in tasks', icon: '📝' },
-                { name: 'Figma', desc: 'Preview Figma designs', icon: '🎨' }
+                { name: 'Slack', desc: 'Recibe notificaciones en canales de Slack', icon: '💬' },
+                { name: 'GitHub', desc: 'Vincula commits a tareas', icon: '🐙' },
+                { name: 'Google Calendar', desc: 'Sincroniza tareas con el Calendario', icon: '📅' },
+                { name: 'Jira', desc: 'Sincronización bidireccional con Jira', icon: '🎯' },
+                { name: 'Notion', desc: 'Incrusta páginas de Notion en tareas', icon: '📝' },
+                { name: 'Figma', desc: 'Vista previa de diseños de Figma', icon: '🎨' }
               ].map((integration) => (
                 <div key={integration.name} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center space-x-4 hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-2xl">
@@ -620,6 +620,11 @@ const DocumentationPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('introduction');
   const [activeSubsection, setActiveSubsection] = useState('introduction');
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleBackToApp = () => {
+    navigate('/dashboard');
+  };
 
   const currentSection = docSections.find(s => s.id === activeSection) || docSections[0];
   const currentSubsection = currentSection.content.find(s => s.id === activeSubsection) || currentSection.content[0];
@@ -658,7 +663,7 @@ const DocumentationPage: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search documentation..."
+              placeholder="Buscar documentación..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-400"
@@ -672,7 +677,7 @@ const DocumentationPage: React.FC = () => {
         <div className="flex items-center space-x-4">
           <Link to="/help" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             <HelpCircle className="h-5 w-5 mr-1" />
-            <span className="hidden sm:inline">Help</span>
+            <span className="hidden sm:inline">Ayuda</span>
           </Link>
           <a 
             href="https://github.com/taskflow/taskflow" 
@@ -695,10 +700,10 @@ const DocumentationPage: React.FC = () => {
       >
         <nav className="p-4 space-y-6">
           <div>
-            <Link to="/" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4">
+            <button onClick={handleBackToApp} className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to App
-            </Link>
+              Volver a la App
+            </button>
           </div>
           
           {filteredSections.map((section) => (
@@ -774,7 +779,7 @@ const DocumentationPage: React.FC = () => {
               <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <Terminal className="h-5 w-5 mr-2" />
-                  Example
+                  Ejemplo
                 </h3>
                 <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
                   <pre className="text-green-400 text-sm font-mono">
@@ -802,12 +807,12 @@ const DocumentationPage: React.FC = () => {
               className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-              Previous
+              Anterior
             </button>
 
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {docSections.reduce((acc, s) => acc + s.content.length, 0)} articles
+                {docSections.reduce((acc, s) => acc + s.content.length, 0)} artículos
               </span>
             </div>
 
@@ -825,7 +830,7 @@ const DocumentationPage: React.FC = () => {
               }}
               className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              Next
+              Siguiente
               <ChevronRight className="h-5 w-5 ml-2" />
             </button>
           </div>

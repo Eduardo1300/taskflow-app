@@ -104,7 +104,7 @@ const ProfilePageEnhanced: React.FC = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const { data, error } = await ProfileService.updateProfile(user?.id || '', editedProfile);
+      const { data, error } = await ProfileService.updateProfile(editedProfile);
       
       if (error) {
         console.error('Error updating profile:', error);

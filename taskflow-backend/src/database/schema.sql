@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS profiles (
     id UUID PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
     full_name TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Tasks

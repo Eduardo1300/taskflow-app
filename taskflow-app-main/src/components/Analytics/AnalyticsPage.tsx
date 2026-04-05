@@ -111,14 +111,22 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
     const loadAllAnalytics = async () => {
       setLoading(true);
       try {
+        // Process tasks to ensure proper date handling
+        const processedTasks = tasks.map(task => ({
+          ...task,
+          created_at: task.created_at ? new Date(task.created_at) : new Date(),
+          due_date: task.due_date ? new Date(task.due_date) : null,
+          updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
+        }));
+
         // Load general analytics
-        const generalData = analyticsService.generateAnalytics(tasks);
+        const generalData = analyticsService.generateAnalytics(processedTasks as any);
         setAnalyticsData(generalData);
 
         // Load calendar analytics
-        const calendarEvents = tasks.filter(task => task.due_date);
+        const calendarEvents = processedTasks.filter(task => task.due_date);
         if (calendarEvents.length > 0) {
-          calendarAnalyticsService.setEventsData(calendarEvents);
+          calendarAnalyticsService.setEventsData(calendarEvents as any);
 
           const dateRange = getDateRange(selectedTimeRange);
           const [metrics, insights, health, burnout, timeData] = await Promise.all([
@@ -172,7 +180,15 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tasks }) => {
   };
 
   const exportAnalyticsToPDF = async () => {
-    if (!analyticsData) return;
+    if (!analyticsData) {
+      alert('No hay datos de analytics para exportar.');
+      return;
+    }
+
+    if (!analyticsData.taskStats || analyticsData.taskStats.total === 0) {
+      alert('No hay suficientes datos para exportar. Crea algunas tareas primero.');
+      return;
+    }
     
     try {
       await exportService.exportAnalyticsToPDF(analyticsData);

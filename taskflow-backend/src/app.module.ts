@@ -10,6 +10,10 @@ import { CollaborationsModule } from './collaborations/collaborations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { AiModule } from './ai/ai.module';
+import { ProductivityModule } from './productivity/productivity.module';
+import { ApiModule } from './api/api.module';
+import { AutomationModule } from './automation/automation.module';
 import { SetupController } from './setup/setup.controller';
 import { HealthController } from './health/health.controller';
 
@@ -23,10 +27,11 @@ import { HealthController } from './health/health.controller';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
+        schema: 'taskflow',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         logging: false,
-        ssl: process.env.DATABASE_URL?.includes('render.com') ? { rejectUnauthorized: false } : false,
+        ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
       }),
       inject: [ConfigService],
     }),
@@ -39,6 +44,10 @@ import { HealthController } from './health/health.controller';
     NotificationsModule,
     IntegrationsModule,
     WebhooksModule,
+    AiModule,
+    ProductivityModule,
+    ApiModule,
+    AutomationModule,
   ],
   controllers: [SetupController, HealthController],
 })

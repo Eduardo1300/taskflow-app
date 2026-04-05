@@ -30,4 +30,25 @@ export class IntegrationsController {
     await this.integrationsService.delete(id, req.user.userId);
     return { success: true };
   }
+
+  @Get('calendar-events')
+  async getCalendarEvents(@Request() req) {
+    const events = await this.integrationsService.findCalendarEvents(req.user.userId);
+    return { data: events };
+  }
+
+  @Post('calendar-events')
+  async createCalendarEvent(@Body() body: any, @Request() req) {
+    const event = await this.integrationsService.createCalendarEvent({
+      ...body,
+      user_id: req.user.userId,
+    });
+    return { data: event };
+  }
+
+  @Get(':id/sync-history')
+  async getSyncHistory(@Param('id') id: string) {
+    const history = await this.integrationsService.getSyncHistory(id);
+    return { data: history };
+  }
 }

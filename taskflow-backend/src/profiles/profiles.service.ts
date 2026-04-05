@@ -19,7 +19,21 @@ export class ProfilesService {
   }
 
   async update(id: string, data: Partial<Profile>): Promise<Profile> {
-    await this.profileRepository.update(id, data);
+    const allowedFields = ['full_name', 'phone', 'location', 'bio', 'avatar', 'timezone', 'language'];
+    const updateData: Partial<Profile> = {};
+    
+    for (const field of allowedFields) {
+      if (field in data && data[field as keyof Profile] !== undefined) {
+        const value = data[field as keyof Profile];
+        if (value !== null && typeof value === 'string') {
+          (updateData as any)[field] = value;
+        }
+      }
+    }
+    
+    if (Object.keys(updateData).length > 0) {
+      await this.profileRepository.update(id, updateData);
+    }
     return this.findById(id);
   }
 

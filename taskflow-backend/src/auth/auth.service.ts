@@ -4,12 +4,21 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Profile } from '../profiles/profile.entity';
+import { Task } from '../tasks/task.entity';
+import { Category } from '../categories/category.entity';
+import { Goal } from '../goals/goal.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Profile)
     private profileRepository: Repository<Profile>,
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+    @InjectRepository(Goal)
+    private goalRepository: Repository<Goal>,
     private jwtService: JwtService,
   ) {}
 
@@ -29,7 +38,7 @@ export class AuthService {
     const payload = { sub: profile.id, email: profile.email };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: profile.id, email: profile.email, full_name: profile.full_name },
+      user: profile,
     };
   }
 
@@ -39,10 +48,26 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const tasks = await this.taskRepository.find({
+      where: { user_id: profile.id },
+      order: { created_at: 'DESC' },
+    });
+
+    const categories = await this.categoryRepository.find({
+      where: { user_id: profile.id },
+    });
+
+    const goals = await this.goalRepository.find({
+      where: { user_id: profile.id },
+    });
+
     const payload = { sub: profile.id, email: profile.email };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: profile.id, email: profile.email, full_name: profile.full_name },
+      user: profile,
+      tasks,
+      categories,
+      goals,
     };
   }
 

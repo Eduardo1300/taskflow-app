@@ -1,9 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Entity('goals')
 export class Goal {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @BeforeInsert()
+  generateId() {
+    if (!this.id) {
+      this.id = uuidv4();
+    }
+  }
 
   @Column({ nullable: true })
   title: string;
@@ -17,7 +25,7 @@ export class Goal {
   @Column({ nullable: true })
   current: number;
 
-  @Column({ nullable: true })
+  @Column({ default: false })
   completed: boolean;
 
   @Column({ nullable: true })

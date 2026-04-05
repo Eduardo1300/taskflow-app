@@ -103,7 +103,6 @@ export class SetupController {
   @Post('fix-profiles')
   async fixProfiles(@Res() res: Response) {
     try {
-      // Check and add missing columns
       const columnsToAdd = [
         { name: 'phone', type: 'TEXT' },
         { name: 'location', type: 'TEXT' },
@@ -111,25 +110,86 @@ export class SetupController {
         { name: 'avatar', type: 'TEXT' },
         { name: 'timezone', type: 'TEXT' },
         { name: 'language', type: 'TEXT' },
+        { name: 'updated_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT NOW()' },
       ];
 
       for (const col of columnsToAdd) {
         try {
-          await this.dataSource.query(`
-            ALTER TABLE profiles ADD COLUMN ${col.name} ${col.type} NULL
-          `);
+          await this.dataSource.query(`ALTER TABLE profiles ADD COLUMN ${col.name} ${col.type}`);
         } catch (e) {
-          // Column likely already exists, continue
         }
       }
 
-      // Verify setup
       const profileCount = await this.dataSource.query(`SELECT COUNT(*) as count FROM profiles`);
       
       return res.json({ 
         success: true, 
         message: 'Profiles table fixed with all columns',
         profileCount: profileCount[0].count
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  @Post('limit-goals')
+  async limitGoals(@Res() res: Response) {
+    try {
+      const adminEmail = 'admin@taskflow.com';
+      
+      const profileResult = await this.dataSource.query(
+        'SELECT id FROM profiles WHERE email = $1',
+        [adminEmail]
+      );
+
+      if (profileResult.length === 0) {
+        return res.json({ success: false, message: 'Admin profile not found' });
+      }
+
+      const userId = profileResult[0].id;
+
+      await this.dataSource.query('DELETE FROM goals WHERE user_id = $1', [userId]);
+
+      const now = new Date();
+      const threeMonthsLater = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+      const oneMonthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+      await this.dataSource.query(
+        `INSERT INTO goals (id, title, description, target, current, completed, category, type, user_id, created_at, updated_at, start_date, end_date) VALUES 
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW(), NOW(), $10)`,
+        [
+          crypto.randomUUID(),
+          'Completar 50 tareas',
+          'Completar un total de 50 tareas durante el mes',
+          50, 12, false, 'productividad', 'monthly', userId, oneMonthLater
+        ]
+      );
+
+      await this.dataSource.query(
+        `INSERT INTO goals (id, title, description, target, current, completed, category, type, user_id, created_at, updated_at, start_date, end_date) VALUES 
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW(), NOW(), $10)`,
+        [
+          crypto.randomUUID(),
+          'Mantener racha de 7 días',
+          'Completar al menos una tarea cada día durante 7 días consecutivos',
+          7, 3, false, 'racha', 'weekly', userId, oneMonthLater
+        ]
+      );
+
+      await this.dataSource.query(
+        `INSERT INTO goals (id, title, description, target, current, completed, category, type, user_id, created_at, updated_at, start_date, end_date) VALUES 
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW(), NOW(), $10)`,
+        [
+          crypto.randomUUID(),
+          'Terminar proyecto principal',
+          'Completar todas las tareas del proyecto principal',
+          100, 35, false, 'proyecto', 'quarterly', userId, threeMonthsLater
+        ]
+      );
+
+      return res.json({ 
+        success: true, 
+        message: 'Goals limited to 3 examples'
       });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });

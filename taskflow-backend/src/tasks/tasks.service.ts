@@ -28,16 +28,40 @@ export class TasksService {
   }
 
   async create(data: Partial<Task>, userId: string): Promise<Task> {
+    let tags: string[] | null = null;
+    const rawTags = data.tags as any;
+    
+    if (rawTags) {
+      if (Array.isArray(rawTags)) {
+        tags = rawTags.length > 0 ? rawTags : null;
+      } else if (typeof rawTags === 'string') {
+        tags = rawTags.trim() ? [rawTags] : null;
+      }
+    }
+
     const task = this.taskRepository.create({
       ...data,
       user_id: userId,
       completed: data.completed || false,
+      tags,
     });
     return this.taskRepository.save(task);
   }
 
   async update(id: number, data: Partial<Task>, userId: string): Promise<Task> {
     await this.findOne(id, userId);
+    
+    const rawTags = data.tags as any;
+    if (rawTags !== undefined) {
+      if (Array.isArray(rawTags)) {
+        data.tags = rawTags.length > 0 ? rawTags : null;
+      } else if (typeof rawTags === 'string') {
+        data.tags = rawTags.trim() ? [rawTags] : null;
+      } else {
+        data.tags = null;
+      }
+    }
+    
     await this.taskRepository.update({ id, user_id: userId }, data);
     return this.findOne(id, userId);
   }
