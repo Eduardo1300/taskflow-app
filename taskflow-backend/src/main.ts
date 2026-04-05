@@ -12,20 +12,18 @@ async function bootstrap() {
     'https://taskflow-app.vercel.app',
     'https://taskflow-app-production-ffc8.up.railway.app',
     'https://taskflow-app-a9p2.onrender.com',
-    /vercel\.app$/i, // Allow all Vercel preview deployments
-    /rail\.app$/i, // Allow all Railway deployments
-    /onrender\.com$/i, // Allow all Render deployments
+    /vercel\.app$/i,
+    /rail\.app$/i,
+    /onrender\.com$/i,
   ];
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests without origin (mobile apps, curl, etc)
       if (!origin) {
         callback(null, true);
         return;
       }
 
-      // Check if origin matches allowed list
       const isAllowed = allowedOrigins.some((allowed) => {
         if (typeof allowed === 'string') {
           return origin === allowed;
@@ -33,16 +31,11 @@ async function bootstrap() {
         return allowed.test(origin);
       });
 
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Allow all origins for now
-      }
+      callback(null, true);
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    charset: 'utf-8',
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: 'Content-Type,Authorization,Accept,X-Requested-With',
     optionsSuccessStatus: 200,
   });
   
