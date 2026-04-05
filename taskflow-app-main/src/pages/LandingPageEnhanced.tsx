@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Users, Zap, Shield, BarChart3, Globe, Sparkles, Play, Target, Check, ChevronDown, Award } from 'lucide-react';
 import ThemeToggle from '../components/Theme/ThemeToggle';
 import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 const AnimatedCounter: React.FC<{ value: string; delay: number }> = ({ value, delay }) => {
   const [displayValue, setDisplayValue] = useState('0');
@@ -75,6 +76,12 @@ const FloatingElement: React.FC<{
 const LandingPageEnhanced: React.FC = () => {
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(0);
   const [isHovered, setIsHovered] = useState<string | null>(null);
+
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL || 'https://taskflow-app-e1rm.onrender.com/api'}/health`)
+      .then(() => console.log('Backend activated'))
+      .catch(() => console.log('Backend waking up...'));
+  }, []);
 
   const features = [
     {
