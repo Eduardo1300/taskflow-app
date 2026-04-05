@@ -23,23 +23,14 @@ import { HealthController } from './health/health.controller';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        const host = configService.get('DB_HOST') || 'db.ajtowmqmfcdfxmsimvyi.supabase.co';
-        const port = parseInt(configService.get('DB_PORT') || '5432');
-        
-        return {
-          type: 'postgres',
-          host: host,
-          port: port,
-          username: configService.get('DB_USERNAME') || 'postgres',
-          password: configService.get('DB_PASSWORD') || 'Naruto-Sasuke11',
-          database: configService.get('DB_NAME') || 'postgres',
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: false,
-          logging: false,
-          ssl: port === 5432 ? { rejectUnauthorized: false } : false,
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get('DATABASE_URL'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: false,
+        logging: false,
+        ssl: { rejectUnauthorized: false },
+      }),
       inject: [ConfigService],
     }),
     AuthModule,
