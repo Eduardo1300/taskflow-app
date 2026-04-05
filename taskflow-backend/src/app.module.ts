@@ -27,11 +27,10 @@ import { HealthController } from './health/health.controller';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
-        schema: 'taskflow',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         logging: false,
-        ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
+        ssl: { rejectUnauthorized: false },
       }),
       inject: [ConfigService],
     }),
