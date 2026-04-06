@@ -235,12 +235,13 @@ const QuickActions: React.FC<QuickActionsProps> = ({
           {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-transparent"
+            style={{ zIndex: 999 }}
             onClick={closePanel}
           />
           {/* Panel */}
           <div 
             className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in-up"
-            style={{ zIndex: 100 }}
+            style={{ zIndex: 1000 }}
             onClick={(e) => e.stopPropagation()}
           >
               {/* Header */}
