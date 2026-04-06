@@ -40,7 +40,8 @@ const Header: React.FC<HeaderProps> = ({ showUserMenu = false, onMobileMenuToggl
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Implement search functionality
+      navigate('/search?q=' + encodeURIComponent(searchQuery.trim()));
+      setIsSearchOpen(false);
     }
   };
 

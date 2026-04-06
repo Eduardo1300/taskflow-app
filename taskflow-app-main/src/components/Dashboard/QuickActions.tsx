@@ -48,6 +48,19 @@ const QuickActions: React.FC<QuickActionsProps> = ({
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [recentActions, setRecentActions] = useState<string[]>([]);
 
+  useEffect(() => {
+    console.log('QuickActions isExpanded changed:', isExpanded);
+  }, [isExpanded]);
+
+  const toggleExpanded = () => {
+    console.log('QuickActions button clicked');
+    setIsExpanded(prev => !prev);
+  };
+
+  const closePanel = () => {
+    setIsExpanded(false);
+  };
+
   const quickActions: QuickAction[] = [
     {
       id: 'create-task',
@@ -203,26 +216,33 @@ const QuickActions: React.FC<QuickActionsProps> = ({
 
   return (
     <>
-      <div className={`relative ${className}`}>
-        {/* Quick Actions Button */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
-        >
-          <Zap className="h-5 w-5 mr-2" />
-          Acciones Rápidas
-          <span className="ml-2 px-2.5 py-0.5 bg-white/20 rounded-lg text-xs font-medium">
-            ?
-          </span>
-        </button>
+      <div className={`relative ${className}`} style={{ zIndex: isExpanded ? 50 : 1 }}>
+      {/* Quick Actions Button */}
+      <button
+        onClick={toggleExpanded}
+        className="flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+      >
+        <Zap className="h-5 w-5 mr-2" />
+        Acciones Rápidas
+        <span className="ml-2 px-2.5 py-0.5 bg-white/20 rounded-lg text-xs font-medium">
+          ?
+        </span>
+      </button>
 
-        {/* Expanded Actions Panel */}
-        {isExpanded && (
-          <div className="fixed inset-0 z-[9999]" onClick={() => setIsExpanded(false)}>
-            <div 
-              className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[10000] overflow-hidden animate-fade-in-up"
-              onClick={(e) => e.stopPropagation()}
-            >
+      {/* Expanded Actions Panel */}
+      {isExpanded && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-transparent"
+            onClick={closePanel}
+          />
+          {/* Panel */}
+          <div 
+            className="absolute top-full right-0 mt-3 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in-up"
+            style={{ zIndex: 100 }}
+            onClick={(e) => e.stopPropagation()}
+          >
               {/* Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
                 <div className="flex items-center space-x-3">
@@ -247,7 +267,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                     <Keyboard className="h-5 w-5" />
                   </button>
                   <button
-                    onClick={() => setIsExpanded(false)}
+                    onClick={closePanel}
                     className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
                   >
                     <X className="h-5 w-5" />
@@ -352,41 +372,54 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                 </p>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 
       {/* Shortcuts Modal */}
       {showShortcuts && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]"
+          onClick={() => setShowShortcuts(false)}
+        >
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Atajos de Teclado
               </h3>
               <button
                 onClick={() => setShowShortcuts(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-5 space-y-3">
-              {quickActions.filter(a => a.shortcut).map(action => (
-                <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-white dark:bg-gray-600 rounded-lg shadow-sm">
-                      {action.icon}
+            <div className="p-5 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {quickActions.map(action => (
+                  <div 
+                    key={action.id}
+                    className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-white dark:bg-gray-600 rounded-lg shadow-sm">
+                        {action.icon}
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {action.title}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {action.title}
-                    </span>
+                    {action.shortcut && (
+                      <kbd className="px-3 py-1.5 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-mono text-sm rounded-lg shadow-sm border border-gray-200 dark:border-gray-500">
+                        {action.shortcut}
+                      </kbd>
+                    )}
                   </div>
-                  <kbd className="px-2.5 py-1 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-mono rounded-lg shadow-sm border border-gray-200 dark:border-gray-500">
-                    {action.shortcut}
-                  </kbd>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

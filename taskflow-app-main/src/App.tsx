@@ -129,6 +129,16 @@ function App() {
                 element={<DocumentationPage />}
               />
               
+              {/* Ruta para búsqueda */}
+              <Route 
+                path="/search" 
+                element={
+                  <ProtectedRoute>
+                    <DashboardPageEnhanced />
+                  </ProtectedRoute>
+                } 
+              />
+              
               {/* Redirección por defecto */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
