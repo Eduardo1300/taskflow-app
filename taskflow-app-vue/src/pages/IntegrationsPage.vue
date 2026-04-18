@@ -127,7 +127,7 @@ function isConnected(type: string) {
           </div>
         </div>
 
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
           <div class="flex items-center mb-4 gap-2">
             <Bot class="h-6 w-6 text-purple-600 dark:text-purple-400" />
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
