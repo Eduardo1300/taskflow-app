@@ -1,189 +1,206 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useTaskStore } from '@/stores/tasks';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, X, Check } from 'lucide-vue-next';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock, TrendingUp, Users, Repeat } from 'lucide-vue-next';
 
 const taskStore = useTaskStore();
 
 const currentDate = ref(new Date());
 const selectedDate = ref<Date | null>(null);
-const view = ref<'month' | 'week' | 'day'>('month');
+const viewMode = ref<'month' | 'week' | 'day'>('month');
+const activeTab = ref<'calendar' | 'collaboration'>('calendar');
+const isLoading = ref(true);
 
 const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-const currentMonth = ref(currentDate.value.getMonth());
-const currentYear = ref(currentDate.value.getFullYear());
+const currentMonth = computed(() => currentDate.value.getMonth());
+const currentYear = computed(() => currentDate.value.getFullYear());
 
-const daysInMonth = ref<{ date: Date; isCurrentMonth: boolean }[]>([]);
-
-function generateDays() {
+const monthDays = computed(() => {
   const year = currentYear.value;
   const month = currentMonth.value;
+  
   const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const daysInMonth = lastDay.getDate();
-  const startingDay = firstDay.getDay();
-
+  const startDate = new Date(firstDay);
+  startDate.setDate(startDate.getDate() - firstDay.getDay());
+  
   const days = [];
-
-  const prevMonthLastDay = new Date(year, month, 0).getDate();
-  for (let i = startingDay - 1; i >= 0; i--) {
-    days.push({ date: new Date(year, month - 1, prevMonthLastDay - i), isCurrentMonth: false });
+  const current = new Date(startDate);
+  
+  for (let i = 0; i < 42; i++) {
+    days.push({
+      date: new Date(current),
+      isCurrentMonth: current.getMonth() === month,
+      isToday: current.toDateString() === new Date().toDateString()
+    });
+    current.setDate(current.getDate() + 1);
   }
+  
+  return days;
+});
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push({ date: new Date(year, month, i), isCurrentMonth: true });
-  }
-
-  const remainingDays = 42 - days.length;
-  for (let i = 1; i <= remainingDays; i++) {
-    days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
-  }
-
-  daysInMonth.value = days;
-}
-
-const tasksForDate = (date: Date) => {
+const eventsForDate = (date: Date) => {
   return taskStore.tasks.filter(task => {
     if (!task.dueDate) return false;
-    const taskDate = new Date(task.dueDate);
-    return taskDate.getDate() === date.getDate() &&
-           taskDate.getMonth() === date.getMonth() &&
-           taskDate.getFullYear() === date.getFullYear();
+    const dateStr = task.dueDate.split('T')[0];
+    const eventDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return dateStr === eventDateStr;
   });
 };
 
-const selectedDateTasks = ref<any[]>([]);
+const todayEvents = computed(() => {
+  const today = new Date();
+  return eventsForDate(today);
+});
+
+const upcomingEvents = computed(() => {
+  const now = new Date();
+  const nextWeek = new Date();
+  nextWeek.setDate(now.getDate() + 7);
+  
+  return taskStore.tasks
+    .filter(task => {
+      if (!task.dueDate) return false;
+      const dateStr = task.dueDate.split('T')[0];
+      const eventDate = new Date(dateStr + 'T12:00:00');
+      const nowDate = new Date(now.toISOString().split('T')[0] + 'T12:00:00');
+      const nextWeekDate = new Date(nextWeek.toISOString().split('T')[0] + 'T12:00:00');
+      return eventDate > nowDate && eventDate <= nextWeekDate;
+    })
+    .slice(0, 5);
+});
+
+const getMonthName = (date: Date) => {
+  return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+};
+
+function navigateMonth(direction: 'prev' | 'next') {
+  const newDate = new Date(currentDate.value);
+  if (direction === 'prev') {
+    newDate.setMonth(newDate.getMonth() - 1);
+  } else {
+    newDate.setMonth(newDate.getMonth() + 1);
+  }
+  currentDate.value = newDate;
+}
 
 function selectDate(day: { date: Date; isCurrentMonth: boolean }) {
   selectedDate.value = day.date;
-  selectedDateTasks.value = tasksForDate(day.date);
-}
-
-function isToday(date: Date) {
-  return date.toDateString() === new Date().toDateString();
-}
-
-function isSelected(date: Date) {
-  if (!selectedDate.value) return false;
-  return date.toDateString() === selectedDate.value.toDateString();
-}
-
-function prevMonth() {
-  currentDate.value = new Date(currentYear.value, currentMonth.value - 1, 1);
-  currentMonth.value = currentDate.value.getMonth();
-  currentYear.value = currentDate.value.getFullYear();
-  generateDays();
-}
-
-function nextMonth() {
-  currentDate.value = new Date(currentYear.value, currentMonth.value + 1, 1);
-  currentMonth.value = currentDate.value.getMonth();
-  currentYear.value = currentDate.value.getFullYear();
-  generateDays();
-}
-
-function getPriorityColor(priority: string) {
-  switch (priority) {
-    case 'high': return 'border-l-red-500';
-    case 'medium': return 'border-l-yellow-500';
-    case 'low': return 'border-l-green-500';
-    default: return 'border-l-gray-500';
-  }
 }
 
 onMounted(async () => {
   await taskStore.fetchTasks();
-  generateDays();
+  isLoading.value = false;
 });
 </script>
 
 <template>
   <div class="min-h-screen flex bg-gray-50 dark:bg-gray-900">
     <Sidebar />
-
+    
     <div class="flex-1 flex flex-col">
       <Header />
-
+      
       <main class="flex-1 p-6">
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Calendario
             </h1>
-            <p class="text-gray-500 dark:text-gray-400">
-              Visualiza tus tareas por fecha
+            <p class="text-gray-600 dark:text-gray-400">
+              {{ taskStore.tasks.filter(t => t.dueDate).length }} eventos programados
             </p>
           </div>
 
-          <div class="flex items-center space-x-4">
-            <div class="flex bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <button v-for="v in ['month', 'week', 'day']" :key="v" @click="view = v as any" :class="['px-4 py-2 rounded-l-xl font-medium', view === v ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300']">
-                {{ v }}
-              </button>
+          <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
+              <Clock class="h-4 w-4 text-green-600 dark:text-green-400" />
+              <span class="text-sm font-medium text-green-700 dark:text-green-300">{{ todayEvents.length }} hoy</span>
             </div>
-
-            <button @click="prevMonth" class="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-600 dark:text-gray-300">
-              <ChevronLeft class="h-5 w-5" />
+            <div class="flex items-center space-x-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+              <TrendingUp class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span class="text-sm font-medium text-blue-700 dark:text-blue-300">{{ upcomingEvents.length }} esta semana</span>
+            </div>
+            <button class="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700">
+              <Plus class="h-5 w-5" />
+              <span>Nuevo evento</span>
             </button>
-
-            <span class="text-lg font-semibold text-gray-900 dark:text-white min-w-[180px] text-center">
-              {{ monthNames[currentMonth] }} {{ currentYear }}
-            </span>
-
-            <button @click="nextMonth" class="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-600 dark:text-gray-300">
-              <ChevronRight class="h-5 w-5" />
+            <button class="flex items-center px-4 py-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700">
+              <Repeat class="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        <div class="flex gap-6">
-          <!-- Calendar Grid -->
-          <div class="flex-1">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
-                <div v-for="day in dayNames" :key="day" class="py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-400">
-                  {{ day }}
-                </div>
-              </div>
+        <div class="flex space-x-2 mb-6 overflow-x-auto">
+          <button
+            @click="activeTab = 'calendar'"
+            :class="['flex items-center px-4 py-2 rounded-xl font-medium', activeTab === 'calendar' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700']"
+          >
+            <CalendarIcon class="h-5 w-5 mr-2" />
+            Calendario
+          </button>
+          <button
+            @click="activeTab = 'collaboration'"
+            :class="['flex items-center px-4 py-2 rounded-xl font-medium', activeTab === 'collaboration' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700']"
+          >
+            <Users class="h-5 w-5 mr-2" />
+            Colaboración
+          </button>
+        </div>
 
-              <div class="grid grid-cols-7">
-                <div v-for="(day, index) in daysInMonth" :key="index" @click="selectDate(day)" :class="['min-h-[100px] p-2 border-b border-r border-gray-100 dark:border-gray-700 cursor-pointer transition-all', !day.isCurrentMonth && 'bg-gray-50 dark:bg-gray-900/50', isToday(day.date) && 'bg-blue-50 dark:bg-blue-900/20']">
-                    <span :class="['text-sm font-medium', day.isCurrentMonth ? 'text-gray-900 dark:text-white' : 'text-gray-400', isToday(day.date) && 'text-blue-600 dark:text-blue-400']">
-                      {{ day.date.getDate() }}
-                    </span>
-                    <div class="mt-1 space-y-1">
-                      <div v-for="task in tasksForDate(day.date).slice(0, 2)" :key="task.id" :class="['text-xs p-1 rounded truncate border-l-2', getPriorityColor(task.priority), task.completed && 'line-through text-gray-400']">
-                        {{ task.title }}
-                      </div>
-                    </div>
-                  </div>
-              </div>
+        <div v-if="isLoading" class="flex items-center justify-center h-64">
+          <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+        
+        <div v-else class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <button @click="navigateMonth('prev')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl">
+                <ChevronLeft class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              </button>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white capitalize">
+                {{ getMonthName(currentDate) }}
+              </h2>
+              <button @click="navigateMonth('next')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl">
+                <ChevronRight class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            </div>
+
+            <div class="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+              <button
+                v-for="mode in ['month', 'week', 'day']"
+                :key="mode"
+                @click="viewMode = mode as any"
+                :class="['px-4 py-2 rounded-lg text-sm font-medium', viewMode === mode ? 'bg-white dark:bg-gray-600 text-blue-600' : 'text-gray-600 dark:text-gray-300']"
+              >
+                {{ mode === 'month' ? 'Mes' : mode === 'week' ? 'Semana' : 'Día' }}
+              </button>
             </div>
           </div>
 
-          <!-- Selected Date Tasks -->
-          <div v-if="selectedDate" class="w-80">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <h3 class="font-semibold text-gray-900 dark:text-white mb-4">
-                {{ selectedDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) }}
-              </h3>
-
-              <div v-if="selectedDateTasks.length === 0" class="text-center py-8">
-                <Calendar class="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                <p class="text-gray-500 dark:text-gray-400">No hay tareas para este día</p>
+          <div class="p-4">
+            <div class="grid grid-cols-7 gap-2 mb-4">
+              <div v-for="day in dayNames" :key="day" class="p-2 text-center">
+                <div class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ day }}</div>
               </div>
+            </div>
 
-              <div v-else class="space-y-3">
-                <div v-for="task in selectedDateTasks" :key="task.id" class="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                  <button @click="taskStore.toggleTask(task.id)" :class="['w-5 h-5 rounded-full border-2 flex-shrink-0', task.completed ? 'bg-green-500 border-green-500' : 'border-gray-300']">
-                    <Check v-if="task.completed" class="h-3 w-3 text-white" />
-                  </button>
-                  <div class="flex-1 min-w-0">
-                    <h4 :class="['font-medium text-gray-900 dark:text-white', task.completed && 'line-through']">{{ task.title }}</h4>
+            <div class="grid grid-cols-7 gap-2">
+              <div
+                v-for="(day, index) in monthDays"
+                :key="index"
+                @click="selectDate(day)"
+                :class="['min-h-24 p-2 rounded-xl border transition-all cursor-pointer hover:shadow-lg', day.isCurrentMonth ? 'bg-white dark:bg-gray-700 border-gray-100 dark:border-gray-600' : 'bg-gray-50 dark:bg-gray-800 border-transparent', day.isToday ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : '']"
+              >
+                <div :class="['text-sm font-medium mb-1', day.isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : day.isCurrentMonth ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500']">
+                  {{ day.date.getDate() }}
+                </div>
+                <div class="space-y-1">
+                  <div v-for="event in eventsForDate(day.date).slice(0, 2)" :key="event.id" class="text-xs px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 truncate">
+                    {{ event.title }}
                   </div>
                 </div>
               </div>
