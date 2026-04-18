@@ -7,10 +7,13 @@ import {
   Sparkles, Send
 } from 'lucide-vue-next';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
+  isOpen: boolean;
   task: Task | null;
-  categories: Category[];
-}>();
+  categories?: Category[];
+}>(), {
+  categories: () => []
+});
 
 const emit = defineEmits(['close', 'save']);
 
@@ -127,7 +130,7 @@ function formatDate(dateString: string) {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" @click="emit('close')"></div>
 
     <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
