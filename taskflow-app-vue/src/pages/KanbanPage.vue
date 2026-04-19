@@ -165,8 +165,8 @@ async function handleTaskSaved(taskData: any) {
       title: taskData.title,
       description: taskData.description,
       priority: taskData.priority,
-      dueDate: taskData.due_date,
-      categoryId: taskData.category ? parseInt(taskData.category) : undefined,
+      due_date: taskData.due_date || taskData.dueDate,
+      category: taskData.category ? parseInt(taskData.category) : undefined,
       tags: taskData.tags
     };
     if (editingTask.value) {
