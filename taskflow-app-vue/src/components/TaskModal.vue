@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { useTaskStore } from '@/stores/tasks';
 import type { Task, Category } from '@/types';
 import {
   X, Flag, FileText, Target, AlertTriangle, CheckCircle,
@@ -19,14 +20,21 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(['close', 'saved']);
 
-const taskCategories = [
-  { name: 'Trabajo', icon: '💼' },
-  { name: 'Personal', icon: '🏠' },
-  { name: 'Estudio', icon: '📚' },
-  { name: 'Salud', icon: '⚕️' },
-  { name: 'Compras', icon: '🛒' },
-  { name: 'Viajes', icon: '✈️' },
-];
+const taskStore = useTaskStore();
+
+const taskCategories = computed(() => {
+  if (taskStore.categories.length > 0) {
+    return taskStore.categories.map((cat: any) => ({ name: cat.name, icon: '📁' }));
+  }
+  return [
+    { name: 'Trabajo', icon: '💼' },
+    { name: 'Personal', icon: '🏠' },
+    { name: 'Estudio', icon: '📚' },
+    { name: 'Salud', icon: '⚕️' },
+    { name: 'Compras', icon: '🛒' },
+    { name: 'Viajes', icon: '✈️' },
+  ];
+});
 
 const activeTab = ref<'details' | 'attachments' | 'activity'>('details');
 
@@ -271,6 +279,12 @@ function formatDate(dateString: string) {
               <option v-for="cat in taskCategories" :key="cat.name" :value="cat.name">
                 {{ cat.icon }} {{ cat.name }}
               </option>
+              <option value="Trabajo">💼 Trabajo</option>
+              <option value="Personal">🏠 Personal</option>
+              <option value="Estudio">📚 Estudio</option>
+              <option value="Salud">⚕️ Salud</option>
+              <option value="Compras">🛒 Compras</option>
+              <option value="Viajes">✈️ Viajes</option>
             </select>
           </div>
 
