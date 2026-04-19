@@ -135,8 +135,8 @@ async function handleTaskSaved(taskData: any) {
       description: taskData.description,
       priority: taskData.priority,
       due_date: taskData.due_date || taskData.dueDate,
-      category: taskData.category ? parseInt(taskData.category) : undefined,
-      tags: taskData.tags
+      category: taskData.category || undefined,
+      tags: Array.isArray(taskData.tags) ? taskData.tags : []
     };
     if (editingTask.value) {
       await taskStore.updateTask(editingTask.value.id, taskPayload);

@@ -11,10 +11,12 @@ export interface Task {
   title: string;
   description?: string;
   completed: boolean;
+  category?: string;
   categoryId?: number;
   priority?: 'low' | 'medium' | 'high';
   due_date?: string;
   dueDate?: string;
+  tags?: string[];
   favorite?: boolean;
   userId?: string;
   createdAt?: string;
