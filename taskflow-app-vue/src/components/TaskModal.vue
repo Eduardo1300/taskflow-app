@@ -57,12 +57,14 @@ watch(() => props.task, (newTask) => {
     const taskDueDate = newTask.due_date || newTask.dueDate;
     const dueDateStr = taskDueDate ? (typeof taskDueDate === 'string' ? taskDueDate.split('T')[0] : '') : '';
     
+    const taskCategory = (newTask as any).category || (newTask as any).categoryId?.toString() || '';
+    
     form.value = {
       title: newTask.title,
       description: newTask.description || '',
       priority: newTask.priority || 'medium',
       dueDate: dueDateStr,
-      category: newTask.categoryId?.toString() || '',
+      category: taskCategory,
       tags: taskTags
     };
     addActivity('Tarea abierta', `Se abrió la tarea "${newTask.title}"`);
