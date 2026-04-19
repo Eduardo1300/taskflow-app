@@ -44,7 +44,7 @@ const newTag = ref('');
 const activity = ref<{ id: string; action: string; details: string; created_at: string; user_name: string }[]>([]);
 
 watch(() => props.task, (newTask) => {
-  if (newTask) {
+  if (newTask && newTask.title) {
     let taskTags: string[] = [];
     if (newTask.tags) {
       if (Array.isArray(newTask.tags)) {
