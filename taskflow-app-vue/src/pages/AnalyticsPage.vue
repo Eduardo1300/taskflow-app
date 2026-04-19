@@ -11,11 +11,6 @@ import {
   CalendarDays, Flame, Trophy, TargetArrow,
   TrendingDown, Minus, Plus, Filter
 } from 'lucide-vue-next';
-import {
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, Area, AreaChart, RadialBarChart, RadialBar
-} from 'recharts';
 
 const taskStore = useTaskStore();
 
@@ -99,8 +94,7 @@ const monthlyTrends = computed(() => {
     const monthStart = new Date(now.getFullYear(), index, 1);
     const monthEnd = new Date(now.getFullYear(), index + 1, 0);
     const completed = taskStore.tasks.filter(t => t.completed && t.updatedAt && new Date(t.updatedAt) >= monthStart && new Date(t.updatedAt) <= monthEnd).length;
-    const created = taskStore.tasks.filter(t => t.createdAt && new Date(t.createdAt) >= monthStart && new Date(t.createdAt) <= monthEnd).length;
-    return { month, completed, created };
+    return { month, completed };
   });
 });
 
@@ -153,7 +147,7 @@ const productiveDays = computed(() => {
 });
 
 const recommendations = [
-  { title: 'Divide tareas grandes', desc: 'Considera dividir tareas grandes en subtareas más pequeñas para mejor gestión', icon: Brain },
+  { title: 'Divide tareas grandes', desc: 'Considera dividir tareas grandes en subtareas más pequeñas', icon: Brain },
   { title: 'Bloques de enfoque', desc: 'Reserva 2 horas diarias para trabajo profundo sin interrupciones', icon: Zap },
   { title: 'Revisión diaria', desc: 'Dedica 10 minutos cada mañana para planificar el día', icon: Calendar },
   { title: 'Prioriza tareas altas', desc: 'Completa las tareas de alta prioridad primero cada mañana', icon: TrendingUp },
@@ -193,7 +187,7 @@ const upcomingList = computed(() => {
   }).slice(0, 5);
 });
 
-const hourlyData = computed(() => {
+const hourlyBarData = computed(() => {
   const hours: Record<number, number> = {};
   taskStore.tasks.forEach(t => {
     if (t.createdAt) {
@@ -201,82 +195,11 @@ const hourlyData = computed(() => {
       hours[hour] = (hours[hour] || 0) + 1;
     }
   });
-  return Array.from({ length: 24 }, (_, i) => ({ hour: `${i}:00`, events: hours[i] || 0 }));
-});
-
-const categoryData = computed(() => {
-  const categories: Record<string, number> = {};
-  taskStore.tasks.forEach(t => {
-    const cat = t.category || 'Sin categoría';
-    categories[cat] = (categories[cat] || 0) + 1;
-  });
-  return Object.entries(categories).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
-});
-
-const weeklyTrendsData = computed(() => {
-  const weeks: Record<string, number> = {};
-  const now = new Date();
-  for (let i = 3; i >= 0; i--) {
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - (i * 7));
-    const weekName = `S${4 - i}`;
-    weeks[weekName] = taskStore.tasks.filter(t => t.completed && t.updatedAt && new Date(t.updatedAt) >= weekStart && new Date(t.updatedAt) < new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000)).length;
-  }
-  return Object.entries(weeks).map(([week, events]) => ({ week, events }));
-});
-
-const completionTrendsData = computed(() => {
-  const trends = [];
-  const now = new Date();
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(now.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    const completed = taskStore.tasks.filter(t => t.completed && t.updatedAt && new Date(t.updatedAt).toISOString().split('T')[0] === dateStr).length;
-    const total = taskStore.tasks.filter(t => t.createdAt && new Date(t.createdAt).toISOString().split('T')[0] === dateStr).length;
-    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-    trends.push({ date: date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }), completed, total, rate });
-  }
-  return trends;
-});
-
-const priorityData = computed(() => [
-  { name: 'Alta', value: highPriorityTasks.value },
-  { name: 'Media', value: mediumPriorityTasks.value },
-  { name: 'Baja', value: lowPriorityTasks.value }
-]);
-
-const burnoutRisk = computed(() => {
-  const score = Math.min(completedTasks.value * 5, 100);
-  let level = score > 70 ? 'low' : score > 30 ? 'medium' : 'high';
-  if (overdueTasks.value > 5) level = 'high';
-  else if (overdueTasks.value > 2) level = 'medium';
-  const factors: string[] = [];
-  if (overdueTasks.value > 0) factors.push(`${overdueTasks.value} tareas vencidas`);
-  if (highPriorityTasks.value > 5) factors.push('Muchas tareas de alta prioridad');
-  return { score, level, factors, suggestions: level !== 'low' ? ['Considera completar tareas vencidas primero'] : [] };
-});
-
-const workloadBalance = computed(() => {
-  const baseScore = 100 - (overdueTasks.value * 10);
-  const score = Math.min(Math.max(baseScore, 0), 100);
-  const status = score > 70 ? 'optimal' : score > 40 ? 'underutilized' : 'overloaded';
-  return { 
-    score, 
-    status, 
-    recommendation: status === 'optimal' ? 'Tu carga de trabajo está bien equilibrada' : status === 'overloaded' ? 'Considera delegar o posponer algunas tareas' : 'Puedes añadir más tareas para mantenerte ocupado' 
-  };
-});
-
-const timeManagement = computed(() => ({
-  efficiency: Math.min(productivityScore.value, 100),
-  peakHours: peakHours.value.length > 0 ? peakHours.value : ['9:00', '14:00'],
-  suggestions: ['Trabaja en tus horas pico para mayor productividad']
-}));
-
-const categoryBalance = computed(() => {
-  const cats = Object.entries(categoryData.value).sort((a, b) => a.value - b.value);
-  return { mostNeglected: cats[0]?.name || 'Ninguna', recommendation: 'Considera añadir más tareas en categorías menos usadas' };
+  const maxVal = Math.max(...Object.values(hours), 1);
+  return Array.from({ length: 24 }, (_, i) => ({
+    hour: `${i}:00`,
+    height: hours[i] ? (hours[i] / maxVal) * 100 : 0
+  }));
 });
 
 function getBarHeight(value: number, max: number) {
@@ -294,17 +217,6 @@ Total de Tareas: ${totalTasks.value}
 Completadas: ${completedTasks.value}
 Pendientes: ${pendingTasks.value}
 Tasa de Completación: ${completionRate.value}%
-
-Resumen de Productividad:
-- Días de racha: ${streakDays.value}
-- Mejor racha: ${longestStreak.value}
-- Puntuación: ${productivityScore.value}
-
-Calendario:
-- Tareas para hoy: ${tasksToday.value}
-- Tareas esta semana: ${tasksThisWeek.value}
-- Tareas vencidas: ${overdueTasks.value}
-
 Generado el: ${new Date().toLocaleDateString('es-ES')}`;
   
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -465,30 +377,12 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Horas Pico de Productividad</h3>
-              <div class="flex flex-wrap gap-2">
-                <div v-for="hour in peakHours" :key="hour" class="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><span class="font-medium text-blue-600 dark:text-blue-400">{{ hour }}</span></div>
-                <span v-if="peakHours.length === 0" class="text-gray-500">Sin datos suficientes</span>
-              </div>
-            </div>
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Días Más Productivos</h3>
-              <div class="flex flex-wrap gap-2">
-                <div v-for="day in productiveDays" :key="day" class="px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-lg"><span class="font-medium text-green-600 dark:text-green-400 capitalize">{{ day }}</span></div>
-                <span v-if="productiveDays.length === 0" class="text-gray-500">Sin datos suficientes</span>
-              </div>
-            </div>
-          </div>
-
           <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tendencias Mensuales</h3>
             <div class="flex items-end justify-between h-40 space-x-2">
               <div v-for="(month, index) in monthlyTrends" :key="index" class="flex-1 flex flex-col items-center">
                 <div class="w-full flex space-x-1 items-end h-32">
                   <div class="flex-1 bg-purple-500 rounded-t" :style="{ height: getBarHeight(month.completed, 20) }"></div>
-                  <div class="flex-1 bg-blue-500 rounded-t" :style="{ height: getBarHeight(month.created, 20) }"></div>
                 </div>
                 <span class="text-xs text-gray-500 mt-1">{{ month.month }}</span>
               </div>
@@ -512,36 +406,10 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Salud del Calendario</h3>
-              <div class="flex items-center justify-center py-4">
-                <div class="relative w-32 h-32">
-                  <svg class="w-full h-full" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" class="text-gray-200 dark:text-gray-700" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" :stroke-dasharray="`${calendarHealthScore * 2.83} 283`" transform="rotate(-90 50 50)" class="text-green-500" />
-                  </svg>
-                  <div class="absolute inset-0 flex items-center justify-center"><span class="text-2xl font-bold text-gray-900 dark:text-white">{{ calendarHealthScore }}</span></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tareas para Hoy</h3>
-              <div v-if="tasksToday > 0" class="space-y-2">
-                <div v-for="task in taskStore.tasks.filter(t => t.dueDate && new Date(t.dueDate).toDateString() === new Date().toDateString()).slice(0, 5)" :key="task.id" class="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div :class="['w-2 h-2 rounded-full', task.completed ? 'bg-green-500' : 'bg-yellow-500']"></div>
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ task.title }}</span>
-                </div>
-              </div>
-              <p v-else class="text-gray-500 text-center py-4">No hay tareas para hoy</p>
-            </div>
-          </div>
-
           <div v-if="overdueTasks > 0" class="p-6 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800">
             <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-4 flex items-center"><AlertTriangle class="h-5 w-5 mr-2" />Tareas Vencidas</h3>
             <div class="space-y-2">
-              <div v-for="task in overdueList" :key="task.id" class="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded-lg">
+              <div v-for="task in overdueList" :key="task.id" class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg">
                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ task.title }}</span>
                 <span class="text-xs text-red-500">{{ new Date(task.dueDate).toLocaleDateString('es-ES') }}</span>
               </div>
@@ -552,49 +420,46 @@ onMounted(async () => {
         <div v-else-if="activeTab === 'charts'" class="space-y-6">
           <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Distribución por Horas</h3>
-            <div class="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart :data="hourlyData">
-                  <CartesianGrid strokeDasharray="3 3" class="opacity-30" />
-                  <XAxis dataKey="hour" :tick="{ fontSize: 12 }" :interval="1" />
-                  <YAxis :tick="{ fontSize: 12 }" />
-                  <Tooltip />
-                  <Bar dataKey="events" fill="#8B5CF6" :radius="[4, 4, 0, 0]" />
-                </BarChart>
-              </ResponsiveContainer>
+            <div class="h-64 flex items-end space-x-1">
+              <div v-for="bar in hourlyBarData" :key="bar.hour" class="flex-1 flex flex-col items-center">
+                <div class="w-full bg-purple-500 rounded-t" :style="{ height: `${bar.height}%`, minHeight: bar.height > 0 ? '4px' : '0' }"></div>
+                <span class="text-xs text-gray-500 mt-1 rotate-0">{{ bar.hour }}</span>
+              </div>
             </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Distribución por Prioridad</h3>
-              <div class="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart :data="priorityData" layout="horizontal">
-                    <CartesianGrid strokeDasharray="3 3" class="opacity-30" />
-                    <XAxis type="number" :tick="{ fontSize: 12 }" />
-                    <YAxis dataKey="name" type="category" :width="80" :tick="{ fontSize: 12 }" />
-                    <Tooltip />
-                    <Bar dataKey="value" :radius="[0, 4, 4, 0]">
-                      <Cell fill="#EF4444" /><Cell fill="#F59E0B" /><Cell fill="#10B981" />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              <div class="h-48 flex items-center justify-center space-x-4">
+                <div class="text-center">
+                  <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mb-2">
+                    <span class="text-white font-bold">{{ highPriorityTasks }}</span>
+                  </div>
+                  <span class="text-xs text-gray-500">Alta</span>
+                </div>
+                <div class="text-center">
+                  <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mb-2">
+                    <span class="text-white font-bold">{{ mediumPriorityTasks }}</span>
+                  </div>
+                  <span class="text-xs text-gray-500">Media</span>
+                </div>
+                <div class="text-center">
+                  <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-2">
+                    <span class="text-white font-bold">{{ lowPriorityTasks }}</span>
+                  </div>
+                  <span class="text-xs text-gray-500">Baja</span>
+                </div>
               </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tendencia de Finalización</h3>
-              <div class="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart :data="completionTrendsData">
-                    <CartesianGrid strokeDasharray="3 3" class="opacity-30" />
-                    <XAxis dataKey="date" :tick="{ fontSize: 12 }" />
-                    <YAxis :tick="{ fontSize: 12 }" />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="completed" stroke="#10B981" fill="#10B981" />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <div class="h-48 flex items-end space-x-2">
+                <div v-for="(month, index) in monthlyTrends" :key="index" class="flex-1 flex flex-col items-center">
+                  <div class="w-full bg-green-500 rounded-t" :style="{ height: getBarHeight(month.completed, 20) }"></div>
+                  <span class="text-xs text-gray-500 mt-1">{{ month.month }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -602,31 +467,29 @@ onMounted(async () => {
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 text-center">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Balance de Carga</h3>
-              <div :class="['text-3xl font-bold mb-2', workloadBalance.status === 'optimal' ? 'text-green-600' : workloadBalance.status === 'overloaded' ? 'text-red-600' : 'text-yellow-600']">{{ workloadBalance.score }}</div>
-              <div :class="['inline-flex px-3 py-1 rounded-full text-sm font-medium', workloadBalance.status === 'optimal' ? 'bg-green-100 text-green-800' : workloadBalance.status === 'overloaded' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800']">
-                {{ workloadBalance.status === 'optimal' ? 'Óptimo' : workloadBalance.status === 'overloaded' ? 'Sobrecargado' : 'Subutilizado' }}
+              <div :class="['text-3xl font-bold mb-2', productivityScore > 70 ? 'text-green-600' : productivityScore > 40 ? 'text-yellow-600' : 'text-red-600']">{{ productivityScore }}</div>
+              <div :class="['inline-flex px-3 py-1 rounded-full text-sm font-medium', productivityScore > 70 ? 'bg-green-100 text-green-800' : productivityScore > 40 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800']">
+                {{ productivityScore > 70 ? 'Óptimo' : productivityScore > 40 ? 'Normal' : 'Sobrecargado' }}
               </div>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">{{ workloadBalance.recommendation }}</p>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 text-center">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Eficiencia de Tiempo</h3>
-              <div class="text-3xl font-bold text-blue-600 mb-2">{{ timeManagement.efficiency }}%</div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">{{ timeManagement.suggestions[0] }}</div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tasa de Finalización</h3>
+              <div class="text-3xl font-bold text-blue-600 mb-2">{{ completionRate }}%</div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">Tareas completadas vs creadas</div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 text-center">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Riesgo de Burnout</h3>
               <div class="relative w-32 h-32 mx-auto">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" :data="[{ name: 'Risk', value: burnoutRisk.score }]">
-                    <RadialBar dataKey="value" :cornerRadius="10" :fill="burnoutRisk.level === 'high' ? '#EF4444' : burnoutRisk.level === 'medium' ? '#F59E0B' : '#10B981'" />
-                  </RadialBarChart>
-                </ResponsiveContainer>
+                <svg class="w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" class="text-gray-200 dark:text-gray-700" />
+                  <circle cx="50" cy="50" r="45" fill="none" :stroke="overdueTasks > 5 ? '#EF4444' : overdueTasks > 2 ? '#F59E0B' : '#10B981'" stroke-width="8" stroke-linecap="round" :stroke-dasharray="`${Math.min(completedTasks * 5, 100) * 2.83} 283`" transform="rotate(-90 50 50)" />
+                </svg>
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div class="text-center">
-                    <div class="text-2xl font-bold" :class="burnoutRisk.level === 'high' ? 'text-red-600' : burnoutRisk.level === 'medium' ? 'text-yellow-600' : 'text-green-600'">{{ burnoutRisk.score }}</div>
-                    <div class="text-xs text-gray-500 uppercase">{{ burnoutRisk.level }}</div>
+                    <div class="text-2xl font-bold" :class="overdueTasks > 5 ? 'text-red-600' : overdueTasks > 2 ? 'text-yellow-600' : 'text-green-600'">{{ Math.min(completedTasks * 5, 100) }}</div>
+                    <div class="text-xs text-gray-500 uppercase">{{ overdueTasks > 5 ? 'Alto' : overdueTasks > 2 ? 'Medio' : 'Bajo' }}</div>
                   </div>
                 </div>
               </div>
@@ -645,29 +508,6 @@ onMounted(async () => {
                 <p class="text-xs text-gray-500 mt-2">{{ day.day }}</p>
                 <p class="text-sm font-medium" :class="day.isToday ? 'text-blue-600' : 'text-gray-900 dark:text-white'">{{ day.date }}</p>
                 <p class="text-xs" :class="day.tasks > 3 ? 'text-red-500' : 'text-gray-500'">{{ day.tasks }} tareas</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Próximas Tareas</h3>
-              <div v-if="upcomingList.length > 0" class="space-y-2">
-                <div v-for="task in upcomingList" :key="task.id" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ task.title }}</span>
-                  <span class="text-xs text-blue-500">{{ task.dueDate ? new Date(task.dueDate).toLocaleDateString('es-ES') : '' }}</span>
-                </div>
-              </div>
-              <p v-else class="text-gray-500 text-center py-4">No hay tareas próximas</p>
-            </div>
-
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resumen</h3>
-              <div class="space-y-4">
-                <div class="flex justify-between"><span class="text-gray-500">Tareas esta semana</span><span class="font-medium text-gray-900 dark:text-white">{{ tasksThisWeek }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Tareas para hoy</span><span class="font-medium text-gray-900 dark:text-white">{{ tasksToday }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Próximas 7 días</span><span class="font-medium text-gray-900 dark:text-white">{{ forecastData.reduce((sum, d) => sum + d.tasks, 0) }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Promedio diario</span><span class="font-medium text-gray-900 dark:text-white">{{ Math.round(totalTasks / 30) }}</span></div>
               </div>
             </div>
           </div>

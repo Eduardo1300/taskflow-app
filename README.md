@@ -1,6 +1,6 @@
 # TaskFlow - Gestión de Tareas
 
-Aplicación completa de gestión de tareas con backend NestJS + PostgreSQL y frontend React.
+Aplicación completa de gestión de tareas con backend NestJS + PostgreSQL y frontend Vue 3.
 
 ## Arquitectura
 
@@ -8,6 +8,7 @@ Aplicación completa de gestión de tareas con backend NestJS + PostgreSQL y fro
 taskflow/
 ├── taskflow-backend/     # Backend NestJS + TypeORM + PostgreSQL
 ├── taskflow-app-main/    # Frontend React + TypeScript + Vite
+├── taskflow-app-vue/   # Frontend Vue 3 + TypeScript + Vite
 └── docker-compose.yml    # Orquestación Docker
 ```
 
@@ -20,13 +21,13 @@ taskflow/
 - **JWT** - Autenticación
 - **Passport** - Estrategia de autenticación
 
-### Frontend
-- **React 18** - UI Framework
+### Frontend (Vue)
+- **Vue 3** - UI Framework con Composition API
 - **TypeScript** - Lenguaje tipado
 - **Vite** - Build tool
 - **TailwindCSS** - Estilos
-- **Axios** - Cliente HTTP
-- **React Router** - Enrutamiento
+- **Pinia** - State management
+- **Vue Router** - Enrutamiento
 
 ## Requisitos Previos
 
@@ -63,10 +64,10 @@ npm run start:dev
 
 El backend corre en `http://localhost:3000`
 
-### 3. Frontend
+### 3. Frontend Vue
 
 ```bash
-cd taskflow-app-main
+cd taskflow-app-vue
 
 # Instalar dependencias
 npm install
@@ -75,7 +76,7 @@ npm install
 npm run dev
 ```
 
-El frontend corre en `http://localhost:5173`
+El frontend Vue corre en `http://localhost:5173`
 
 ## Docker
 
@@ -110,6 +111,7 @@ VITE_API_URL=http://localhost:3000/api
 - `POST /api/auth/register` - Registrar usuario
 - `POST /api/auth/login` - Iniciar sesión
 - `GET /api/auth/me` - Obtener perfil
+- `PUT /api/profiles/me` - Actualizar perfil
 
 ### Tareas
 - `GET /api/tasks` - Listar tareas
@@ -129,21 +131,23 @@ VITE_API_URL=http://localhost:3000/api
 - `PUT /api/goals/:id` - Actualizar meta
 - `DELETE /api/goals/:id` - Eliminar meta
 
-### Colaboraciones
-- `POST /api/collaborations/invite` - Invitar colaborador
-- `GET /api/collaborations/task/:id/collaborators` - Obtener colaboradores
-
 ### Notificaciones
 - `GET /api/notifications` - Listar notificaciones
 - `PUT /api/notifications/:id/read` - Marcar como leída
 
-## Tests
+## Funcionalidades
 
-```bash
-# Frontend
-cd taskflow-app-main
-npm run test:run
-```
+- ✅ Gestión de tareas (CRUD)
+- ✅ Categorías y etiquetas
+- ✅ Metas y objetivos
+- ✅ Sistema de prioridades
+- ✅ Fechas de vencimiento
+- ✅ Modo oscuro
+- ✅ Diseño responsive
+- ✅ Vista Dashboard
+- ✅ Vista Kanban
+- ✅ Vista Calendario
+- ✅ Analytics/Gráficos
 
 ## Estructura del Proyecto
 
@@ -154,37 +158,21 @@ src/
 ├── tasks/          # CRUD de tareas
 ├── profiles/       # Perfiles de usuario
 ├── categories/     # Categorías
-├── goals/          # Metas
-├── collaborations/ # Colaboraciones
+├── goals/         # Metas
 ├── notifications/  # Notificaciones
-├── integrations/   # Integraciones
-└── webhooks/       # Webhooks
+└── integrations/  # Integraciones
 ```
 
-### Frontend
+### Frontend Vue
 ```
 src/
-├── components/      # Componentes React
-├── contexts/       # Contextos de React
-├── hooks/          # Custom hooks
-├── pages/          # Páginas
-├── services/       # Servicios API
+├── components/     # Componentes Vue
+├── pages/         # Páginas
+├── stores/        # Pinia stores
+├── services/      # Servicios API
 ├── types/         # Tipos TypeScript
-└── lib/           # Utilidades
+└── router/       # Configuración de rutas
 ```
-
-## Funcionalidades
-
-- ✅ Gestión de tareas (CRUD)
-- ✅ Categorías y etiquetas
-- ✅ Metas y objetivos
-- ✅ Sistema de prioridades
-- ✅ Fechas de vencimiento
-- ✅ Colaboración en tareas
-- ✅ Notificaciones
-- ✅ Integraciones (Google Calendar, Slack, Discord)
-- ✅ Modo oscuro
-- ✅ Diseño responsive
 
 ## Licencia
 

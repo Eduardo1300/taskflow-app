@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
-import { HelpCircle, Mail, MessageSquare, FileText, User, LogOut, ChevronRight, BookOpen, LifeBuoy, MessageCircle, ExternalLink, Send } from 'lucide-vue-next';
+import { HelpCircle, Mail, MessageSquare, FileText, User, LogOut, ChevronRight, BookOpen, LifeBuoy, MessageCircle, ExternalLink, Send, Users } from 'lucide-vue-next';
 
 const router = useRouter();
 const authStore = useAuthStore();

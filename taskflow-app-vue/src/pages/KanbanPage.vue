@@ -28,6 +28,7 @@ const columns = ref<KanbanColumn[]>([
 const searchTerm = ref('');
 const isFilterOpen = ref(false);
 const isModalOpen = ref(false);
+const isSaving = ref(false);
 const editingTask = ref<any>(null);
 const draggedTask = ref<any>(null);
 const draggedOverColumn = ref<string | null>(null);
@@ -157,9 +158,28 @@ function deleteTask(task: any) {
   }
 }
 
-function handleTaskSaved() {
-  isModalOpen.value = false;
-  editingTask.value = null;
+async function handleTaskSaved(taskData: any) {
+  isSaving.value = true;
+  try {
+    const taskPayload = {
+      title: taskData.title,
+      description: taskData.description,
+      priority: taskData.priority,
+      dueDate: taskData.due_date,
+      categoryId: taskData.category ? parseInt(taskData.category) : undefined,
+      tags: taskData.tags
+    };
+    if (editingTask.value) {
+      await taskStore.updateTask(editingTask.value.id, taskPayload);
+    } else {
+      await taskStore.createTask(taskPayload);
+    }
+    await taskStore.fetchTasks();
+    isModalOpen.value = false;
+    editingTask.value = null;
+  } finally {
+    isSaving.value = false;
+  }
 }
 
 onMounted(async () => {
@@ -334,11 +354,12 @@ onMounted(async () => {
     </div>
 
     <!-- Task Modal -->
-    <TaskModal
-      :is-open="isModalOpen"
-      :task="editingTask"
-      @close="isModalOpen = false; editingTask = null"
-      @saved="handleTaskSaved"
-    />
+<TaskModal
+        :is-open="isModalOpen"
+        :task="editingTask"
+        :loading="isSaving"
+        @close="isModalOpen = false; editingTask = null"
+        @saved="handleTaskSaved"
+      />
   </div>
 </template>

@@ -1,28 +1,70 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import api from '@/services/api';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
-import { User, Mail, Camera, Save, UserPlus } from 'lucide-vue-next';
+import { User, Mail, Camera, Save, UserPlus, Calendar, Shield, Bell, Lock, Phone, MapPin, Globe, Briefcase } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 
-const name = ref(authStore.user?.name || '');
-const email = ref(authStore.user?.email || '');
+const fullName = ref('');
+const email = ref('');
 const bio = ref('');
+const phone = ref('');
+const location = ref('');
+const website = ref('');
+const company = ref('');
 const loading = ref(false);
 const saveSuccess = ref(false);
+const memberSince = ref('');
+const activeTab = ref('profile');
 
-const initials = computed(() => email.value ? email.value.split('@')[0].charAt(0).toUpperCase() : 'U');
+const initials = computed(() => fullName.value ? fullName.value.charAt(0).toUpperCase() : (email.value ? email.value.split('@')[0].charAt(0).toUpperCase() : 'U'));
 
-function handleSave() {
+onMounted(() => {
+  if (authStore.user) {
+    fullName.value = authStore.user.fullName || '';
+    email.value = authStore.user.email || '';
+    if (authStore.user.createdAt) {
+      memberSince.value = new Date(authStore.user.createdAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    }
+  }
+});
+
+async function handleSave() {
   loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
+  try {
+    await api.updateProfile({ 
+      fullName: fullName.value,
+      email: email.value 
+    });
+    if (authStore.user) {
+      authStore.user.fullName = fullName.value;
+      authStore.user.email = email.value;
+    }
     saveSuccess.value = true;
     setTimeout(() => saveSuccess.value = false, 3000);
-  }, 1000);
+  } catch (error) {
+    console.error('Error guardando perfil:', error);
+  } finally {
+    loading.value = false;
+  }
 }
+
+const socialLinks = ref([
+  { platform: 'GitHub', url: '', connected: false },
+  { platform: 'LinkedIn', url: '', connected: false },
+  { platform: 'Twitter', url: '', connected: false }
+]);
+
+const notifications = ref({
+  emailTasks: true,
+  emailReminders: true,
+  emailWeekly: false,
+  pushTasks: true,
+  pushReminders: true
+});
 </script>
 
 <template>
@@ -48,7 +90,7 @@ function handleSave() {
               </div>
               <div>
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ email }}</h2>
-                <p class="text-gray-500">Miembro desde 2024</p>
+                <p class="text-gray-500">Miembro desde {{ memberSince || '2024' }}</p>
               </div>
             </div>
 
@@ -59,7 +101,7 @@ function handleSave() {
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User class="h-5 w-5 text-gray-400" />
                   </div>
-                  <input v-model="name" type="text" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Tu nombre" />
+                  <input v-model="fullName" type="text" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Tu nombre" />
                 </div>
               </div>
 

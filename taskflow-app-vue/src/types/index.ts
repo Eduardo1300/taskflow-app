@@ -13,6 +13,7 @@ export interface Task {
   completed: boolean;
   categoryId?: number;
   priority?: 'low' | 'medium' | 'high';
+  due_date?: string;
   dueDate?: string;
   favorite?: boolean;
   userId?: string;

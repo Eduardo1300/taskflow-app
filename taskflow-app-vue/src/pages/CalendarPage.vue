@@ -14,6 +14,7 @@ const viewMode = ref<'month' | 'week' | 'day'>('month');
 const activeTab = ref<'calendar' | 'collaboration'>('calendar');
 const isLoading = ref(true);
 const isModalOpen = ref(false);
+const isSaving = ref(false);
 const editingTask = ref<any>(null);
 
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -59,11 +60,12 @@ const weekDays = computed(() => {
 });
 
 function eventsForDate(date: Date) {
+  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   return taskStore.tasks.filter(task => {
-    if (!task.dueDate) return false;
-    const dateStr = task.dueDate.split('T')[0];
-    const eventDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    return dateStr === eventDateStr;
+    const taskDueDate = task.due_date || task.dueDate;
+    if (!taskDueDate) return false;
+    const taskDate = taskDueDate.split('T')[0];
+    return taskDate === dateStr;
   });
 }
 
@@ -75,8 +77,9 @@ const upcomingEvents = computed(() => {
   
   return taskStore.tasks
     .filter(task => {
-      if (!task.dueDate) return false;
-      const dateStr = task.dueDate.split('T')[0];
+      const taskDueDate = task.due_date || task.dueDate;
+      if (!taskDueDate) return false;
+      const dateStr = taskDueDate.split('T')[0];
       const eventDate = new Date(dateStr + 'T12:00:00');
       const nowDate = new Date(now.toISOString().split('T')[0] + 'T12:00:00');
       const nextWeekDate = new Date(nextWeek.toISOString().split('T')[0] + 'T12:00:00');
@@ -101,6 +104,11 @@ function selectDate(day: { date: Date; isCurrentMonth: boolean }) {
   selectedDate.value = day.date;
 }
 
+function openEditFromCalendar(event: any) {
+  editingTask.value = event;
+  isModalOpen.value = true;
+}
+
 function getMonthName() {
   return currentDate.value.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 }
@@ -119,9 +127,28 @@ function openNewEvent() {
   isModalOpen.value = true;
 }
 
-function handleTaskSaved() {
-  isModalOpen.value = false;
-  editingTask.value = null;
+async function handleTaskSaved(taskData: any) {
+  isSaving.value = true;
+  try {
+    const taskPayload = {
+      title: taskData.title,
+      description: taskData.description,
+      priority: taskData.priority,
+      dueDate: taskData.due_date,
+      categoryId: taskData.category ? parseInt(taskData.category) : undefined,
+      tags: taskData.tags
+    };
+    if (editingTask.value) {
+      await taskStore.updateTask(editingTask.value.id, taskPayload);
+    } else {
+      await taskStore.createTask(taskPayload);
+    }
+    await taskStore.fetchTasks();
+    isModalOpen.value = false;
+    editingTask.value = null;
+  } finally {
+    isSaving.value = false;
+  }
 }
 
 onMounted(async () => {
@@ -149,7 +176,7 @@ onMounted(async () => {
                 Calendario
               </h1>
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ taskStore.tasks.filter(t => t.dueDate).length }} eventos programados
+                {{ taskStore.tasks.filter(t => t.due_date || t.dueDate).length }} eventos programados
               </p>
             </div>
           </div>
@@ -261,7 +288,8 @@ onMounted(async () => {
                   <div 
                     v-for="event in eventsForDate(day.date).slice(0, 2)" 
                     :key="event.id" 
-                    :class="['text-xs px-1 py-0.5 rounded truncate font-medium', getPriorityColor(event.priority)]"
+                    @click.stop="openEditFromCalendar(event)"
+                    :class="['text-xs px-1 py-0.5 rounded truncate font-medium cursor-pointer hover:opacity-80', getPriorityColor(event.priority)]"
                   >
                     {{ event.title }}
                   </div>
@@ -325,6 +353,7 @@ onMounted(async () => {
     <TaskModal
       :is-open="isModalOpen"
       :task="editingTask"
+      :loading="isSaving"
       @close="isModalOpen = false; editingTask = null"
       @saved="handleTaskSaved"
     />

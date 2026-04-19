@@ -23,6 +23,7 @@ const priorityFilter = ref<'all' | 'high' | 'medium' | 'low'>('all');
 const favoriteFilter = ref<boolean | null>(null);
 const showFilters = ref(false);
 const isModalOpen = ref(false);
+const isSaving = ref(false);
 const editingTask = ref<any>(null);
 const deleteConfirmTask = ref<any>(null);
 const isLoading = ref(true);
@@ -112,9 +113,28 @@ function toggleFavorite(taskId: number) {
   taskStore.toggleFavorite(taskId);
 }
 
-function handleTaskSaved() {
-  isModalOpen.value = false;
-  editingTask.value = null;
+async function handleTaskSaved(taskData: any) {
+  isSaving.value = true;
+  try {
+    const taskPayload = {
+      title: taskData.title,
+      description: taskData.description,
+      priority: taskData.priority,
+      dueDate: taskData.due_date,
+      categoryId: taskData.category ? parseInt(taskData.category) : undefined,
+      tags: taskData.tags
+    };
+    if (editingTask.value) {
+      await taskStore.updateTask(editingTask.value.id, taskPayload);
+    } else {
+      await taskStore.createTask(taskPayload);
+    }
+    await taskStore.fetchTasks();
+    isModalOpen.value = false;
+    editingTask.value = null;
+  } finally {
+    isSaving.value = false;
+  }
 }
 
 function clearFilters() {
@@ -423,6 +443,7 @@ onMounted(async () => {
     <TaskModal
       :is-open="isModalOpen"
       :task="editingTask"
+      :loading="isSaving"
       @close="isModalOpen = false; editingTask = null"
       @saved="handleTaskSaved"
     />
