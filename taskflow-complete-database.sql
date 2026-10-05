@@ -76,31 +76,7 @@ CREATE TABLE IF NOT EXISTS goals (
     end_date TIMESTAMP
 );
 
--- 5. TASK COLLABORATORS (Colaboradores de tareas) - Depende de tasks y profiles
-CREATE TABLE IF NOT EXISTS task_collaborators (
-    id BIGSERIAL PRIMARY KEY,
-    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    permission VARCHAR DEFAULT 'view' CHECK (permission IN ('view', 'edit', 'admin')),
-    shared_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(task_id, user_id)
-);
-
--- 6. COLLABORATION INVITATIONS (Invitaciones) - Depende de tasks y profiles
-CREATE TABLE IF NOT EXISTS collaboration_invitations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-    invited_email TEXT NOT NULL,
-    invited_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined')),
-    permission TEXT DEFAULT 'view' CHECK (permission IN ('view', 'edit', 'admin')),
-    message TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
--- 7. TASK ACTIVITY (Actividad de tareas) - Depende de tasks y profiles
+-- 5. TASK ACTIVITY (Actividad de tareas) - Depende de tasks y profiles
 CREATE TABLE IF NOT EXISTS task_activity (
     id BIGSERIAL PRIMARY KEY,
     task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
@@ -110,93 +86,7 @@ CREATE TABLE IF NOT EXISTS task_activity (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 8. NOTIFICATIONS (Notificaciones) - Depende de profiles
-CREATE TABLE IF NOT EXISTS notifications (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title TEXT NOT NULL,
-    message TEXT NOT NULL,
-    type TEXT NOT NULL DEFAULT 'info',
-    read BOOLEAN DEFAULT FALSE,
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    data JSONB DEFAULT '{}',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 9. NOTIFICATION CONFIGS (Configuraciones de notificaciones) - Depende de profiles
-CREATE TABLE IF NOT EXISTS notification_configs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-    type VARCHAR NOT NULL,
-    events TEXT[] NOT NULL,
-    config JSONB NOT NULL DEFAULT '{}',
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 10. EMAIL PREFERENCES (Preferencias de email) - Depende de profiles
-CREATE TABLE IF NOT EXISTS email_preferences (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    email VARCHAR NOT NULL,
-    task_created BOOLEAN DEFAULT TRUE,
-    task_completed BOOLEAN DEFAULT TRUE,
-    task_reminder BOOLEAN DEFAULT TRUE,
-    task_overdue BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 11. INTEGRATIONS (Integraciones) - Depende de profiles
-CREATE TABLE IF NOT EXISTS integrations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR NOT NULL,
-    type VARCHAR NOT NULL,
-    config JSONB NOT NULL DEFAULT '{}',
-    is_active BOOLEAN DEFAULT TRUE,
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    last_sync_at TIMESTAMP WITH TIME ZONE
-);
-
--- 12. CALENDAR EVENTS (Eventos de calendario) - Depende de profiles, tasks, integrations
-CREATE TABLE IF NOT EXISTS calendar_events (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-    task_id BIGINT REFERENCES tasks(id) ON DELETE SET NULL,
-    integration_id UUID REFERENCES integrations(id) ON DELETE SET NULL,
-    external_event_id VARCHAR NOT NULL,
-    event_data JSONB NOT NULL DEFAULT '{}',
-    sync_status VARCHAR,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 13. INTEGRATION SYNC HISTORY (Historial de sincronización) - Depende de integrations
-CREATE TABLE IF NOT EXISTS integration_sync_history (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    integration_id UUID NOT NULL REFERENCES integrations(id) ON DELETE CASCADE,
-    integration_type VARCHAR NOT NULL,
-    external_id VARCHAR,
-    status VARCHAR NOT NULL CHECK (status IN ('success', 'failed', 'pending')),
-    error_message TEXT,
-    synced_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 14. AI SUGGESTIONS HISTORY (Historial de sugerencias de IA) - Depende de profiles y tasks
-CREATE TABLE IF NOT EXISTS ai_suggestions_history (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-    task_id BIGINT REFERENCES tasks(id) ON DELETE SET NULL,
-    suggestion_type VARCHAR NOT NULL,
-    suggested_value TEXT NOT NULL,
-    confidence NUMERIC NOT NULL,
-    was_applied BOOLEAN,
-    feedback VARCHAR,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 15. PRODUCTIVITY METRICS (Métricas de productividad) - Depende de profiles
+-- 6. PRODUCTIVITY METRICS (Métricas de productividad) - Depende de profiles
 CREATE TABLE IF NOT EXISTS productivity_metrics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
@@ -213,7 +103,7 @@ CREATE TABLE IF NOT EXISTS productivity_metrics (
     UNIQUE(user_id, date)
 );
 
--- 16. PRODUCTIVITY INSIGHTS (Insights de productividad) - Depende de profiles
+-- 7. PRODUCTIVITY INSIGHTS (Insights de productividad) - Depende de profiles
 CREATE TABLE IF NOT EXISTS productivity_insights (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
@@ -223,51 +113,6 @@ CREATE TABLE IF NOT EXISTS productivity_insights (
     score INTEGER NOT NULL,
     data JSONB,
     is_dismissed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 17. API KEYS (Claves API) - Depende de profiles
-CREATE TABLE IF NOT EXISTS api_keys (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    name VARCHAR NOT NULL,
-    key VARCHAR NOT NULL UNIQUE,
-    permissions TEXT[] NOT NULL,
-    rate_limit INTEGER,
-    is_active BOOLEAN DEFAULT TRUE,
-    last_used_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 18. API RATE LIMITS (Límites de tasa API) - Depende de api_keys
-CREATE TABLE IF NOT EXISTS api_rate_limits (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    api_key_id UUID NOT NULL REFERENCES api_keys(id) ON DELETE CASCADE,
-    requests_count INTEGER DEFAULT 0,
-    window_start TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 19. AUTOMATION RULES (Reglas de automatización) - Depende de profiles
-CREATE TABLE IF NOT EXISTS automation_rules (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    name VARCHAR NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    trigger_config JSONB NOT NULL DEFAULT '{}',
-    actions JSONB NOT NULL DEFAULT '[]',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    last_executed_at TIMESTAMP WITH TIME ZONE
-);
-
--- 20. WEBHOOKS - Depende de profiles
-CREATE TABLE IF NOT EXISTS webhooks (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    url VARCHAR NOT NULL,
-    events TEXT[] NOT NULL,
-    secret VARCHAR NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -286,25 +131,11 @@ CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
 CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id);
 CREATE INDEX IF NOT EXISTS idx_goals_completed ON goals(completed);
 
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
-
-CREATE INDEX IF NOT EXISTS idx_task_collaborators_task_id ON task_collaborators(task_id);
-CREATE INDEX IF NOT EXISTS idx_task_collaborators_user_id ON task_collaborators(user_id);
-
 CREATE INDEX IF NOT EXISTS idx_task_activity_task_id ON task_activity(task_id);
 CREATE INDEX IF NOT EXISTS idx_task_activity_user_id ON task_activity(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_productivity_metrics_user_id ON productivity_metrics(user_id);
 CREATE INDEX IF NOT EXISTS idx_productivity_metrics_date ON productivity_metrics(date);
-
-CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
-CREATE INDEX IF NOT EXISTS idx_api_keys_key ON api_keys(key);
-
-CREATE INDEX IF NOT EXISTS idx_automation_rules_user_id ON automation_rules(user_id);
-
-CREATE INDEX IF NOT EXISTS idx_integrations_user_id ON integrations(user_id);
-CREATE INDEX IF NOT EXISTS idx_calendar_events_user_id ON calendar_events(user_id);
 
 -- ============================================
 -- FUNCIONES Y TRIGGERS
@@ -335,18 +166,6 @@ CREATE TRIGGER update_tasks_updated_at
 DROP TRIGGER IF EXISTS update_goals_updated_at ON goals;
 CREATE TRIGGER update_goals_updated_at
     BEFORE UPDATE ON goals
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Trigger para email_preferences
-DROP TRIGGER IF EXISTS update_email_preferences_updated_at ON email_preferences;
-CREATE TRIGGER update_email_preferences_updated_at
-    BEFORE UPDATE ON email_preferences
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Trigger para calendar_events
-DROP TRIGGER IF EXISTS update_calendar_events_updated_at ON calendar_events;
-CREATE TRIGGER update_calendar_events_updated_at
-    BEFORE UPDATE ON calendar_events
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
@@ -421,42 +240,10 @@ SELECT 'Categories', COUNT(*) FROM categories
 UNION ALL
 SELECT 'Goals', COUNT(*) FROM goals
 UNION ALL
-SELECT 'Notifications', COUNT(*) FROM notifications
-UNION ALL
-SELECT 'Integrations', COUNT(*) FROM integrations
+SELECT 'Task Activity', COUNT(*) FROM task_activity
 UNION ALL
 SELECT 'Productivity Metrics', COUNT(*) FROM productivity_metrics
 UNION ALL
-SELECT 'Automation Rules', COUNT(*) FROM automation_rules
-UNION ALL
-SELECT 'Collaborators', COUNT(*) FROM task_collaborators
-UNION ALL
-SELECT 'Invitations', COUNT(*) FROM collaboration_invitations
-UNION ALL
-SELECT 'Task Activity', COUNT(*) FROM task_activity
-UNION ALL
-SELECT 'Calendar Events', COUNT(*) FROM calendar_events
-UNION ALL
-SELECT 'Integration Sync History', COUNT(*) FROM integration_sync_history
-UNION ALL
-SELECT 'AI Suggestions History', COUNT(*) FROM ai_suggestions_history
-UNION ALL
 SELECT 'Productivity Insights', COUNT(*) FROM productivity_insights
 UNION ALL
-SELECT 'API Keys', COUNT(*) FROM api_keys
-UNION ALL
-SELECT 'API Rate Limits', COUNT(*) FROM api_rate_limits
-UNION ALL
-SELECT 'Webhooks', COUNT(*) FROM webhooks
-UNION ALL
-SELECT 'Email Preferences', COUNT(*) FROM email_preferences
-UNION ALL
-SELECT 'Notification Configs', COUNT(*) FROM notification_configs
-UNION ALL
-SELECT 'Calendar Events', COUNT(*) FROM calendar_events
-UNION ALL
-SELECT 'Integration Sync History', COUNT(*) FROM integration_sync_history
-UNION ALL
-SELECT 'AI Suggestions History', COUNT(*) FROM ai_suggestions_history
-UNION ALL
-SELECT 'Productivity Insights', COUNT(*) FROM productivity_insights;
+SELECT 'Goals', COUNT(*) FROM goals;
