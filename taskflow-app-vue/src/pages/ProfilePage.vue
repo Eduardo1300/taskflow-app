@@ -56,6 +56,13 @@ onMounted(async () => {
   await taskStore.fetchTasks();
   await taskStore.fetchStats();
   
+  syncFromAuthStore();
+  
+  // Watch for authStore.user changes to keep local refs in sync
+  watch(() => authStore.user, syncFromAuthStore, { deep: true });
+});
+
+function syncFromAuthStore() {
   if (authStore.user) {
     fullName.value = authStore.user.fullName || '';
     email.value = authStore.user.email || '';
@@ -78,7 +85,7 @@ onMounted(async () => {
     timezone: timezone.value,
     language: language.value
   };
-});
+}
 
 function startEdit() {
   editedProfile.value = {
