@@ -13,7 +13,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://taskflow-app-e1rm.onrender.com',
+        target: process.env.VITE_API_URL || 'https://taskflow-app-e1rm.onrender.com',
         changeOrigin: true
       }
     }
