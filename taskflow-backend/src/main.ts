@@ -33,7 +33,7 @@ async function bootstrap() {
         return allowed.test(origin);
       });
 
-      callback(null, true);
+      callback(null, isAllowed);
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,

@@ -7,11 +7,11 @@ node_modules/
 dist/
 build/
 
-*.sql
 # Environment
 .env
 .env.local
 .env.production
+.env.*.local
 
 # IDE
 .idea/

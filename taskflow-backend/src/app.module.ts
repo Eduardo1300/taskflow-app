@@ -8,12 +8,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { GoalsModule } from './goals/goals.module';
 import { CollaborationsModule } from './collaborations/collaborations.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { IntegrationsModule } from './integrations/integrations.module';
-import { WebhooksModule } from './webhooks/webhooks.module';
 import { AiModule } from './ai/ai.module';
 import { ProductivityModule } from './productivity/productivity.module';
-import { ApiModule } from './api/api.module';
-import { AutomationModule } from './automation/automation.module';
 import { SetupController } from './setup/setup.controller';
 import { HealthController } from './health/health.controller';
 
@@ -40,12 +36,8 @@ import { HealthController } from './health/health.controller';
     GoalsModule,
     CollaborationsModule,
     NotificationsModule,
-    IntegrationsModule,
-    WebhooksModule,
     AiModule,
     ProductivityModule,
-    ApiModule,
-    AutomationModule,
   ],
   controllers: [SetupController, HealthController],
 })
