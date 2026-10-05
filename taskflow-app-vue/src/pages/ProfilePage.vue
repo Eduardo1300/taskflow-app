@@ -59,6 +59,11 @@ onMounted(async () => {
   if (authStore.user) {
     fullName.value = authStore.user.fullName || '';
     email.value = authStore.user.email || '';
+    bio.value = authStore.user.bio || '';
+    phone.value = authStore.user.phone || '';
+    location.value = authStore.user.location || '';
+    timezone.value = authStore.user.timezone || 'America/Mexico_City';
+    language.value = authStore.user.language || 'es';
     if (authStore.user.createdAt) {
       memberSince.value = new Date(authStore.user.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
     }
