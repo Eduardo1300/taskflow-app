@@ -1,5 +1,15 @@
 import type { Task } from '@/types';
 
+/* ============================== Tipos ============================== */
+
+export type ProcessedTask = Omit<Task, 'createdAt' | 'dueDate' | 'updatedAt'> & {
+  createdAt: Date;
+  dueDate: Date | null;
+  updatedAt: Date;
+  /** true si la fecha límite trae hora; false si es solo fecha (YYYY-MM-DD) */
+  dueHasTime: boolean;
+};
+
 export interface AnalyticsData {
   taskStats: TaskStats;
   priorityStats: PriorityStats;
@@ -70,7 +80,10 @@ export interface SeasonalPattern {
 }
 
 export interface CompletionTrend {
+  /** Fecha local en formato YYYY-MM-DD */
   date: string;
+  /** Etiqueta corta del día (lun, mar...) ya calculada en hora local */
+  label: string;
   completed: number;
   created: number;
 }
@@ -165,24 +178,44 @@ export interface BurnoutRisk {
   suggestions: string[];
 }
 
-// Helper functions
-function getDateRange(range: 'week' | 'month' | 'quarter'): { start: Date; end: Date } {
-  const end = new Date();
-  const start = new Date();
+/* ============================== Helpers ============================== */
 
-  switch (range) {
-    case 'week':
-      start.setDate(end.getDate() - 7);
-      break;
-    case 'month':
-      start.setMonth(end.getMonth() - 1);
-      break;
-    case 'quarter':
-      start.setMonth(end.getMonth() - 3);
-      break;
-  }
+// Coincide con "2026-10-05" y con "2026-10-05T00:00:00(.000)(Z)" (fecha sin hora real)
+const DATE_ONLY_RE = /^(\d{4}-\d{2}-\d{2})(?:T00:00:00(?:\.0+)?(?:Z|[+-]00:?00)?)?$/;
 
-  return { start, end };
+/**
+ * Convierte un string a Date. Las fechas sin hora se interpretan en hora LOCAL
+ * (new Date('2026-10-05') se interpreta en UTC y en Perú daría el día anterior).
+ */
+export function parseDate(value?: string | Date | null): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+  const match = value.match(DATE_ONLY_RE);
+  const date = match ? new Date(`${match[1]}T00:00:00`) : new Date(value);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+function startOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function addDays(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+  return a.toDateString() === b.toDateString();
+}
+
+function toLocalISODate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function getDayName(date: Date): string {
@@ -193,13 +226,29 @@ function getMonthName(date: Date): string {
   return date.toLocaleDateString('es-ES', { month: 'short' });
 }
 
-function isSameDay(date1: Date, date2: Date): boolean {
-  return date1.toDateString() === date2.toDateString();
+function topKey(counts: Record<string | number, number>): string | undefined {
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
 }
 
-// Main analytics service
+const completedIn = (tasks: ProcessedTask[], start: Date, end: Date) =>
+  tasks.filter(t => t.completed && t.updatedAt >= start && t.updatedAt < end).length;
+
+const createdIn = (tasks: ProcessedTask[], start: Date, end: Date) =>
+  tasks.filter(t => t.createdAt >= start && t.createdAt < end).length;
+
+/**
+ * Una tarea está vencida si tiene fecha, no está completada y:
+ * - con hora: la hora ya pasó
+ * - solo fecha: el día ya terminó (una tarea para hoy NO está vencida)
+ */
+export function isOverdue(task: ProcessedTask, now: Date = new Date()): boolean {
+  if (!task.dueDate || task.completed) return false;
+  return task.dueHasTime ? task.dueDate < now : task.dueDate < startOfDay(now);
+}
+
+/* ============================== Servicio principal ============================== */
+
 export const analyticsService = {
-  // Generate complete analytics from tasks
   generateAnalytics(tasks: Task[]): AnalyticsData {
     const processedTasks = this.processTasks(tasks);
     const taskStats = this.calculateTaskStats(processedTasks);
@@ -208,7 +257,7 @@ export const analyticsService = {
     const completionTrends = this.calculateCompletionTrends(processedTasks);
     const trends = this.calculateTrends(processedTasks);
     const predictions = this.generatePredictions(processedTasks);
-    const advancedInsights = this.generateAdvancedInsights(processedTasks, taskStats, priorityStats);
+    const advancedInsights = this.generateAdvancedInsights(processedTasks, taskStats);
 
     return {
       taskStats,
@@ -221,155 +270,98 @@ export const analyticsService = {
     };
   },
 
-  // Process tasks to ensure proper date handling
-  processTasks(tasks: Task[]): Task[] {
-    return tasks.map(task => ({
-      ...task,
-      createdAt: task.created_at ? new Date(task.created_at) : new Date(),
-      dueDate: task.due_date ? new Date(task.due_date) : null,
-      updatedAt: task.updated_at ? new Date(task.updated_at) : new Date()
-    }));
+  processTasks(tasks: Task[]): ProcessedTask[] {
+    return tasks.map(task => {
+      const rawDue = task.due_date as string | null | undefined;
+      return {
+        ...task,
+        createdAt: parseDate(task.created_at) ?? new Date(),
+        dueDate: parseDate(rawDue),
+        dueHasTime: !!rawDue && !DATE_ONLY_RE.test(rawDue),
+        updatedAt: parseDate(task.updated_at) ?? new Date()
+      };
+    });
   },
 
-  // Calculate basic task statistics
-  calculateTaskStats(tasks: Task[]): TaskStats {
+  isOverdue,
+
+  calculateTaskStats(tasks: ProcessedTask[]): TaskStats {
     const now = new Date();
+    const today = startOfDay(now);
+    const weekEnd = addDays(today, 8); // exclusivo: hoy + 7 días completos
+    const monthEnd = new Date(today);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
+    monthEnd.setDate(monthEnd.getDate() + 1);
+
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
     const pending = total - completed;
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-    const highPriority = tasks.filter(t => t.priority === 'high' && !t.completed).length;
-    const mediumPriority = tasks.filter(t => t.priority === 'medium' && !t.completed).length;
-    const lowPriority = tasks.filter(t => t.priority === 'low' && !t.completed).length;
-
-    const overdue = tasks.filter(t => 
-      t.dueDate && new Date(t.dueDate) < now && !t.completed
-    ).length;
-
-    const withDueDate = tasks.filter(t => t.dueDate).length;
-
-    const today = new Date().toDateString();
-    const tasksToday = tasks.filter(t => 
-      t.dueDate && new Date(t.dueDate).toDateString() === today
-    ).length;
-
-    const weekEnd = new Date();
-    weekEnd.setDate(now.getDate() + 7);
-    const tasksThisWeek = tasks.filter(t => {
-      if (!t.dueDate) return false;
-      const dueDate = new Date(t.dueDate);
-      return dueDate >= now && dueDate <= weekEnd;
-    }).length;
-
-    const monthEnd = new Date();
-    monthEnd.setMonth(now.getMonth() + 1);
-    const tasksNextMonth = tasks.filter(t => {
-      if (!t.dueDate) return false;
-      const dueDate = new Date(t.dueDate);
-      return dueDate >= now && dueDate <= monthEnd;
-    }).length;
 
     return {
       total,
       completed,
       pending,
       completionRate,
-      overdue,
-      highPriority,
-      mediumPriority,
-      lowPriority,
-      withDueDate,
-      tasksToday,
-      tasksThisWeek,
-      tasksNextMonth
+      overdue: tasks.filter(t => isOverdue(t, now)).length,
+      highPriority: tasks.filter(t => t.priority === 'high' && !t.completed).length,
+      mediumPriority: tasks.filter(t => t.priority === 'medium' && !t.completed).length,
+      lowPriority: tasks.filter(t => t.priority === 'low' && !t.completed).length,
+      withDueDate: tasks.filter(t => t.dueDate).length,
+      tasksToday: tasks.filter(t => t.dueDate && isSameDay(t.dueDate, now)).length,
+      tasksThisWeek: tasks.filter(t => t.dueDate && t.dueDate >= today && t.dueDate < weekEnd).length,
+      tasksNextMonth: tasks.filter(t => t.dueDate && t.dueDate >= today && t.dueDate < monthEnd).length
     };
   },
 
-  // Calculate priority statistics
-  calculatePriorityStats(tasks: Task[]): PriorityStats {
+  calculatePriorityStats(tasks: ProcessedTask[]): PriorityStats {
+    const now = new Date();
     const completedTasks = tasks.filter(t => t.completed);
-    
-    // Calculate average completion time in days
-    let totalCompletionTime = 0;
-    let completedWithDates = 0;
-    completedTasks.forEach(t => {
-      if (t.createdAt && t.updatedAt) {
-        const diff = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
-        totalCompletionTime += diff / (1000 * 60 * 60 * 24);
-        completedWithDates++;
-      }
-    });
-    const averageCompletionTime = completedWithDates > 0 ? totalCompletionTime / completedWithDates : 0;
 
-    // Most productive day
+    // Tiempo promedio de completación (días)
+    let totalDays = 0;
+    completedTasks.forEach(t => {
+      totalDays += (t.updatedAt.getTime() - t.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    });
+    const averageCompletionTime = completedTasks.length > 0 ? totalDays / completedTasks.length : 0;
+
+    // Día y hora más productivos (según cuándo se completaron)
     const dayCounts: Record<string, number> = {};
-    completedTasks.forEach(t => {
-      if (t.updatedAt) {
-        const day = new Date(t.updatedAt).toLocaleDateString('es-ES', { weekday: 'long' });
-        dayCounts[day] = (dayCounts[day] || 0) + 1;
-      }
-    });
-    const mostProductiveDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Sin datos';
-
-    // Most productive hour
     const hourCounts: Record<number, number> = {};
     completedTasks.forEach(t => {
-      if (t.createdAt) {
-        const hour = new Date(t.createdAt).getHours();
-        hourCounts[hour] = (hourCounts[hour] || 0) + 1;
-      }
+      const day = t.updatedAt.toLocaleDateString('es-ES', { weekday: 'long' });
+      dayCounts[day] = (dayCounts[day] || 0) + 1;
+      const hour = t.updatedAt.getHours();
+      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
-    const mostProductiveHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 0;
+
+    const weekStart = addDays(startOfDay(now), -now.getDay());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     return {
       high: tasks.filter(t => t.priority === 'high').length,
       medium: tasks.filter(t => t.priority === 'medium').length,
       low: tasks.filter(t => t.priority === 'low').length,
-      tasksCompletedToday: completedTasks.filter(t => 
-        t.updatedAt && isSameDay(new Date(t.updatedAt), new Date())
-      ).length,
-      tasksCompletedThisWeek: completedTasks.filter(t => {
-        if (!t.updatedAt) return false;
-        const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay());
-        return new Date(t.updatedAt) >= weekStart;
-      }).length,
-      tasksCompletedThisMonth: completedTasks.filter(t => {
-        if (!t.updatedAt) return false;
-        const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        return new Date(t.updatedAt) >= monthStart;
-      }).length,
+      tasksCompletedToday: completedTasks.filter(t => isSameDay(t.updatedAt, now)).length,
+      tasksCompletedThisWeek: completedTasks.filter(t => t.updatedAt >= weekStart).length,
+      tasksCompletedThisMonth: completedTasks.filter(t => t.updatedAt >= monthStart).length,
       averageCompletionTime,
-      mostProductiveDay,
-      mostProductiveHour
+      mostProductiveDay: topKey(dayCounts) || 'Sin datos',
+      mostProductiveHour: Number(topKey(hourCounts) ?? 0)
     };
   },
 
-  // Calculate time-based statistics
-  calculateTimeStats(tasks: Task[]): TimeStats {
+  calculateTimeStats(tasks: ProcessedTask[]): TimeStats {
     const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay());
+    const today = startOfDay(now);
 
-    // Daily distribution (last 7 days)
+    // Últimos 7 días (terminando hoy)
     const dailyDistribution: DailyDistribution[] = [];
-    for (let i = 0; i < 7; i++) {
-      const dayStart = new Date(weekStart);
-      dayStart.setDate(weekStart.getDate() + i);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setDate(dayStart.getDate() + 1);
-
-      const completed = tasks.filter(t => 
-        t.completed && t.updatedAt && new Date(t.updatedAt) >= dayStart && new Date(t.updatedAt) < dayEnd
-      ).length;
-
-      const created = tasks.filter(t => 
-        t.createdAt && new Date(t.createdAt) >= dayStart && new Date(t.createdAt) < dayEnd
-      ).length;
-
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = addDays(today, -i);
+      const dayEnd = addDays(dayStart, 1);
+      const completed = completedIn(tasks, dayStart, dayEnd);
+      const created = createdIn(tasks, dayStart, dayEnd);
       dailyDistribution.push({
         day: getDayName(dayStart),
         completed,
@@ -378,168 +370,125 @@ export const analyticsService = {
       });
     }
 
-    // Hourly distribution
+    // Distribución por hora de creación
     const hourlyDistribution: Record<number, number> = {};
     tasks.forEach(t => {
-      if (t.createdAt) {
-        const hour = new Date(t.createdAt).getHours();
-        hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
-      }
+      const hour = t.createdAt.getHours();
+      hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
     });
 
-    // Weekly trends (last 4 weeks)
+    // Últimas 4 semanas (semanas que empiezan en domingo)
     const weeklyTrends: WeeklyTrend[] = [];
     for (let i = 3; i >= 0; i--) {
-      const weekStartDate = new Date(now);
-      weekStartDate.setDate(now.getDate() - now.getDay() - (i * 7));
-      const weekEndDate = new Date(weekStartDate);
-      weekEndDate.setDate(weekStartDate.getDate() + 7);
-
-      const completed = tasks.filter(t => 
-        t.completed && t.updatedAt && new Date(t.updatedAt) >= weekStartDate && new Date(t.updatedAt) < weekEndDate
-      ).length;
-
-      const created = tasks.filter(t => 
-        t.createdAt && new Date(t.createdAt) >= weekStartDate && new Date(t.createdAt) < weekEndDate
-      ).length;
-
+      const weekStart = addDays(today, -today.getDay() - i * 7);
+      const weekEnd = addDays(weekStart, 7);
       weeklyTrends.push({
-        week: `Sem ${weekStartDate.getDate()}/${weekStartDate.getMonth() + 1}`,
-        completed,
-        created
+        week: `Sem ${weekStart.getDate()}/${weekStart.getMonth() + 1}`,
+        completed: completedIn(tasks, weekStart, weekEnd),
+        created: createdIn(tasks, weekStart, weekEnd)
       });
     }
 
-    // Monthly trends
-    const monthlyTrends: MonthlyTrend[] = [];
+    // Meses del año en curso
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const monthlyTrends: MonthlyTrend[] = [];
     for (let i = 0; i <= now.getMonth(); i++) {
       const monthStart = new Date(now.getFullYear(), i, 1);
-      const monthEnd = new Date(now.getFullYear(), i + 1, 0);
-
-      const completed = tasks.filter(t => 
-        t.completed && t.updatedAt && new Date(t.updatedAt) >= monthStart && new Date(t.updatedAt) <= monthEnd
-      ).length;
-
+      const monthEnd = new Date(now.getFullYear(), i + 1, 1);
       monthlyTrends.push({
         month: months[i],
-        completed,
-        created: 0
+        completed: completedIn(tasks, monthStart, monthEnd),
+        created: createdIn(tasks, monthStart, monthEnd)
       });
     }
 
-    // Seasonal patterns
+    // Estaciones (hemisferio sur) según fecha de creación
     const seasonalPatterns: SeasonalPattern[] = [
       { season: 'Invierno', tasks: 0 },
       { season: 'Primavera', tasks: 0 },
       { season: 'Verano', tasks: 0 },
       { season: 'Otoño', tasks: 0 }
     ];
+    tasks.forEach(t => {
+      const m = t.createdAt.getMonth();
+      const idx = m >= 5 && m <= 7 ? 0 : m >= 8 && m <= 10 ? 1 : m === 11 || m <= 1 ? 2 : 3;
+      seasonalPatterns[idx].tasks++;
+    });
 
-    return {
-      dailyDistribution,
-      hourlyDistribution,
-      weeklyTrends,
-      monthlyTrends,
-      seasonalPatterns
-    };
+    return { dailyDistribution, hourlyDistribution, weeklyTrends, monthlyTrends, seasonalPatterns };
   },
 
-  // Calculate completion trends
-  calculateCompletionTrends(tasks: Task[]): CompletionTrend[] {
+  calculateCompletionTrends(tasks: ProcessedTask[]): CompletionTrend[] {
+    const today = startOfDay(new Date());
     const trends: CompletionTrend[] = [];
-    const now = new Date();
 
     for (let i = 6; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(now.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-      const nextDate = new Date(date);
-      nextDate.setDate(date.getDate() + 1);
-
-      const completed = tasks.filter(t => 
-        t.completed && t.updatedAt && new Date(t.updatedAt) >= date && new Date(t.updatedAt) < nextDate
-      ).length;
-
-      const created = tasks.filter(t => 
-        t.createdAt && new Date(t.createdAt) >= date && new Date(t.createdAt) < nextDate
-      ).length;
-
+      const date = addDays(today, -i);
+      const next = addDays(date, 1);
       trends.push({
-        date: date.toISOString().split('T')[0],
-        completed,
-        created
+        date: toLocalISODate(date),
+        label: getDayName(date),
+        completed: completedIn(tasks, date, next),
+        created: createdIn(tasks, date, next)
       });
     }
 
     return trends;
   },
 
-  // Calculate trends
-  calculateTrends(tasks: Task[]): Trend[] {
+  calculateTrends(tasks: ProcessedTask[]): Trend[] {
     const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay());
-    const prevWeekStart = new Date(weekStart);
-    prevWeekStart.setDate(weekStart.getDate() - 7);
-    const prevWeekEnd = new Date(weekStart);
+    const weekStart = addDays(startOfDay(now), -now.getDay());
+    const prevWeekStart = addDays(weekStart, -7);
 
-    const thisWeekCompleted = tasks.filter(t => 
-      t.completed && t.updatedAt && new Date(t.updatedAt) >= weekStart && new Date(t.updatedAt) < now
-    ).length;
+    const thisWeekCompleted = completedIn(tasks, weekStart, now);
+    const prevWeekCompleted = completedIn(tasks, prevWeekStart, weekStart);
 
-    const prevWeekCompleted = tasks.filter(t => 
-      t.completed && t.updatedAt && new Date(t.updatedAt) >= prevWeekStart && new Date(t.updatedAt) < prevWeekEnd
-    ).length;
-
-    const completionChange = prevWeekCompleted > 0 
+    const completionChange = prevWeekCompleted > 0
       ? Math.round(((thisWeekCompleted - prevWeekCompleted) / prevWeekCompleted) * 100)
       : (thisWeekCompleted > 0 ? 100 : 0);
 
     return [
       { type: 'completion', value: thisWeekCompleted, change: completionChange, period: 'week' },
-      { type: 'created', value: tasks.filter(t => t.createdAt && new Date(t.createdAt) >= weekStart).length, change: 0, period: 'week' }
+      { type: 'created', value: tasks.filter(t => t.createdAt >= weekStart).length, change: 0, period: 'week' }
     ];
   },
 
-  // Generate predictions
-  generatePredictions(tasks: Task[]): Prediction[] {
-    const completionRate = tasks.length > 0 
-      ? tasks.filter(t => t.completed).length / tasks.length 
+  generatePredictions(tasks: ProcessedTask[]): Prediction[] {
+    const completionRate = tasks.length > 0
+      ? tasks.filter(t => t.completed).length / tasks.length
       : 0;
 
     const avgCompletionTime = this.calculateAvgCompletionTime(tasks);
 
     return [
-      { 
-        type: 'nextWeekCompletions', 
-        value: Math.round(tasks.filter(t => !t.completed).length * completionRate), 
-        confidence: Math.round(completionRate * 80), 
-        period: 'week' 
+      {
+        type: 'nextWeekCompletions',
+        value: Math.round(tasks.filter(t => !t.completed).length * completionRate),
+        confidence: Math.round(completionRate * 80),
+        period: 'week'
       },
-      { 
-        type: 'avgCompletionTime', 
-        value: Math.round(avgCompletionTime * 10) / 10, 
-        confidence: 70, 
-        period: 'task' 
+      {
+        type: 'avgCompletionTime',
+        value: Math.round(avgCompletionTime * 10) / 10,
+        confidence: 70,
+        period: 'task'
       }
     ];
   },
 
-  calculateAvgCompletionTime(tasks: Task[]): number {
-    const completedTasks = tasks.filter(t => t.completed && t.createdAt && t.updatedAt);
+  calculateAvgCompletionTime(tasks: ProcessedTask[]): number {
+    const completedTasks = tasks.filter(t => t.completed);
     if (completedTasks.length === 0) return 0;
 
-    let totalTime = 0;
-    completedTasks.forEach(t => {
-      const diff = new Date(t.updatedAt!).getTime() - new Date(t.createdAt!).getTime();
-      totalTime += diff / (1000 * 60 * 60 * 24);
-    });
-    return totalTime / completedTasks.length;
+    const totalDays = completedTasks.reduce(
+      (sum, t) => sum + (t.updatedAt.getTime() - t.createdAt.getTime()) / (1000 * 60 * 60 * 24),
+      0
+    );
+    return totalDays / completedTasks.length;
   },
 
-  // Generate advanced insights
-  generateAdvancedInsights(tasks: Task[], taskStats: TaskStats, priorityStats: PriorityStats): AdvancedInsight[] {
+  generateAdvancedInsights(tasks: ProcessedTask[], taskStats: TaskStats): AdvancedInsight[] {
     const insights: AdvancedInsight[] = [];
 
     if (taskStats.completionRate > 70) {
@@ -560,12 +509,12 @@ export const analyticsService = {
       });
     }
 
-    if (priorityStats.high > 5) {
+    if (taskStats.highPriority > 5) {
       insights.push({
         id: 'high-priority-warning',
         type: 'warning',
         title: 'Muchas tareas de alta prioridad',
-        description: `Tienes ${priorityStats.high} tareas de alta prioridad pendientes. Considera priorizarlas.`,
+        description: `Tienes ${taskStats.highPriority} tareas de alta prioridad pendientes. Considera priorizarlas.`,
         action: 'Ver tareas urgentes'
       });
     }
@@ -580,7 +529,7 @@ export const analyticsService = {
       });
     }
 
-    const streakDays = this.calculateStreak(tasks);
+    const streakDays = this.computeStreak(tasks);
     if (streakDays > 3) {
       insights.push({
         id: 'streak',
@@ -614,34 +563,33 @@ export const analyticsService = {
     return insights;
   },
 
-  calculateStreak(tasks: Task[]): number {
-    const completedTasks = tasks.filter(t => t.completed && t.updatedAt);
-    if (completedTasks.length === 0) return 0;
-
-    const dates = new Set(completedTasks.map(t => 
-      new Date(t.updatedAt!).toDateString()
-    ));
+  /** Racha a partir de tareas ya procesadas */
+  computeStreak(tasks: ProcessedTask[]): number {
+    const days = new Set(tasks.filter(t => t.completed).map(t => t.updatedAt.toDateString()));
+    if (days.size === 0) return 0;
 
     let streak = 0;
     const today = new Date();
-    
+
     for (let i = 0; i < 365; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() - i);
-      if (dates.has(checkDate.toDateString())) {
+      if (days.has(addDays(today, -i).toDateString())) {
         streak++;
       } else if (i > 0) {
-        break;
+        break; // si hoy aún no hay nada completado, la racha de ayer sigue viva
       }
     }
 
     return streak;
   },
 
-  // Generate insights text for overview
+  /** Acepta tareas crudas del store (con created_at / updated_at) */
+  calculateStreak(tasks: Task[]): number {
+    return this.computeStreak(this.processTasks(tasks));
+  },
+
   generateInsights(data: AnalyticsData, tasks: Task[] = []): string[] {
     const insights: string[] = [];
-    const { taskStats, priorityStats } = data;
+    const { taskStats } = data;
 
     if (taskStats.completionRate > 70) {
       insights.push('¡Excelente! Tu tasa de completación supera el 70%');
@@ -649,12 +597,12 @@ export const analyticsService = {
       insights.push('Tu progreso es bueno. ¡Sigue así!');
     }
 
-    if (priorityStats.high > 5) {
-      insights.push(`Tienes ${priorityStats.high} tareas de alta prioridad pendientes`);
+    if (taskStats.highPriority > 5) {
+      insights.push(`Tienes ${taskStats.highPriority} tareas de alta prioridad pendientes`);
     }
 
     if (taskStats.overdue > 0) {
-      insights.push(`${taskStats.overdue} tareas vencidas. Complétalas pronto!`);
+      insights.push(`${taskStats.overdue} tareas vencidas. ¡Complétalas pronto!`);
     }
 
     const streakDays = this.calculateStreak(tasks);
@@ -670,59 +618,51 @@ export const analyticsService = {
   }
 };
 
-// Calendar Analytics Service
+/* ============================== Servicio de calendario ============================== */
+
 export const calendarAnalyticsService = {
-  eventsData: [] as Task[],
+  eventsData: [] as ProcessedTask[],
 
   setEventsData(events: Task[]) {
-    this.eventsData = events.map(e => ({
-      ...e,
-      createdAt: e.created_at ? new Date(e.created_at) : new Date(),
-      dueDate: e.due_date ? new Date(e.due_date) : null,
-      updatedAt: e.updated_at ? new Date(e.updated_at) : new Date()
-    }));
+    this.eventsData = analyticsService.processTasks(events);
+  },
+
+  eventsInRange(dateRange: { start: Date; end: Date }): ProcessedTask[] {
+    return this.eventsData.filter(
+      e => e.dueDate && e.dueDate >= dateRange.start && e.dueDate <= dateRange.end
+    );
   },
 
   getCalendarMetrics(dateRange: { start: Date; end: Date }): CalendarMetrics {
-    const events = this.eventsData.filter(e => 
-      e.dueDate && new Date(e.dueDate) >= dateRange.start && new Date(e.dueDate) <= dateRange.end
-    );
+    const now = new Date();
+    const events = this.eventsInRange(dateRange);
 
     const totalEvents = events.length;
     const completedEvents = events.filter(e => e.completed).length;
-    const upcomingEvents = events.filter(e => e.dueDate && new Date(e.dueDate) >= new Date() && !e.completed).length;
-    const overdueEvents = events.filter(e => e.dueDate && new Date(e.dueDate) < new Date() && !e.completed).length;
+    const overdueEvents = events.filter(e => isOverdue(e, now)).length;
+    const upcomingEvents = events.filter(e => !e.completed && !isOverdue(e, now)).length;
     const completionRate = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
 
-    const daysDiff = Math.max(1, Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / (1000 * 60 * 60 * 24)));
+    const daysDiff = Math.max(
+      1,
+      Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / (1000 * 60 * 60 * 24))
+    );
     const averageEventsPerDay = totalEvents / daysDiff;
 
     const dayCounts: Record<string, number> = {};
-    events.filter(e => e.completed && e.updatedAt).forEach(e => {
-      const day = new Date(e.updatedAt!).toLocaleDateString('es-ES', { weekday: 'long' });
-      dayCounts[day] = (dayCounts[day] || 0) + 1;
-    });
-    const mostProductiveDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
-
     const hourCounts: Record<number, number> = {};
-    events.filter(e => e.completed && e.updatedAt).forEach(e => {
-      const hour = new Date(e.updatedAt!).getHours();
+    events.filter(e => e.completed).forEach(e => {
+      const day = e.updatedAt.toLocaleDateString('es-ES', { weekday: 'long' });
+      dayCounts[day] = (dayCounts[day] || 0) + 1;
+      const hour = e.updatedAt.getHours();
       hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
-    const mostProductiveHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 0;
 
     const categoryDistribution: Record<string, number> = {};
-    events.forEach(e => {
-      if (e.category) {
-        categoryDistribution[e.category] = (categoryDistribution[e.category] || 0) + 1;
-      }
-    });
-
     const priorityDistribution: Record<string, number> = {};
     events.forEach(e => {
-      if (e.priority) {
-        priorityDistribution[e.priority] = (priorityDistribution[e.priority] || 0) + 1;
-      }
+      if (e.category) categoryDistribution[e.category] = (categoryDistribution[e.category] || 0) + 1;
+      if (e.priority) priorityDistribution[e.priority] = (priorityDistribution[e.priority] || 0) + 1;
     });
 
     return {
@@ -732,8 +672,8 @@ export const calendarAnalyticsService = {
       overdueEvents,
       completionRate,
       averageEventsPerDay: Math.round(averageEventsPerDay * 10) / 10,
-      mostProductiveDay,
-      mostProductiveHour,
+      mostProductiveDay: topKey(dayCounts) || '',
+      mostProductiveHour: Number(topKey(hourCounts) ?? 0),
       categoryDistribution,
       priorityDistribution,
       collaborativeEvents: 0,
@@ -742,13 +682,11 @@ export const calendarAnalyticsService = {
   },
 
   getProductivityInsights(dateRange: { start: Date; end: Date }): ProductivityInsights {
-    const events = this.eventsData.filter(e => 
-      e.dueDate && new Date(e.dueDate) >= dateRange.start && new Date(e.dueDate) <= dateRange.end
-    );
+    const events = this.eventsInRange(dateRange);
 
     const hourCounts: Record<number, number> = {};
-    events.filter(e => e.completed && e.updatedAt).forEach(e => {
-      const hour = new Date(e.updatedAt!).getHours();
+    events.filter(e => e.completed).forEach(e => {
+      const hour = e.updatedAt.getHours();
       hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
     const peakProductivityHours = Object.entries(hourCounts)
@@ -756,10 +694,11 @@ export const calendarAnalyticsService = {
       .slice(0, 5)
       .map(([hour]) => parseInt(hour));
 
+    // es-ES devuelve los días en minúscula; comparamos en minúscula
     const dayCounts: Record<string, number> = {};
     events.forEach(e => {
       if (e.dueDate) {
-        const day = new Date(e.dueDate).toLocaleDateString('es-ES', { weekday: 'long' });
+        const day = e.dueDate.toLocaleDateString('es-ES', { weekday: 'long' });
         dayCounts[day] = (dayCounts[day] || 0) + 1;
       }
     });
@@ -768,11 +707,13 @@ export const calendarAnalyticsService = {
       .slice(0, 3)
       .map(([day]) => day);
 
-    const allDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    const freeDays = allDays.filter(d => !dayCounts[d] || dayCounts[d] === 0);
+    const allDays = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+    const freeDays = allDays.filter(d => !dayCounts[d]);
 
-    const workEvents = events.filter(e => e.category === 'trabajo' || e.category === 'Trabajo').length;
-    const personalEvents = events.filter(e => e.category === 'personal' || e.category === 'Personal').length;
+    const countCategory = (name: string) =>
+      events.filter(e => e.category?.toLowerCase() === name).length;
+    const workEvents = countCategory('trabajo');
+    const personalEvents = countCategory('personal');
 
     return {
       peakProductivityHours,
@@ -782,7 +723,7 @@ export const calendarAnalyticsService = {
       workLifeBalance: {
         workEvents,
         personalEvents,
-        ratio: personalEvents > 0 ? workEvents / personalEvents : workEvents > 0 ? workEvents : 0
+        ratio: personalEvents > 0 ? workEvents / personalEvents : workEvents
       },
       focusTimeBlocks: []
     };
@@ -790,31 +731,26 @@ export const calendarAnalyticsService = {
 
   getCalendarHealthScore(dateRange: { start: Date; end: Date }): CalendarHealthScore {
     const metrics = this.getCalendarMetrics(dateRange);
-    const insights = this.getProductivityInsights(dateRange);
 
     let score = 50;
 
-    // Event distribution
+    // Distribución de eventos
     if (metrics.averageEventsPerDay <= 5) score += 20;
     else if (metrics.averageEventsPerDay <= 10) score += 10;
 
-    // Completion rate
+    // Tasa de completación
     if (metrics.completionRate >= 80) score += 20;
     else if (metrics.completionRate >= 60) score += 10;
     else if (metrics.completionRate >= 40) score += 5;
 
-    // Time management
+    // Gestión del tiempo
     if (metrics.overdueEvents === 0) score += 20;
     else if (metrics.overdueEvents <= 3) score += 10;
     else if (metrics.overdueEvents <= 5) score += 5;
 
-    // Collaboration
+    // Colaboración y planificación
     if (metrics.collaborativeEvents > 0) score += 10;
-
-    // Planning
     if (metrics.upcomingEvents > 0) score += 10;
-
-    const finalScore = Math.min(score, 100);
 
     const recommendations = [
       'Distribuye tus eventos de manera más uniforme a lo largo de la semana',
@@ -825,9 +761,9 @@ export const calendarAnalyticsService = {
     ];
 
     return {
-      score: finalScore,
+      score: Math.min(score, 100),
       factors: {
-        eventDistribution: Math.min(100, metrics.averageEventsPerDay <= 5 ? 100 : 50),
+        eventDistribution: metrics.averageEventsPerDay <= 5 ? 100 : 50,
         completionRate: metrics.completionRate,
         timeManagement: metrics.overdueEvents === 0 ? 100 : 50,
         collaboration: metrics.collaborativeEvents > 0 ? 80 : 30,
@@ -838,9 +774,7 @@ export const calendarAnalyticsService = {
   },
 
   getBurnoutRisk(dateRange: { start: Date; end: Date }): BurnoutRisk {
-    const events = this.eventsData.filter(e => 
-      e.dueDate && new Date(e.dueDate) >= dateRange.start && new Date(e.dueDate) <= dateRange.end
-    );
+    const events = this.eventsInRange(dateRange);
 
     let score = 0;
     const indicators = {
@@ -851,55 +785,51 @@ export const calendarAnalyticsService = {
       lateNightEvents: 0
     };
 
-    // Overbooking check
+    // Eventos por día
     const dayCounts: Record<string, number> = {};
     events.forEach(e => {
       if (e.dueDate) {
-        const day = new Date(e.dueDate).toDateString();
-        dayCounts[day] = (dayCounts[day] || 0) + 1;
+        const key = e.dueDate.toDateString();
+        dayCounts[key] = (dayCounts[key] || 0) + 1;
       }
     });
+
+    // Sobrecarga
     const maxEventsInDay = Math.max(...Object.values(dayCounts), 0);
     if (maxEventsInDay > 8) {
       indicators.overBooking = Math.min(100, (maxEventsInDay / 12) * 100);
       score += 20;
     }
 
-    // Long days
+    // Días largos
     const longDays = Object.values(dayCounts).filter(c => c > 6).length;
     indicators.longDays = Math.min(100, (longDays / 7) * 100);
     if (longDays > 3) score += 15;
 
-    // No breaks (consecutive busy days)
-    let consecutiveDays = 0;
+    // Sin descansos (días consecutivos con eventos, últimos 14 días)
+    let consecutive = 0;
     let maxConsecutive = 0;
     const today = new Date();
     for (let i = 0; i < 14; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() - i);
-      if (dayCounts[checkDate.toDateString()] && dayCounts[checkDate.toDateString()] > 0) {
-        consecutiveDays++;
-        maxConsecutive = Math.max(maxConsecutive, consecutiveDays);
+      if (dayCounts[addDays(today, -i).toDateString()]) {
+        consecutive++;
+        maxConsecutive = Math.max(maxConsecutive, consecutive);
       } else {
-        consecutiveDays = 0;
+        consecutive = 0;
       }
     }
     indicators.noBreaks = Math.min(100, (maxConsecutive / 7) * 100);
     if (maxConsecutive > 5) score += 15;
 
-    // Weekend work
-    const weekendEvents = events.filter(e => {
-      if (!e.dueDate) return false;
-      const day = new Date(e.dueDate).getDay();
-      return day === 0 || day === 6;
-    }).length;
+    // Fines de semana
+    const weekendEvents = events.filter(e => e.dueDate && [0, 6].includes(e.dueDate.getDay())).length;
     indicators.weekendWork = Math.min(100, (weekendEvents / 4) * 100);
     if (weekendEvents > 2) score += 10;
 
-    // Late night events
+    // Eventos nocturnos: solo cuentan si la fecha límite trae hora real
     const lateEvents = events.filter(e => {
-      if (!e.dueDate) return false;
-      const hour = new Date(e.dueDate).getHours();
+      if (!e.dueDate || !e.dueHasTime) return false;
+      const hour = e.dueDate.getHours();
       return hour >= 22 || hour <= 5;
     }).length;
     indicators.lateNightEvents = Math.min(100, (lateEvents / 4) * 100);
@@ -907,7 +837,7 @@ export const calendarAnalyticsService = {
 
     const finalScore = Math.min(score, 100);
 
-    let level: 'low' | 'medium' | 'high' | 'critical' = 'low';
+    let level: BurnoutRisk['level'] = 'low';
     if (finalScore >= 70) level = 'critical';
     else if (finalScore >= 50) level = 'high';
     else if (finalScore >= 30) level = 'medium';
@@ -920,18 +850,11 @@ export const calendarAnalyticsService = {
       'Toma descansos de 15 minutos cada 2 horas de trabajo'
     ].slice(0, 3);
 
-    return {
-      level,
-      score: finalScore,
-      indicators,
-      suggestions
-    };
+    return { level, score: finalScore, indicators, suggestions };
   },
 
   getTimeAnalysis(dateRange: { start: Date; end: Date }): TimeAnalysis {
-    const events = this.eventsData.filter(e => 
-      e.dueDate && new Date(e.dueDate) >= dateRange.start && new Date(e.dueDate) <= dateRange.end
-    );
+    const events = this.eventsInRange(dateRange);
 
     const hourlyDistribution: Record<number, number> = {};
     const dailyDistribution: Record<string, number> = {};
@@ -940,26 +863,19 @@ export const calendarAnalyticsService = {
     const seasonalPatterns: Record<string, number> = {};
 
     events.forEach(e => {
-      if (e.createdAt) {
-        const hour = new Date(e.createdAt).getHours();
-        hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
-      }
+      const hour = e.createdAt.getHours();
+      hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
+
       if (e.dueDate) {
-        const day = new Date(e.dueDate).toLocaleDateString('es-ES', { weekday: 'long' });
+        const day = e.dueDate.toLocaleDateString('es-ES', { weekday: 'long' });
         dailyDistribution[day] = (dailyDistribution[day] || 0) + 1;
-        const week = `Sem ${new Date(e.dueDate).getDate()}/${new Date(e.dueDate).getMonth() + 1}`;
+        const week = `Sem ${e.dueDate.getDate()}/${e.dueDate.getMonth() + 1}`;
         weeklyTrends[week] = (weeklyTrends[week] || 0) + 1;
-        const month = getMonthName(new Date(e.dueDate));
+        const month = getMonthName(e.dueDate);
         monthlyTrends[month] = (monthlyTrends[month] || 0) + 1;
       }
     });
 
-    return {
-      hourlyDistribution,
-      dailyDistribution,
-      weeklyTrends,
-      monthlyTrends,
-      seasonalPatterns
-    };
+    return { hourlyDistribution, dailyDistribution, weeklyTrends, monthlyTrends, seasonalPatterns };
   }
 };

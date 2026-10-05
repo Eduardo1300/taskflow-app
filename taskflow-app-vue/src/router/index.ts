@@ -42,44 +42,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/integrations',
-    name: 'integrations',
-    component: () => import('@/pages/IntegrationsPage.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/profile',
     name: 'profile',
     component: () => import('@/pages/ProfilePage.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/settings',
-    name: 'settings',
-    component: () => import('@/pages/SettingsPage.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/help',
-    name: 'help',
-    component: () => import('@/pages/HelpPage.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/api',
-    name: 'api',
-    component: () => import('@/pages/ApiManagementPage.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/docs',
-    name: 'docs',
-    component: () => import('@/pages/DocumentationPage.vue')
-  },
-  {
-    path: '/search',
-    name: 'search',
-    component: () => import('@/pages/DashboardPage.vue'),
     meta: { requiresAuth: true }
   },
   {

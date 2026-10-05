@@ -10,14 +10,9 @@ import {
   User,
   LogOut,
   BarChart3,
-  Globe,
-  Zap,
   Trello,
-  Settings,
   Search,
   Target,
-  HelpCircle,
-  Book,
   Moon,
   Sun,
   Menu,
@@ -45,15 +40,10 @@ const menuItems = [
   { id: 'kanban', label: 'Kanban', icon: Trello, route: '/kanban', color: 'text-purple-500', description: 'Organiza tus tareas visualmente' },
   { id: 'calendar', label: 'Calendario', icon: Calendar, route: '/calendar', color: 'text-green-500', description: 'Planifica tu tiempo' },
   { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics', color: 'text-orange-500', description: 'Métricas de productividad' },
-  { id: 'api', label: 'API REST', icon: Globe, route: '/api', color: 'text-cyan-500', description: 'Gestiona tu API', premium: true },
-  { id: 'integrations', label: 'Integraciones', icon: Zap, route: '/integrations', color: 'text-yellow-500', description: 'Conecta con otras apps', premium: true },
   { id: 'profile', label: 'Perfil', icon: User, route: '/profile', color: 'text-gray-500', description: 'Configuración personal' }
 ];
 
 const secondaryItems = [
-  { id: 'settings', label: 'Configuración', icon: Settings, route: '/settings', color: 'text-gray-500', description: 'Ajustes de la aplicación' },
-  { id: 'help', label: 'Ayuda', icon: HelpCircle, route: '/help', color: 'text-gray-500', description: 'Soporte y documentación' },
-  { id: 'docs', label: 'Documentación', icon: Book, route: '/docs', color: 'text-indigo-500', description: 'API y guías técnicas' }
 ];
 
 function navigate(path: string) {

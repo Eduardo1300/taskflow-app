@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import type { User, Task, Category, Goal, Notification, TaskStats } from '@/types';
 
-const API_URL = 'https://taskflow-app-e1rm.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://taskflow-app-e1rm.onrender.com/api';
 
 class ApiClient {
   private client: AxiosInstance;
