@@ -97,7 +97,12 @@ async function handleSave() {
   try {
     await api.updateProfile({ 
       fullName: editedProfile.value.fullName,
-      email: editedProfile.value.email
+      email: editedProfile.value.email,
+      bio: editedProfile.value.bio,
+      phone: editedProfile.value.phone,
+      location: editedProfile.value.location,
+      timezone: editedProfile.value.timezone,
+      language: editedProfile.value.language
     });
     
     fullName.value = editedProfile.value.fullName;
@@ -111,6 +116,11 @@ async function handleSave() {
     if (authStore.user) {
       authStore.user.fullName = editedProfile.value.fullName;
       authStore.user.email = editedProfile.value.email;
+      authStore.user.bio = editedProfile.value.bio;
+      authStore.user.phone = editedProfile.value.phone;
+      authStore.user.location = editedProfile.value.location;
+      authStore.user.timezone = editedProfile.value.timezone;
+      authStore.user.language = editedProfile.value.language;
     }
     
     saveSuccess.value = true;

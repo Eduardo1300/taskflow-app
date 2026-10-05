@@ -2,6 +2,12 @@ export interface User {
   id: string;
   email: string;
   fullName?: string;
+  phone?: string;
+  location?: string;
+  bio?: string;
+  avatar?: string;
+  timezone?: string;
+  language?: string;
   createdAt?: string;
   updatedAt?: string;
 }
