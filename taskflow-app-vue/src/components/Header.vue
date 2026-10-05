@@ -5,7 +5,7 @@ import { useTaskStore } from '@/stores/tasks';
 import { useAuthStore } from '@/stores/auth';
 import { useThemeStore } from '@/stores/theme';
 import {
-  CheckSquare, Search, Plus, Bell, Settings, Sun, Moon,
+  CheckSquare, Search, Sun, Moon,
   ChevronDown, LogOut, User, Menu, X, Sparkles
 } from 'lucide-vue-next';
 
@@ -20,32 +20,21 @@ const themeStore = useThemeStore();
 const searchInput = ref('');
 const isSearchOpen = ref(false);
 const isMenuOpen = ref(false);
-const isNotificationsOpen = ref(false);
 const userMenuRef = ref<HTMLElement | null>(null);
 
 watch(searchInput, (value) => {
   taskStore.setSearchQuery(value);
-  if (value && route.path !== '/search') {
-    router.push('/search');
-  }
 });
 
 function handleSearch(e: Event) {
   e.preventDefault();
   if (searchInput.value.trim()) {
     taskStore.setSearchQuery(searchInput.value.trim());
-    if (route.path !== '/search') {
-      router.push('/search');
-    }
   }
 }
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
-}
-
-function openNewTask() {
-  emit('new-task');
 }
 
 function navigateTo(path: string) {
@@ -104,15 +93,6 @@ async function logout() {
             <Search class="h-5 w-5" />
           </button>
 
-          <!-- Quick Actions Button -->
-          <button
-            @click="openNewTask"
-            class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
-          >
-            <Plus class="h-5 w-5" />
-            <span class="hidden md:inline">Nueva Tarea</span>
-          </button>
-
           <!-- Theme Toggle -->
           <button
             @click="themeStore.toggle()"
@@ -121,22 +101,6 @@ async function logout() {
           >
             <Sun v-if="themeStore.isDark" class="h-5 w-5 group-hover:rotate-12 transition-transform duration-200" />
             <Moon v-else class="h-5 w-5 group-hover:-rotate-12 transition-transform duration-200" />
-          </button>
-
-          <!-- Notification Button -->
-          <button
-            @click="isNotificationsOpen = !isNotificationsOpen"
-            class="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
-          >
-            <Bell class="h-5 w-5 group-hover:animate-bounce" />
-          </button>
-
-          <!-- Settings Button -->
-          <button
-            @click="navigateTo('/settings')"
-            class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
-          >
-            <Settings class="h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
           </button>
 
           <!-- User Menu -->
@@ -178,14 +142,6 @@ async function logout() {
               >
                 <User class="h-4 w-4 mr-3 text-blue-500" />
                 Mi Perfil
-              </button>
-
-              <button
-                @click="navigateTo('/settings')"
-                class="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Settings class="h-4 w-4 mr-3" />
-                Configuración
               </button>
 
               <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
