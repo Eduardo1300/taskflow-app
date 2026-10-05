@@ -11,8 +11,6 @@ interface Task {
   completed: boolean;
   priority?: string;
   due_date?: string;
-  is_shared?: boolean;
-  collaborators?: any[];
   created_at?: string;
 }
 
@@ -23,7 +21,6 @@ interface SearchFilters {
   tags: string[];
   dateRange: { start?: Date; end?: Date };
   hasDescription: boolean;
-  isShared: boolean;
 }
 
 interface SavedFilter {
@@ -56,8 +53,7 @@ const filters = ref<SearchFilters>({
   category: '',
   tags: [],
   dateRange: {},
-  hasDescription: false,
-  isShared: false
+  hasDescription: false
 });
 
 const searchInputRef = ref<HTMLInputElement | null>(null);
@@ -170,10 +166,6 @@ const performSearch = () => {
     filtered = filtered.filter(task => task.description && task.description.trim());
   }
 
-  if (filters.value.isShared) {
-    filtered = filtered.filter(task => task.is_shared || (task.collaborators && task.collaborators.length > 0));
-  }
-
   if (filters.value.dateRange.start) {
     filtered = filtered.filter(task => 
       task.due_date && new Date(task.due_date) >= filters.value.dateRange.start!
@@ -260,8 +252,7 @@ const clearSearch = () => {
     category: '',
     tags: [],
     dateRange: {},
-    hasDescription: false,
-    isShared: false
+    hasDescription: false
   };
 };
 
@@ -312,8 +303,7 @@ const hasActiveFilters = computed(() => {
          filters.value.tags.length > 0 ||
          filters.value.dateRange.start ||
          filters.value.dateRange.end ||
-         filters.value.hasDescription ||
-         filters.value.isShared;
+         filters.value.hasDescription;
 });
 </script>
 
@@ -506,16 +496,6 @@ const hasActiveFilters = computed(() => {
               <span class="text-sm text-gray-700 dark:text-gray-300">Solo tareas con descripción</span>
             </label>
 
-            <label class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                v-model="filters.isShared"
-                class="rounded text-blue-600 focus:ring-blue-500"
-              />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Solo tareas compartidas</span>
-            </label>
-          </div>
-
           <!-- Actions -->
           <div class="flex justify-between mt-6">
             <button
@@ -533,6 +513,7 @@ const hasActiveFilters = computed(() => {
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- Save Filter Dialog -->

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import type { User, Task, Category, Goal, Notification, TaskStats } from '@/types';
+import type { User, Task, Category, Goal, TaskStats } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://taskflow-app-e1rm.onrender.com/api';
 
@@ -162,17 +162,6 @@ class ApiClient {
 
   async deleteGoal(id: string): Promise<boolean> {
     const { data } = await this.client.delete(`/goals/${id}`);
-    return data.success;
-  }
-
-  // Notifications
-  async getNotifications(): Promise<Notification[]> {
-    const { data } = await this.client.get('/notifications');
-    return data.data;
-  }
-
-  async markNotificationRead(id: string): Promise<boolean> {
-    const { data } = await this.client.put(`/notifications/${id}/read`);
     return data.success;
   }
 }

@@ -6,9 +6,6 @@ import { TasksModule } from './tasks/tasks.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { CategoriesModule } from './categories/categories.module';
 import { GoalsModule } from './goals/goals.module';
-import { CollaborationsModule } from './collaborations/collaborations.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { AiModule } from './ai/ai.module';
 import { ProductivityModule } from './productivity/productivity.module';
 import { SetupController } from './setup/setup.controller';
 import { HealthController } from './health/health.controller';
@@ -34,9 +31,6 @@ import { HealthController } from './health/health.controller';
     ProfilesModule,
     CategoriesModule,
     GoalsModule,
-    CollaborationsModule,
-    NotificationsModule,
-    AiModule,
     ProductivityModule,
   ],
   controllers: [SetupController, HealthController],

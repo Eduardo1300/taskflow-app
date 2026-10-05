@@ -55,7 +55,6 @@ const factorLabels: Record<string, string> = {
   eventDistribution: 'Distribución',
   completionRate: 'Completación',
   timeManagement: 'Gestión del tiempo',
-  collaboration: 'Colaboración',
   planning: 'Planificación'
 };
 

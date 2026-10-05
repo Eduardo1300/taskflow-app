@@ -121,7 +121,6 @@ export interface CalendarMetrics {
   mostProductiveHour: number;
   categoryDistribution: Record<string, number>;
   priorityDistribution: Record<string, number>;
-  collaborativeEvents: number;
   recurringEvents: number;
 }
 
@@ -159,7 +158,6 @@ export interface CalendarHealthScore {
     eventDistribution: number;
     completionRate: number;
     timeManagement: number;
-    collaboration: number;
     planning: number;
   };
   recommendations: string[];
@@ -676,7 +674,6 @@ export const calendarAnalyticsService = {
       mostProductiveHour: Number(topKey(hourCounts) ?? 0),
       categoryDistribution,
       priorityDistribution,
-      collaborativeEvents: 0,
       recurringEvents: 0
     };
   },
@@ -749,7 +746,7 @@ export const calendarAnalyticsService = {
     else if (metrics.overdueEvents <= 5) score += 5;
 
     // Colaboración y planificación
-    if (metrics.collaborativeEvents > 0) score += 10;
+    if (metrics.overdueEvents > 0) score += 10;
     if (metrics.upcomingEvents > 0) score += 10;
 
     const recommendations = [
@@ -766,7 +763,7 @@ export const calendarAnalyticsService = {
         eventDistribution: metrics.averageEventsPerDay <= 5 ? 100 : 50,
         completionRate: metrics.completionRate,
         timeManagement: metrics.overdueEvents === 0 ? 100 : 50,
-        collaboration: metrics.collaborativeEvents > 0 ? 80 : 30,
+        collaboration: 80,
         planning: metrics.upcomingEvents > 0 ? 90 : 40
       },
       recommendations
