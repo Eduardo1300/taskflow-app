@@ -4,14 +4,13 @@ import { useTaskStore } from '@/stores/tasks';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
 import TaskModal from '@/components/TaskModal.vue';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock, TrendingUp, Users, Repeat, List, Grid3X3 } from 'lucide-vue-next';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock, TrendingUp, List, Grid3X3 } from 'lucide-vue-next';
 
 const taskStore = useTaskStore();
 
 const currentDate = ref(new Date());
 const selectedDate = ref<Date | null>(null);
 const viewMode = ref<'month' | 'week' | 'day'>('month');
-const activeTab = ref<'calendar' | 'collaboration'>('calendar');
 const isLoading = ref(true);
 const isModalOpen = ref(false);
 const isSaving = ref(false);
@@ -190,32 +189,7 @@ onMounted(async () => {
               <TrendingUp class="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <span class="text-sm font-medium text-blue-700 dark:text-blue-300">{{ upcomingEvents.length }} esta semana</span>
             </div>
-            <button @click="openNewEvent" class="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700">
-              <Plus class="h-5 w-5 mr-2" />
-              Nuevo evento
-            </button>
-            <button class="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700">
-              <Repeat class="h-5 w-5" />
-            </button>
           </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="flex space-x-2 mb-6">
-          <button
-            @click="activeTab = 'calendar'"
-            :class="['flex items-center px-4 py-2 rounded-xl font-medium', activeTab === 'calendar' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700']"
-          >
-            <CalendarIcon class="h-5 w-5 mr-2" />
-            Calendario
-          </button>
-          <button
-            @click="activeTab = 'collaboration'"
-            :class="['flex items-center px-4 py-2 rounded-xl font-medium', activeTab === 'collaboration' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700']"
-          >
-            <Users class="h-5 w-5 mr-2" />
-            Colaboración
-          </button>
         </div>
 
         <!-- Calendar View -->
