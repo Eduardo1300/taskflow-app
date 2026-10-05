@@ -1,3 +1,0 @@
-SELECT COUNT(*) FROM tasks;
-SELECT COUNT(*) FROM profiles;
-SELECT email FROM profiles WHERE id = '550e8400-e29b-41d4-a716-446655440000';

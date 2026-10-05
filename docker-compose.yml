@@ -30,7 +30,7 @@ services:
 
   frontend:
     build:
-      context: ./taskflow-app-main
+      context: ./taskflow-app-vue
       dockerfile: Dockerfile
     container_name: taskflow-web
     ports:

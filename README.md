@@ -1,33 +1,35 @@
 # TaskFlow - Gestión de Tareas
 
-Aplicación completa de gestión de tareas con backend NestJS + PostgreSQL y frontend Vue 3.
+Aplicación completa de gestión de tareas con backend **NestJS + PostgreSQL** y frontend **Vue 3 + TypeScript + Vite**.
 
 ## Arquitectura
 
 ```
-taskflow/
-├── taskflow-backend/     # Backend NestJS + TypeORM + PostgreSQL
-├── taskflow-app-main/    # Frontend React + TypeScript + Vite
-├── taskflow-app-vue/   # Frontend Vue 3 + TypeScript + Vite
-└── docker-compose.yml    # Orquestación Docker
+taskflow-app/
+├── taskflow-backend/      # Backend NestJS + TypeORM + PostgreSQL
+├── taskflow-app-vue/      # Frontend Vue 3 + TypeScript + Vite
+├── docker-compose.yml     # Orquestación Docker
+├── .env.example           # Template de variables de entorno
+└── README.md
 ```
 
 ## Tecnologías
 
 ### Backend
-- **NestJS** - Framework Node.js
+- **NestJS** - Framework Node.js modular
 - **TypeORM** - ORM para PostgreSQL
 - **PostgreSQL** - Base de datos
-- **JWT** - Autenticación
-- **Passport** - Estrategia de autenticación
+- **JWT + Passport** - Autenticación
 
-### Frontend (Vue)
+### Frontend
 - **Vue 3** - UI Framework con Composition API
 - **TypeScript** - Lenguaje tipado
 - **Vite** - Build tool
 - **TailwindCSS** - Estilos
 - **Pinia** - State management
 - **Vue Router** - Enrutamiento
+- **Recharts** - Gráficos
+- **Lucide Vue** - Iconos
 
 ## Requisitos Previos
 
@@ -40,11 +42,11 @@ taskflow/
 ### 1. Base de Datos
 
 ```bash
-# Crear base de datos
+# Crear base de datos local
 psql -U postgres -c "CREATE DATABASE taskflow;"
 
-# Ejecutar schema
-psql -U postgres -d taskflow -f taskflow-backend/src/database/schema.sql
+# Ejecutar schema completo (21 tablas)
+psql -U postgres -d taskflow -f taskflow-backend/taskflow-supabase.sql
 ```
 
 ### 2. Backend
@@ -56,6 +58,7 @@ cd taskflow-backend
 npm install
 
 # Configurar variables de entorno
+cp ../.env.example .env
 # Editar .env con tus valores
 
 # Iniciar en desarrollo
@@ -71,6 +74,9 @@ cd taskflow-app-vue
 
 # Instalar dependencias
 npm install
+
+# Configurar variables de entorno
+cp ../.env.example .env
 
 # Iniciar en desarrollo
 npm run dev
@@ -92,6 +98,8 @@ docker-compose down
 ```
 
 ## Variables de Entorno
+
+Ver `.env.example` para la plantilla completa.
 
 ### Backend (.env)
 ```env
@@ -118,7 +126,10 @@ VITE_API_URL=http://localhost:3000/api
 - `POST /api/tasks` - Crear tarea
 - `PUT /api/tasks/:id` - Actualizar tarea
 - `DELETE /api/tasks/:id` - Eliminar tarea
+- `PUT /api/tasks/:id/toggle` - Alternar completado
+- `PUT /api/tasks/:id/favorite` - Alternar favorito
 - `GET /api/tasks/stats` - Estadísticas
+- `GET /api/tasks/search?q=` - Buscar tareas
 
 ### Categorías
 - `GET /api/categories` - Listar categorías
@@ -135,44 +146,75 @@ VITE_API_URL=http://localhost:3000/api
 - `GET /api/notifications` - Listar notificaciones
 - `PUT /api/notifications/:id/read` - Marcar como leída
 
-## Funcionalidades
+## Funcionalidades Principales
 
-- ✅ Gestión de tareas (CRUD)
-- ✅ Categorías y etiquetas
-- ✅ Metas y objetivos
-- ✅ Sistema de prioridades
-- ✅ Fechas de vencimiento
-- ✅ Modo oscuro
-- ✅ Diseño responsive
-- ✅ Vista Dashboard
-- ✅ Vista Kanban
-- ✅ Vista Calendario
-- ✅ Analytics/Gráficos
+- ✅ **Autenticación** (Registro, Login, JWT, Perfil)
+- ✅ **Gestión de Tareas** (CRUD, favoritos, prioridades, fechas, etiquetas)
+- ✅ **Dashboard** con estadísticas y filtros
+- ✅ **Vista Kanban** (drag & drop básico)
+- ✅ **Vista Calendario**
+- ✅ **Analytics/Gráficos** (Recharts)
+- ✅ **Categorías** personalizables
+- ✅ **Metas/Objetivos** con progreso
+- ✅ **Notificaciones**
+- ✅ **Modo oscuro**
+- ✅ **Diseño responsive**
 
 ## Estructura del Proyecto
 
 ### Backend
 ```
-src/
-├── auth/           # Módulo de autenticación
-├── tasks/          # CRUD de tareas
-├── profiles/       # Perfiles de usuario
-├── categories/     # Categorías
-├── goals/         # Metas
-├── notifications/  # Notificaciones
-└── integrations/  # Integraciones
+taskflow-backend/src/
+├── main.ts                 # Entry point + CORS
+├── app.module.ts           # Módulo raíz
+├── modules/
+│   ├── auth/               # Autenticación JWT
+│   ├── tasks/              # CRUD tareas
+│   ├── profiles/           # Perfiles usuario
+│   ├── categories/         # Categorías
+│   ├── goals/              # Metas
+│   ├── collaborations/     # Colaboración
+│   ├── notifications/      # Notificaciones
+│   ├── productivity/       # Métricas + Insights
+│   └── ai/                 # Sugerencias IA
+├── common/                 # Guards, pipes, decorators
+└── setup/                  # Inicialización BD
 ```
 
 ### Frontend Vue
 ```
-src/
-├── components/     # Componentes Vue
-├── pages/         # Páginas
-├── stores/        # Pinia stores
-├── services/      # Servicios API
-├── types/         # Tipos TypeScript
-└── router/       # Configuración de rutas
+taskflow-app-vue/src/
+├── main.ts                 # Entry point
+├── App.vue                 # Root component
+├── components/             # Componentes reutilizables
+│   ├── Header.vue
+│   ├── Sidebar.vue
+│   ├── TaskCard.vue
+│   └── TaskModal.vue
+├── pages/                  # Páginas (route-level)
+├── stores/                 # Pinia stores
+│   ├── auth.ts
+│   ├── tasks.ts
+│   └── theme.ts
+├── services/               # Servicios API
+│   └── api.ts
+├── router/                 # Vue Router config
+├── types/                  # TypeScript types
+└── style.css               # Global styles (Tailwind)
 ```
+
+## Base de Datos
+
+El schema completo está en `taskflow-backend/taskflow-supabase.sql` (21 tablas):
+
+**Core (5)**: profiles, tasks, categories, goals, task_activity
+**Colaboración (2)**: task_collaborators, collaboration_invitations
+**Notificaciones (3)**: notifications, notification_configs, email_preferences
+**Productividad (2)**: productivity_metrics, productivity_insights
+**IA (1)**: ai_suggestions_history
+**Otros (8)**: integrations, calendar_events, integration_sync_history, api_keys, api_rate_limits, automation_rules, webhooks
+
+Incluye: índices optimizados, datos de ejemplo, constraints, checks.
 
 ## Licencia
 
