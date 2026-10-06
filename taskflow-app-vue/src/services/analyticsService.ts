@@ -763,7 +763,6 @@ export const calendarAnalyticsService = {
         eventDistribution: metrics.averageEventsPerDay <= 5 ? 100 : 50,
         completionRate: metrics.completionRate,
         timeManagement: metrics.overdueEvents === 0 ? 100 : 50,
-        collaboration: 80,
         planning: metrics.upcomingEvents > 0 ? 90 : 40
       },
       recommendations

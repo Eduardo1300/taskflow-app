@@ -1,151 +1,50 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useTaskStore } from '@/stores/tasks';
 import api from '@/services/api';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
-import { User, Mail, Camera, Save, Edit2, X, Calendar, Phone, MapPin, Globe, Clock, Target, TrendingUp, Award, Badge } from 'lucide-vue-next';
+import { analyticsService } from '@/services/analyticsService';
+import {
+  User, Mail, Camera, Save, Edit2, X, Calendar, Phone, MapPin, Globe,
+  Clock, Target, TrendingUp, Award, Badge
+} from 'lucide-vue-next';
+
+interface ProfileForm {
+  fullName: string;
+  email: string;
+  bio: string;
+  phone: string;
+  location: string;
+  timezone: string;
+  language: string;
+}
 
 const authStore = useAuthStore();
 const taskStore = useTaskStore();
 
-const fullName = ref('');
-const email = ref('');
-const bio = ref('');
-const phone = ref('');
-const location = ref('');
-const timezone = ref('America/Mexico_City');
-const language = ref('es');
-const loading = ref(false);
-const saveSuccess = ref(false);
-const memberSince = ref('');
-const isEditing = ref(false);
+const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Lima';
 
-const editedProfile = ref({
+const emptyProfile = (): ProfileForm => ({
   fullName: '',
   email: '',
   bio: '',
   phone: '',
   location: '',
-  timezone: 'America/Mexico_City',
+  timezone: defaultTimezone,
   language: 'es'
 });
 
-const stats = computed(() => {
-  const tasks = taskStore.tasks;
-  const completed = tasks.filter(t => t.completed).length;
-  const total = tasks.length;
-  const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-  
-  const categories = new Set(tasks.filter(t => t.categoryId).map(t => t.categoryId));
-  const activeProjects = categories.size;
-  
-  return {
-    tasksCompleted: completed,
-    totalTasks: total,
-    activeProjects,
-    streakDays: 0,
-    successRate: rate
-  };
-});
+const profile = ref<ProfileForm>(emptyProfile());
+const editedProfile = ref<ProfileForm>(emptyProfile());
+const memberSince = ref('');
+const isEditing = ref(false);
+const loading = ref(false);
+const saveSuccess = ref(false);
+const saveError = ref<string | null>(null);
 
-const initials = computed(() => fullName.value ? fullName.value.charAt(0).toUpperCase() : (email.value ? email.value.split('@')[0].charAt(0).toUpperCase() : 'U'));
-
-onMounted(async () => {
-  await taskStore.fetchTasks();
-  await taskStore.fetchStats();
-  
-  syncFromAuthStore();
-  
-  // Watch for authStore.user changes to keep local refs in sync
-  watch(() => authStore.user, syncFromAuthStore, { deep: true });
-});
-
-function syncFromAuthStore() {
-  if (authStore.user) {
-    fullName.value = authStore.user.fullName || '';
-    email.value = authStore.user.email || '';
-    bio.value = authStore.user.bio || '';
-    phone.value = authStore.user.phone || '';
-    location.value = authStore.user.location || '';
-    timezone.value = authStore.user.timezone || 'America/Mexico_City';
-    language.value = authStore.user.language || 'es';
-    if (authStore.user.createdAt) {
-      memberSince.value = new Date(authStore.user.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-    }
-  }
-  
-  editedProfile.value = {
-    fullName: fullName.value,
-    email: email.value,
-    bio: bio.value,
-    phone: phone.value,
-    location: location.value,
-    timezone: timezone.value,
-    language: language.value
-  };
-}
-
-function startEdit() {
-  editedProfile.value = {
-    fullName: fullName.value,
-    email: email.value,
-    bio: bio.value,
-    phone: phone.value,
-    location: location.value,
-    timezone: timezone.value,
-    language: language.value
-  };
-  isEditing.value = true;
-}
-
-function cancelEdit() {
-  isEditing.value = false;
-}
-
-async function handleSave() {
-  loading.value = true;
-  try {
-    await api.updateProfile({ 
-      fullName: editedProfile.value.fullName,
-      email: editedProfile.value.email,
-      bio: editedProfile.value.bio,
-      phone: editedProfile.value.phone,
-      location: editedProfile.value.location,
-      timezone: editedProfile.value.timezone,
-      language: editedProfile.value.language
-    });
-    
-    fullName.value = editedProfile.value.fullName;
-    email.value = editedProfile.value.email;
-    bio.value = editedProfile.value.bio;
-    phone.value = editedProfile.value.phone;
-    location.value = editedProfile.value.location;
-    timezone.value = editedProfile.value.timezone;
-    language.value = editedProfile.value.language;
-    
-    if (authStore.user) {
-      authStore.user.fullName = editedProfile.value.fullName;
-      authStore.user.email = editedProfile.value.email;
-      authStore.user.bio = editedProfile.value.bio;
-      authStore.user.phone = editedProfile.value.phone;
-      authStore.user.location = editedProfile.value.location;
-      authStore.user.timezone = editedProfile.value.timezone;
-      authStore.user.language = editedProfile.value.language;
-    }
-    
-    saveSuccess.value = true;
-    setTimeout(() => {
-      saveSuccess.value = false;
-      isEditing.value = false;
-    }, 2000);
-  } catch (error) {
-    console.error('Error guardando perfil:', error);
-  } finally {
-    loading.value = false;
-  }
-}
+let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
 const languages = [
   { value: 'es', label: 'Español' },
@@ -154,13 +53,146 @@ const languages = [
   { value: 'de', label: 'Deutsch' }
 ];
 
-const timezones = [
+const baseTimezones = [
+  { value: 'America/Lima', label: 'Lima' },
+  { value: 'America/Bogota', label: 'Bogotá' },
   { value: 'America/Mexico_City', label: 'Ciudad de México' },
+  { value: 'America/Santiago', label: 'Santiago' },
+  { value: 'America/Argentina/Buenos_Aires', label: 'Buenos Aires' },
+  { value: 'America/Sao_Paulo', label: 'São Paulo' },
   { value: 'America/New_York', label: 'Nueva York' },
   { value: 'Europe/Madrid', label: 'Madrid' },
   { value: 'Europe/London', label: 'Londres' },
   { value: 'Asia/Tokyo', label: 'Tokio' }
 ];
+
+// Si la zona guardada no está en la lista, la añadimos para que el select no quede en blanco
+const timezones = computed(() => {
+  const current = [profile.value.timezone, editedProfile.value.timezone];
+  const extras = current
+    .filter((tz, i) => tz && current.indexOf(tz) === i && !baseTimezones.some(b => b.value === tz))
+    .map(tz => ({ value: tz, label: tz }));
+  return [...extras, ...baseTimezones];
+});
+
+const timezoneLabel = computed(
+  () => timezones.value.find(t => t.value === profile.value.timezone)?.label ?? profile.value.timezone
+);
+
+const languageLabel = computed(
+  () => languages.find(l => l.value === profile.value.language)?.label ?? 'Español'
+);
+
+const stats = computed(() => {
+  const tasks = taskStore.tasks;
+  const completed = tasks.filter(t => t.completed).length;
+  const total = tasks.length;
+  const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  // Proyectos activos = categorías distintas con tareas pendientes
+  const categories = new Set(
+    tasks
+      .filter(t => !t.completed)
+      .map(t => (t as any).category ?? (t as any).categoryId)
+      .filter(Boolean)
+  );
+
+  return {
+    tasksCompleted: completed,
+    totalTasks: total,
+    activeProjects: categories.size,
+    streakDays: analyticsService.calculateStreak(tasks),
+    successRate
+  };
+});
+
+const initials = computed(() => {
+  const { fullName, email } = profile.value;
+  if (fullName) return fullName.charAt(0).toUpperCase();
+  if (email) return email.split('@')[0].charAt(0).toUpperCase();
+  return 'U';
+});
+
+function syncFromAuthStore() {
+  const user = authStore.user as any;
+  if (!user) return;
+
+  profile.value = {
+    fullName: user.fullName || '',
+    email: user.email || '',
+    bio: user.bio || '',
+    phone: user.phone || '',
+    location: user.location || '',
+    timezone: user.timezone || defaultTimezone,
+    language: user.language || 'es'
+  };
+
+  memberSince.value = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '';
+
+  // No pisamos lo que el usuario está escribiendo
+  if (!isEditing.value) {
+    editedProfile.value = { ...profile.value };
+  }
+}
+
+function startEdit() {
+  editedProfile.value = { ...profile.value };
+  saveError.value = null;
+  isEditing.value = true;
+}
+
+function cancelEdit() {
+  clearTimeout(closeTimer);
+  saveSuccess.value = false;
+  saveError.value = null;
+  isEditing.value = false;
+}
+
+async function handleSave() {
+  loading.value = true;
+  saveError.value = null;
+  try {
+    const payload = { ...editedProfile.value, email: profile.value.email };
+    await api.updateProfile(payload);
+
+    profile.value = { ...payload };
+
+    if (authStore.user) {
+      Object.assign(authStore.user, payload);
+    }
+
+    saveSuccess.value = true;
+    closeTimer = setTimeout(() => {
+      saveSuccess.value = false;
+      isEditing.value = false;
+    }, 1500);
+  } catch (error) {
+    console.error('Error guardando perfil:', error);
+    saveError.value = 'No se pudo guardar el perfil. Inténtalo de nuevo.';
+  } finally {
+    loading.value = false;
+  }
+}
+
+// El watch va en el setup (no dentro de onMounted tras un await) para que se limpie con el componente
+watch(() => authStore.user, syncFromAuthStore, { deep: true, immediate: true });
+
+onMounted(async () => {
+  try {
+    await taskStore.fetchTasks();
+  } catch (e) {
+    console.error('Error cargando tareas:', e);
+  }
+  try {
+    await (taskStore as any).fetchStats?.();
+  } catch (e) {
+    console.error('Error cargando estadísticas:', e);
+  }
+});
+
+onUnmounted(() => clearTimeout(closeTimer));
 </script>
 
 <template>
@@ -171,7 +203,7 @@ const timezones = [
       <Header />
 
       <main class="flex-1 p-6 space-y-6">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center space-x-4">
             <div class="bg-gradient-to-br from-purple-500 to-blue-600 p-4 rounded-2xl shadow-xl">
               <User class="h-6 w-6 sm:h-8 sm:w-8 text-white" />
@@ -193,31 +225,36 @@ const timezones = [
               <X class="h-5 w-5 mr-2" />
               Cancelar
             </button>
-            <button @click="handleSave" :disabled="loading" class="flex items-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 text-white rounded-xl font-medium shadow-lg">
+            <button @click="handleSave" :disabled="loading || saveSuccess" class="flex items-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 text-white rounded-xl font-medium shadow-lg">
               <Save class="h-5 w-5 mr-2" />
-              {{ saveSuccess ? 'Guardado!' : (loading ? 'Guardando...' : 'Guardar') }}
+              {{ saveSuccess ? '¡Guardado!' : (loading ? 'Guardando...' : 'Guardar') }}
             </button>
           </div>
         </div>
 
+        <div v-if="saveError" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-300">
+          {{ saveError }}
+        </div>
+
+        <!-- Banner -->
         <div class="bg-gradient-to-br from-purple-500 via-blue-500 to-purple-600 rounded-2xl shadow-2xl p-6 sm:p-8">
           <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-            <div class="relative">
+            <div class="relative mx-auto sm:mx-0">
               <div class="w-24 h-24 sm:w-28 sm:h-28 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl ring-4 ring-white/20">
                 <span class="text-4xl sm:text-5xl font-bold text-white">{{ initials }}</span>
               </div>
-              <button v-if="isEditing" class="absolute bottom-0 right-0 p-3 bg-white text-purple-600 rounded-full hover:bg-gray-100 shadow-lg">
+              <button v-if="isEditing" disabled title="Próximamente" class="absolute bottom-0 right-0 p-3 bg-white text-purple-600 rounded-full shadow-lg opacity-60 cursor-not-allowed">
                 <Camera class="h-5 w-5" />
               </button>
             </div>
 
             <div class="text-white text-center sm:text-left flex-1">
-              <h2 class="text-2xl sm:text-3xl font-bold">{{ fullName || 'Usuario' }}</h2>
-              <p class="text-blue-100 mt-1 text-sm sm:text-base">{{ email }}</p>
+              <h2 class="text-2xl sm:text-3xl font-bold">{{ profile.fullName || 'Usuario' }}</h2>
+              <p class="text-blue-100 mt-1 text-sm sm:text-base">{{ profile.email }}</p>
               <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3 text-sm text-blue-100">
-                <div class="flex items-center">
+                <div v-if="memberSince" class="flex items-center">
                   <Calendar class="h-4 w-4 mr-1.5" />
-                  <span>Miembro desde {{ memberSince || '2024' }}</span>
+                  <span>Miembro desde {{ memberSince }}</span>
                 </div>
                 <div v-if="stats.streakDays > 0" class="flex items-center px-3 py-1 bg-white/20 rounded-full">
                   <Award class="h-4 w-4 mr-1.5" />
@@ -228,6 +265,7 @@ const timezones = [
           </div>
         </div>
 
+        <!-- Stats -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all">
             <div class="flex items-center justify-between mb-3">
@@ -271,6 +309,7 @@ const timezones = [
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Información personal -->
           <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
               <User class="h-5 w-5 mr-2 text-purple-600" />
@@ -283,14 +322,14 @@ const timezones = [
                 <div v-if="isEditing">
                   <input v-model="editedProfile.fullName" type="text" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white" placeholder="Tu nombre" />
                 </div>
-                <p v-else class="text-gray-900 dark:text-white font-medium">{{ fullName || 'No especificado' }}</p>
+                <p v-else class="text-gray-900 dark:text-white font-medium">{{ profile.fullName || 'No especificado' }}</p>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
                 <div class="flex items-center">
                   <Mail class="h-5 w-5 text-gray-400 mr-2" />
-                  <p class="text-gray-900 dark:text-white font-medium">{{ email }}</p>
+                  <p class="text-gray-900 dark:text-white font-medium">{{ profile.email }}</p>
                 </div>
               </div>
 
@@ -301,7 +340,7 @@ const timezones = [
                 </div>
                 <div v-else class="flex items-center">
                   <Phone class="h-5 w-5 text-gray-400 mr-2" />
-                  <p class="text-gray-900 dark:text-white font-medium">{{ phone || 'No especificado' }}</p>
+                  <p class="text-gray-900 dark:text-white font-medium">{{ profile.phone || 'No especificado' }}</p>
                 </div>
               </div>
 
@@ -312,12 +351,13 @@ const timezones = [
                 </div>
                 <div v-else class="flex items-center">
                   <MapPin class="h-5 w-5 text-gray-400 mr-2" />
-                  <p class="text-gray-900 dark:text-white font-medium">{{ location || 'No especificada' }}</p>
+                  <p class="text-gray-900 dark:text-white font-medium">{{ profile.location || 'No especificada' }}</p>
                 </div>
               </div>
             </div>
           </div>
 
+          <!-- Configuración adicional -->
           <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
               <Clock class="h-5 w-5 mr-2 text-blue-600" />
@@ -328,9 +368,9 @@ const timezones = [
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Biografía</label>
                 <div v-if="isEditing">
-                  <textarea v-model="editedProfile.bio" rows="3" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none" placeholder="Cuéntanos sobre ti..." />
+                  <textarea v-model="editedProfile.bio" rows="3" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none" placeholder="Cuéntanos sobre ti..."></textarea>
                 </div>
-                <p v-else class="text-gray-900 dark:text-white">{{ bio || 'No hay biografía disponible' }}</p>
+                <p v-else class="text-gray-900 dark:text-white">{{ profile.bio || 'No hay biografía disponible' }}</p>
               </div>
 
               <div>
@@ -342,7 +382,7 @@ const timezones = [
                 </div>
                 <div v-else class="flex items-center">
                   <Globe class="h-5 w-5 text-gray-400 mr-2" />
-                  <p class="text-gray-900 dark:text-white">{{ timezone }}</p>
+                  <p class="text-gray-900 dark:text-white">{{ timezoneLabel }}</p>
                 </div>
               </div>
 
@@ -353,9 +393,7 @@ const timezones = [
                     <option v-for="lang in languages" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
                   </select>
                 </div>
-                <p v-else class="text-gray-900 dark:text-white">
-                  {{ languages.find(l => l.value === language)?.label || 'Español' }}
-                </p>
+                <p v-else class="text-gray-900 dark:text-white">{{ languageLabel }}</p>
               </div>
             </div>
           </div>

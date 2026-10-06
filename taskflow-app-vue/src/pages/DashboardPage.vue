@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
 import { useTaskStore } from '@/stores/tasks';
 import { useAuthStore } from '@/stores/auth';
 import Sidebar from '@/components/Sidebar.vue';
@@ -9,20 +8,20 @@ import TaskModal from '@/components/TaskModal.vue';
 import TaskCardEnhanced from '@/components/TaskCardEnhanced.vue';
 import SmartSearch from '@/components/SmartSearch.vue';
 import GoalsSystem from '@/components/GoalsSystem.vue';
-import { 
-  Plus, CheckCircle, Target, TrendingUp, Sparkles, Star, 
-  AlertTriangle, Filter, Search, Clock, Trash2, Edit,
-  X, Calendar, Loader2
+import { analyticsService, isOverdue, parseDate } from '@/services/analyticsService';
+import {
+  Plus, CheckCircle, Target, TrendingUp, Sparkles, Star, Zap, AlertTriangle
 } from 'lucide-vue-next';
 
-const router = useRouter();
-const route = useRoute();
 const taskStore = useTaskStore();
 const authStore = useAuthStore();
 
 const statusFilter = ref<'all' | 'pending' | 'completed'>('all');
 const priorityFilter = ref<'all' | 'high' | 'medium' | 'low'>('all');
 const favoriteFilter = ref<boolean | null>(null);
+// IDs devueltos por SmartSearch (null = sin búsqueda activa)
+const searchResultIds = ref<Set<number> | null>(null);
+
 const isModalOpen = ref(false);
 const isSaving = ref(false);
 const editingTask = ref<any>(null);
@@ -30,15 +29,18 @@ const deleteConfirmTask = ref<any>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 
-const filteredTasks = ref<any[]>([]);
-
-function applyFilters() {
+// Lista filtrada: se recalcula sola cuando cambian las tareas o los filtros,
+// y la búsqueda inteligente se combina con los filtros en vez de pisarlos.
+const filteredTasks = computed(() => {
   let tasks = [...taskStore.tasks];
 
+  if (searchResultIds.value) {
+    const ids = searchResultIds.value;
+    tasks = tasks.filter(t => ids.has(t.id));
+  }
+
   if (statusFilter.value !== 'all') {
-    tasks = tasks.filter(t => 
-      statusFilter.value === 'completed' ? t.completed : !t.completed
-    );
+    tasks = tasks.filter(t => (statusFilter.value === 'completed' ? t.completed : !t.completed));
   }
 
   if (priorityFilter.value !== 'all') {
@@ -46,38 +48,86 @@ function applyFilters() {
   }
 
   if (favoriteFilter.value !== null) {
-    tasks = tasks.filter(t => t.favorite === favoriteFilter.value);
+    tasks = tasks.filter(t => !!t.favorite === favoriteFilter.value);
   }
 
-  tasks.sort((a, b) => {
-    const priorityOrder: Record<string, number> = { high: 3, medium: 2, low: 1 };
+  const priorityOrder: Record<string, number> = { high: 3, medium: 2, low: 1 };
+
+  return tasks.sort((a, b) => {
     const aPriority = priorityOrder[a.priority || 'low'] || 0;
     const bPriority = priorityOrder[b.priority || 'low'] || 0;
-
     if (aPriority !== bPriority) return bPriority - aPriority;
-    if (a.due_date && b.due_date) {
-      return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
-    }
+
+    // Dentro de la misma prioridad: primero la fecha más cercana; sin fecha al final
+    const aDue = parseDate(a.due_date)?.getTime();
+    const bDue = parseDate(b.due_date)?.getTime();
+    if (aDue !== undefined && bDue !== undefined) return aDue - bDue;
+    if (aDue !== undefined) return -1;
+    if (bDue !== undefined) return 1;
     return 0;
   });
+});
 
-  filteredTasks.value = tasks;
-}
+const processedTasks = computed(() => analyticsService.processTasks(taskStore.tasks));
 
 const stats = computed(() => {
-  const total = taskStore.tasks.length;
-  const completed = taskStore.tasks.filter(t => t.completed).length;
+  const tasks = processedTasks.value;
+  const total = tasks.length;
+  const completed = tasks.filter(t => t.completed).length;
   const pending = total - completed;
-  const highPriority = taskStore.tasks.filter(t => t.priority === 'high' && !t.completed).length;
-  const overdue = taskStore.tasks.filter(t => 
-    t.due_date && new Date(t.due_date) < new Date() && !t.completed
-  ).length;
+  const highPriority = tasks.filter(t => t.priority === 'high' && !t.completed).length;
+  const overdue = tasks.filter(t => isOverdue(t)).length;
   const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  return { total, completed, pending, highPriority, overdue, progress };
+  // Productividad semanal: completadas esta semana vs. lo que sigue pendiente
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const weekCompleted = tasks.filter(t => t.completed && t.updatedAt >= weekStart).length;
+  const weekProductivity = weekCompleted + pending > 0
+    ? Math.round((weekCompleted / (weekCompleted + pending)) * 100)
+    : 0;
+
+  const highPriorityShare = pending > 0 ? Math.round((highPriority / pending) * 100) : 0;
+  const pendingShare = total > 0 ? Math.round((pending / total) * 100) : 0;
+
+  return {
+    total, completed, pending, highPriority, overdue, progress,
+    weekCompleted, weekProductivity, highPriorityShare, pendingShare
+  };
 });
 
 const userName = computed(() => authStore.user?.email?.split('@')[0] || 'Usuario');
+
+const isAllActive = computed(
+  () => statusFilter.value === 'all' && priorityFilter.value === 'all' && favoriteFilter.value === null
+);
+
+/* ---------- Filtros ---------- */
+
+function resetFilters() {
+  statusFilter.value = 'all';
+  priorityFilter.value = 'all';
+  favoriteFilter.value = null;
+}
+
+function toggleStatus(status: 'pending' | 'completed') {
+  statusFilter.value = statusFilter.value === status ? 'all' : status;
+}
+
+function toggleHighPriority() {
+  priorityFilter.value = priorityFilter.value === 'high' ? 'all' : 'high';
+}
+
+function toggleFavorites() {
+  favoriteFilter.value = favoriteFilter.value === true ? null : true;
+}
+
+function handleSmartSearchResults(results: any[]) {
+  searchResultIds.value = new Set(results.map(t => t.id));
+}
+
+/* ---------- Tareas ---------- */
 
 function openNewTask() {
   editingTask.value = null;
@@ -93,10 +143,15 @@ function confirmDelete(task: any) {
   deleteConfirmTask.value = task;
 }
 
-function handleDelete() {
-  if (deleteConfirmTask.value) {
-    taskStore.deleteTask(deleteConfirmTask.value.id);
-    deleteConfirmTask.value = null;
+async function handleDelete() {
+  if (!deleteConfirmTask.value) return;
+  const id = deleteConfirmTask.value.id;
+  deleteConfirmTask.value = null;
+  try {
+    await taskStore.deleteTask(id);
+  } catch (e) {
+    console.error('Error eliminando tarea:', e);
+    error.value = 'No se pudo eliminar la tarea.';
   }
 }
 
@@ -106,29 +161,6 @@ function toggleTask(taskId: number) {
 
 function toggleFavorite(taskId: number) {
   taskStore.toggleFavorite(taskId);
-}
-
-// Filter handler functions
-function handleFilterPending() {
-  statusFilter.value = 'pending';
-  priorityFilter.value = 'all';
-  applyFilters();
-}
-
-function handleFilterCompleted() {
-  statusFilter.value = 'completed';
-  priorityFilter.value = 'all';
-  applyFilters();
-}
-
-function handleFilterHighPriority() {
-  priorityFilter.value = 'high';
-  statusFilter.value = 'all';
-  applyFilters();
-}
-
-function handleSmartSearchResults(results: any[]) {
-  filteredTasks.value = results;
 }
 
 async function handleTaskSaved(taskData: any) {
@@ -148,7 +180,6 @@ async function handleTaskSaved(taskData: any) {
       await taskStore.createTask(taskPayload);
     }
     await taskStore.fetchTasks();
-    applyFilters();
     isModalOpen.value = false;
     editingTask.value = null;
   } finally {
@@ -156,18 +187,20 @@ async function handleTaskSaved(taskData: any) {
   }
 }
 
+async function loadTasks() {
+  isLoading.value = true;
+  error.value = null;
+  try {
+    await taskStore.fetchTasks();
+  } catch (e) {
+    console.error('Error cargando tareas:', e);
+    error.value = 'No se pudieron cargar las tareas.';
+  } finally {
+    isLoading.value = false;
+  }
+}
 
-onMounted(async () => {
-  await taskStore.fetchTasks();
-  applyFilters();
-  isLoading.value = false;
-});
-
-// Watch for task changes to re-apply filters
-watch(() => taskStore.tasks, applyFilters, { deep: true });
-watch(() => statusFilter.value, applyFilters);
-watch(() => priorityFilter.value, applyFilters);
-watch(() => favoriteFilter.value, applyFilters);
+onMounted(loadTasks);
 </script>
 
 <template>
@@ -183,22 +216,18 @@ watch(() => favoriteFilter.value, applyFilters);
           <div class="absolute inset-0 bg-black/20"></div>
           <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
           <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/4"></div>
-          
+
           <div class="relative px-6 py-8 sm:px-8 sm:py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div class="flex items-center space-x-4">
               <div class="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
                 <Target class="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </div>
               <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white">
-                  Dashboard
-                </h1>
-                <p class="text-blue-100 text-sm sm:text-base mt-1">
-                  Bienvenido de vuelta, {{ userName }}
-                </p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
+                <p class="text-blue-100 text-sm sm:text-base mt-1">Bienvenido de vuelta, {{ userName }}</p>
               </div>
             </div>
-            
+
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <button @click="openNewTask" class="flex items-center justify-center px-5 py-2.5 bg-white text-purple-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                 <Plus class="h-5 w-5 mr-2" />
@@ -215,27 +244,23 @@ watch(() => favoriteFilter.value, applyFilters);
               <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Tareas</p>
                 <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  {{ stats.pending }} pendientes
-                </p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">{{ stats.pending }} pendientes</p>
               </div>
               <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform">
                 <Target class="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
             <div class="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div class="h-full bg-blue-500 rounded-full" style="width: 100%"></div>
+              <div class="h-full bg-blue-500 rounded-full transition-all duration-500" :style="{ width: stats.pendingShare + '%' }"></div>
             </div>
           </div>
-          
+
           <div class="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-start justify-between">
               <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Completadas</p>
                 <p class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{{ stats.completed }}</p>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  {{ stats.progress }}% progreso
-                </p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">{{ stats.progress }}% progreso</p>
               </div>
               <div class="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl group-hover:scale-110 transition-transform">
                 <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -245,42 +270,39 @@ watch(() => favoriteFilter.value, applyFilters);
               <div class="h-full bg-green-500 rounded-full transition-all duration-500" :style="{ width: stats.progress + '%' }"></div>
             </div>
           </div>
-          
+
           <div class="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-start justify-between">
               <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Alta Prioridad</p>
                 <p class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{{ stats.highPriority }}</p>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  Requieren atención
+                <p v-if="stats.overdue > 0" class="text-xs text-red-500 mt-2 flex items-center">
+                  <AlertTriangle class="h-3 w-3 mr-1" />{{ stats.overdue }} vencida{{ stats.overdue !== 1 ? 's' : '' }}
                 </p>
+                <p v-else class="text-xs text-gray-400 dark:text-gray-500 mt-2">Requieren atención</p>
               </div>
               <div class="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl group-hover:scale-110 transition-transform">
                 <Zap class="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
             <div class="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div class="h-full bg-red-500 rounded-full" :style="{ width: stats.highPriority > 0 ? '60%' : '20%' }"></div>
+              <div class="h-full bg-red-500 rounded-full transition-all duration-500" :style="{ width: stats.highPriorityShare + '%' }"></div>
             </div>
           </div>
-          
+
           <div class="group bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-start justify-between">
               <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Productividad</p>
-                <p class="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
-                  {{ stats.progress }}%
-                </p>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  Esta semana
-                </p>
+                <p class="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{{ stats.weekProductivity }}%</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">{{ stats.weekCompleted }} completadas esta semana</p>
               </div>
               <div class="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-xl group-hover:scale-110 transition-transform">
                 <TrendingUp class="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             <div class="mt-4 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div class="h-full bg-purple-500 rounded-full transition-all duration-500" :style="{ width: stats.progress + '%' }"></div>
+              <div class="h-full bg-purple-500 rounded-full transition-all duration-500" :style="{ width: stats.weekProductivity + '%' }"></div>
             </div>
           </div>
         </div>
@@ -300,44 +322,55 @@ watch(() => favoriteFilter.value, applyFilters);
         </div>
 
         <!-- Section Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-              Tus Tareas
-            </h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Tus Tareas</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {{ filteredTasks.length }} tarea{{ filteredTasks.length !== 1 ? 's' : '' }} encontrada{{ filteredTasks.length !== 1 ? 's' : '' }}
             </p>
           </div>
-          
+
           <!-- Filter Pills -->
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <button
-              @click="{ statusFilter = 'all'; priorityFilter = 'all'; applyFilters(); }"
-              :class="['px-3 py-1.5 rounded-full text-sm font-medium transition-all', statusFilter === 'all' && priorityFilter === 'all' ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600']"
+              @click="resetFilters"
+              :class="['px-3 py-1.5 rounded-full text-sm font-medium transition-all', isAllActive ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600']"
             >
               Todas
             </button>
             <button
-              @click="handleFilterPending"
+              @click="toggleStatus('pending')"
               :class="['px-3 py-1.5 rounded-full text-sm font-medium transition-all', statusFilter === 'pending' ? 'bg-yellow-500 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600']"
             >
               Pendientes
             </button>
             <button
-              @click="handleFilterCompleted"
+              @click="toggleStatus('completed')"
               :class="['px-3 py-1.5 rounded-full text-sm font-medium transition-all', statusFilter === 'completed' ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600']"
             >
               Completadas
             </button>
             <button
-              @click="favoriteFilter = favoriteFilter === true ? null : true; applyFilters()"
+              @click="toggleHighPriority"
+              :class="['px-3 py-1.5 rounded-full text-sm font-medium transition-all', priorityFilter === 'high' ? 'bg-red-500 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600']"
+            >
+              <Zap class="h-3.5 w-3.5 mr-1 inline" />
+              Alta prioridad
+            </button>
+            <button
+              @click="toggleFavorites"
               :class="['px-3 py-1.5 rounded-full text-sm font-medium transition-all', favoriteFilter === true ? 'bg-yellow-500 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600']"
             >
               <Star class="h-3.5 w-3.5 mr-1 inline" />
               Favoritas
             </button>
           </div>
+        </div>
+
+        <!-- Error -->
+        <div v-if="error" class="flex items-center justify-between p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
+          <button @click="loadTasks" class="text-sm font-medium text-red-700 dark:text-red-300 hover:underline">Reintentar</button>
         </div>
 
         <!-- Loading -->
@@ -353,7 +386,7 @@ watch(() => favoriteFilter.value, applyFilters);
         <div v-else-if="filteredTasks.length === 0" class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 rounded-3xl p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-700">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-          
+
           <div class="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mb-6 shadow-xl">
             <Sparkles class="h-10 w-10 sm:h-12 sm:w-12 text-blue-500" />
           </div>
@@ -375,10 +408,10 @@ watch(() => favoriteFilter.value, applyFilters);
         <!-- Tasks Grid -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <div
-            v-for="task in filteredTasks"
+            v-for="(task, index) in filteredTasks"
             :key="task.id"
             class="animate-fade-in-up"
-            :style="{ animationDelay: `${filteredTasks.indexOf(task) * 0.05}s`, animationFillMode: 'both' }"
+            :style="{ animationDelay: `${Math.min(index, 12) * 0.05}s`, animationFillMode: 'both' }"
           >
             <TaskCardEnhanced
               :task="task"
@@ -386,7 +419,6 @@ watch(() => favoriteFilter.value, applyFilters);
               @edit="openEditTask"
               @delete="confirmDelete"
               @favorite="toggleFavorite"
-              @share="() => {}"
             />
           </div>
         </div>
@@ -405,11 +437,9 @@ watch(() => favoriteFilter.value, applyFilters);
     <!-- Delete Confirmation Modal -->
     <div v-if="deleteConfirmTask" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Confirmar eliminación
-        </h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Confirmar eliminación</h3>
         <p class="text-gray-600 dark:text-gray-300 mb-6">
-          ¿Estás seguro de que deseas eliminar la tarea <strong>"{{ deleteConfirmTask?.title }}"</strong>? 
+          ¿Estás seguro de que deseas eliminar la tarea <strong>"{{ deleteConfirmTask?.title }}"</strong>?
           Esta acción no se puede deshacer.
         </p>
         <div class="flex justify-end gap-3">
@@ -430,3 +460,14 @@ watch(() => favoriteFilter.value, applyFilters);
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Por si "animate-fade-in-up" no está definido en tu tailwind.config */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out;
+}
+</style>

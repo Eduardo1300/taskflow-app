@@ -1,6 +1,5 @@
 import type { Task } from '@/types';
-import { analyticsService, type AnalyticsData } from './analyticsService';
-import { calendarAnalyticsService, type CalendarMetrics, type ProductivityInsights, type CalendarHealthScore, type BurnoutRisk } from './analyticsService';
+import type { AnalyticsData } from './analyticsService';
 
 export const exportService = {
   exportAnalyticsToPDF(analyticsData: AnalyticsData, tasks: Task[]) {
@@ -383,7 +382,7 @@ export const exportService = {
         <div class="hourly-chart">
           ${Array.from({ length: 24 }, (_, i) => {
             const count = timeStats.hourlyDistribution[i] || 0;
-            const maxVal = Math.max(...Object.values(timeStats.hourlyDistribution), 1);
+            const maxVal = Math.max(...Object.values(timeStats.hourlyDistribution).map(Number), 1);
             const height = (count / maxVal) * 100;
             return `
             <div class="hour-bar">
@@ -405,8 +404,8 @@ export const exportService = {
       <div class="chart-container">
         <div class="chart-title">Completadas por semana</div>
         <div class="bar-chart">
-          ${timeStats.weeklyTrends.map((week, index) => {
-            const maxVal = Math.max(...timeStats.weeklyTrends.map(w => w.completed), 1);
+          ${timeStats.weeklyTrends.map((week: { completed: number; week: string }) => {
+            const maxVal = Math.max(...timeStats.weeklyTrends.map((w: { completed: number }) => w.completed), 1);
             const height = (week.completed / maxVal) * 100;
             return `
             <div class="bar-item">
@@ -426,8 +425,8 @@ export const exportService = {
       <div class="chart-container">
         <div class="chart-title">Completadas por mes</div>
         <div class="bar-chart">
-          ${timeStats.monthlyTrends.map((month, index) => {
-            const maxVal = Math.max(...timeStats.monthlyTrends.map(m => m.completed), 1);
+          ${timeStats.monthlyTrends.map((month: { completed: number; month: string }) => {
+            const maxVal = Math.max(...timeStats.monthlyTrends.map((m: { completed: number }) => m.completed), 1);
             const height = (month.completed / maxVal) * 100;
             return `
             <div class="bar-item">
@@ -468,7 +467,7 @@ export const exportService = {
               </td>
               <td style="padding: 8px;">${task.category || '-'}</td>
               <td style="padding: 8px;">${task.due_date ? new Date(task.due_date).toLocaleDateString('es-ES') : '-'}</td>
-              <td style="padding: 8px;">${task.updated_at ? new Date(task.updated_at).toLocaleDateString('es-ES') : '-'}</td>
+              <td style="padding: 8px;">${task.updatedAt ? new Date(task.updatedAt).toLocaleDateString('es-ES') : '-'}</td>
             </tr>
             `).join('')}
           </tbody>
