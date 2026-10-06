@@ -56,12 +56,29 @@ export const exportService = {
   /**
    * Genera el HTML del reporte PDF y lo devuelve para abrirlo en una nueva pestaña.
    */
-  exportAnalyticsToPDF(analyticsData: AnalyticsData, tasks: Task[]): string {
+    exportAnalyticsToPDF(analyticsData: AnalyticsData, tasks: Task[]): void {
     if (!analyticsData?.taskStats || analyticsData.taskStats.total === 0) {
-      throw new Error('No hay suficientes datos para exportar.');
+      alert('No hay suficientes datos para exportar. Crea algunas tareas primero.');
+      return;
     }
 
-    return this.generatePDFHTML(analyticsData, tasks);
+    const htmlContent = this.generatePDFHTML(analyticsData, tasks);
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Por favor permite ventanas emergentes para exportar a PDF.');
+      return;
+    }
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.onafterprint = () => printWindow.close();
+      }, 500);
+    };
   },
 
   generatePDFHTML(data: AnalyticsData, tasks: Task[]): string {
