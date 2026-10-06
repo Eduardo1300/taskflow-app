@@ -188,7 +188,6 @@ onMounted(async () => {
   await loadAllAnalytics();
 });
 
-watch(selectedTimeRange, loadAllAnalytics);
 watch(() => taskStore.tasks, loadAllAnalytics, { deep: true });
 </script>
 
@@ -204,15 +203,7 @@ watch(() => taskStore.tasks, loadAllAnalytics, { deep: true });
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Analytics</h1>
             <p class="text-gray-600 dark:text-gray-400">Análisis completo de tu rendimiento y gestión de tareas</p>
           </div>
-          <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            <div class="flex bg-white dark:bg-gray-800 rounded-xl p-1 border border-gray-200 dark:border-gray-700">
-              <button
-                v-for="range in ranges"
-                :key="range.key"
-                @click="selectedTimeRange = range.key"
-                :class="['px-4 py-2 rounded-lg text-sm font-medium transition-all', selectedTimeRange === range.key ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400']"
-              >{{ range.label }}</button>
-            </div>
+          <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-end">
             <button @click="exportAnalyticsToPDF" class="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">
               <FileText class="h-4 w-4" /><span>Exportar PDF</span>
             </button>
