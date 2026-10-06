@@ -21,13 +21,11 @@ import {
 } from '@/services/analyticsService';
 import { exportService } from '@/services/exportService';
 
-type TimeRange = 'week' | 'month' | 'quarter';
 type Tone = 'good' | 'warn' | 'bad';
 
 const taskStore = useTaskStore();
 
 const activeTab = ref<'overview' | 'productivity' | 'calendar' | 'charts' | 'forecast'>('overview');
-const selectedTimeRange = ref<TimeRange>('month');
 const loading = ref(true);
 
 const analyticsData = ref<AnalyticsData | null>(null);
@@ -45,11 +43,6 @@ const tabs = [
   { key: 'forecast', label: 'Pronósticos', icon: CalendarDays }
 ] as const;
 
-const ranges: { key: TimeRange; label: string }[] = [
-  { key: 'week', label: 'Semana' },
-  { key: 'month', label: 'Mes' },
-  { key: 'quarter', label: 'Trimestre' }
-];
 
 const factorLabels: Record<string, string> = {
   eventDistribution: 'Distribución',
