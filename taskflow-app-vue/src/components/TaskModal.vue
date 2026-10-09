@@ -36,6 +36,13 @@ const taskCategories = computed(() => {
   ];
 });
 
+function parseTagsArray(tags: string | string[] | undefined): string[] {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  const cleaned = String(tags).replace(/^\{|\}$/g, '');
+  return cleaned.split(',').map(t => t.trim()).filter(t => t);
+}
+
 const form = ref({
   title: '',
   description: '',
@@ -50,15 +57,6 @@ const validationError = ref('');
 
 watch(() => props.task, (newTask) => {
   if (newTask && newTask.title) {
-    let taskTags: string[] = [];
-    if (newTask.tags) {
-      if (Array.isArray(newTask.tags)) {
-        taskTags = newTask.tags;
-      } else if (typeof newTask.tags === 'string') {
-        taskTags = newTask.tags.split(',').filter((t: string) => t.trim());
-      }
-    }
-
     const taskDueDate = newTask.due_date || newTask.dueDate;
     const dueDateStr = taskDueDate ? (typeof taskDueDate === 'string' ? taskDueDate.split('T')[0] : '') : '';
     
@@ -70,7 +68,7 @@ watch(() => props.task, (newTask) => {
       priority: newTask.priority || 'medium',
       dueDate: dueDateStr,
       category: taskCategory,
-      tags: taskTags
+      tags: parseTagsArray(newTask.tags)
     };
   } else {
     resetForm();
@@ -235,12 +233,9 @@ function formatDate(dateString: string) {
             <option v-for="cat in taskCategories" :key="cat.name" :value="cat.name">
               {{ cat.icon }} {{ cat.name }}
             </option>
-            <option value="Trabajo">💼 Trabajo</option>
-            <option value="Personal">🏠 Personal</option>
-            <option value="Estudio">📚 Estudio</option>
-            <option value="Salud">⚕️ Salud</option>
-            <option value="Compras">🛒 Compras</option>
-            <option value="Viajes">✈️ Viajes</option>
+            <option v-if="form.category && !taskCategories.some(c => c.name === form.category)" :value="form.category">
+              📁 {{ form.category }}
+            </option>
           </select>
         </div>
 
