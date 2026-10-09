@@ -47,11 +47,8 @@ async function loadGoals() {
   if (!authStore.user?.id) return;
   
   try {
-    const { data, error } = await api.getGoals();
-    if (error) {
-      console.error('Error loading goals:', error);
-      return;
-    }
+    const data = await api.getGoals();
+    console.log('Goals loaded from API:', data);
     
     if (data && data.length > 0) {
       const seen = new Set<string>();
@@ -240,8 +237,10 @@ onMounted(() => {
 });
 
 async function addGoal() {
-  if (!newGoal.value.title || !newGoal.value.target) {
-    alert('Por favor completa el título y la meta');
+  console.log('addGoal called', { title: newGoal.value.title, target: newGoal.value.target });
+  
+  if (!newGoal.value.title || newGoal.value.target === undefined || newGoal.value.target === null || newGoal.value.target <= 0) {
+    alert('Por favor completa el título y una meta mayor a 0');
     return;
   }
 
@@ -261,12 +260,16 @@ async function addGoal() {
         console.error('Error updating goal:', error);
       }
     }
+    
+    isModalOpen.value = false;
+    editingGoal.value = null;
+    newGoal.value = { title: '', description: '', target: 0, type: 'daily', category: 'tasks' };
   } else {
     const newGoalObj: Goal = {
       id: Date.now().toString(),
       title: newGoal.value.title || '',
       description: newGoal.value.description || '',
-      target: newGoal.value.target || 0,
+      target: Number(newGoal.value.target) || 0,
       type: (newGoal.value.type || 'daily') as 'daily' | 'weekly' | 'monthly',
       category: (newGoal.value.category || 'tasks') as 'tasks' | 'productivity' | 'custom',
       current: 0,
@@ -280,20 +283,30 @@ async function addGoal() {
     try {
       const { startDate, endDate, id, ...goalData } = newGoalObj;
       const payload = {
-        ...goalData,
+        title: goalData.title,
+        description: goalData.description,
+        target: goalData.target,
+        current: 0,
+        type: goalData.type,
+        category: goalData.category,
+        completed: false,
         start_date: startDate instanceof Date ? startDate.toISOString() : startDate,
         end_date: endDate instanceof Date ? endDate.toISOString() : endDate
       };
-      await api.createGoal(payload as any);
+      console.log('Creating goal with payload:', payload);
+      const response = await api.createGoal(payload);
+      console.log('Goal created response:', response);
       await loadGoals();
-    } catch (error) {
+      isModalOpen.value = false;
+      editingGoal.value = null;
+      newGoal.value = { title: '', description: '', target: 0, type: 'daily', category: 'tasks' };
+    } catch (error: any) {
       console.error('Error creating goal:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      alert('Error al crear el objetivo: ' + (error.response?.data?.message || error.message || 'Error desconocido'));
     }
   }
-
-  isModalOpen.value = false;
-  editingGoal.value = null;
-  newGoal.value = { title: '', description: '', target: 0, type: 'daily', category: 'tasks' };
 }
 
 function deleteGoal(goalId: string) {

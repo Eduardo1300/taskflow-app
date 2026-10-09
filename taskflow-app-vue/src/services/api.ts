@@ -152,12 +152,20 @@ class ApiClient {
 
   async createGoal(goal: Partial<Goal>): Promise<Goal> {
     const payload: any = { ...goal };
+    // Ensure dates are in ISO format if they're Date objects
+    if (payload.start_date instanceof Date) {
+      payload.start_date = payload.start_date.toISOString();
+    }
+    if (payload.end_date instanceof Date) {
+      payload.end_date = payload.end_date.toISOString();
+    }
+    // Also handle camelCase versions
     if (payload.startDate) {
-      payload.start_date = payload.startDate;
+      payload.start_date = payload.startDate instanceof Date ? payload.startDate.toISOString() : payload.startDate;
       delete payload.startDate;
     }
     if (payload.endDate) {
-      payload.end_date = payload.endDate;
+      payload.end_date = payload.endDate instanceof Date ? payload.endDate.toISOString() : payload.endDate;
       delete payload.endDate;
     }
     const { data } = await this.client.post('/goals', payload);
@@ -165,7 +173,22 @@ class ApiClient {
   }
 
   async updateGoal(id: string, goal: Partial<Goal>): Promise<Goal> {
-    const { data } = await this.client.put(`/goals/${id}`, goal);
+    const payload: any = { ...goal };
+    if (payload.start_date instanceof Date) {
+      payload.start_date = payload.start_date.toISOString();
+    }
+    if (payload.end_date instanceof Date) {
+      payload.end_date = payload.end_date.toISOString();
+    }
+    if (payload.startDate) {
+      payload.start_date = payload.startDate instanceof Date ? payload.startDate.toISOString() : payload.startDate;
+      delete payload.startDate;
+    }
+    if (payload.endDate) {
+      payload.end_date = payload.endDate instanceof Date ? payload.endDate.toISOString() : payload.endDate;
+      delete payload.endDate;
+    }
+    const { data } = await this.client.put(`/goals/${id}`, payload);
     return data.data;
   }
 
