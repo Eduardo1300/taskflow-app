@@ -15,7 +15,19 @@ export class GoalsService {
   }
 
   async create(data: Partial<Goal>, userId: string): Promise<Goal> {
-    const goal = this.goalRepository.create({ ...data, user_id: userId });
+    const { id, startDate, endDate, start_date, end_date, created_at, updated_at, ...rest } = data as any;
+    const goal = this.goalRepository.create({
+      title: rest.title || 'Untitled Goal',
+      description: rest.description || null,
+      target: rest.target || 1,
+      current: rest.current || 0,
+      category: rest.category || 'general',
+      type: rest.type || 'daily',
+      completed: false,
+      start_date: start_date || null,
+      end_date: end_date || null,
+      user_id: userId
+    });
     return this.goalRepository.save(goal);
   }
 

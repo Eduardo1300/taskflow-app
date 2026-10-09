@@ -78,9 +78,8 @@ async function loadGoals() {
 async function createDefaultGoals() {
   if (!authStore.user?.id) return;
   
-  const defaultGoals: Goal[] = [
+  const defaultGoals = [
     {
-      id: 'daily-tasks',
       title: 'Tareas Diarias',
       description: 'Completar tareas cada día',
       target: 5,
@@ -92,7 +91,6 @@ async function createDefaultGoals() {
       completed: false
     },
     {
-      id: 'weekly-productivity',
       title: 'Productividad Semanal',
       description: 'Mantener alta productividad durante la semana',
       target: 85,
@@ -104,7 +102,6 @@ async function createDefaultGoals() {
       completed: false
     },
     {
-      id: 'monthly-goals',
       title: 'Objetivos Mensuales',
       description: 'Completar objetivos importantes del mes',
       target: 50,
@@ -132,82 +129,76 @@ function updateGoalProgress() {
     let current = 0;
     const now = new Date();
 
-    switch (goal.category) {
-      case 'tasks':
-        current = props.tasks.filter((task: any) => task.completed).length;
-        break;
-
-      case 'productivity':
-        if (goal.type === 'weekly') {
-          const weekStart = new Date(now);
-          weekStart.setDate(now.getDate() - now.getDay());
-          weekStart.setHours(0, 0, 0, 0);
-          
-          const weekTasks = props.tasks.filter((task: any) => {
-            const createdDate = new Date(task.created_at);
-            return createdDate >= weekStart;
-          });
-          
-          const completedWeekTasks = weekTasks.filter((task: any) => task.completed);
-          current = weekTasks.length > 0 ? Math.round((completedWeekTasks.length / weekTasks.length) * 100) : 0;
-        } else if (goal.type === 'daily') {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const tomorrow = new Date(today);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          
-          const todayTasks = props.tasks.filter((task: any) => {
-            const createdDate = new Date(task.created_at);
-            return createdDate >= today && createdDate < tomorrow;
-          });
-          
-          const completedTodayTasks = todayTasks.filter((task: any) => task.completed);
-          current = todayTasks.length > 0 ? Math.round((completedTodayTasks.length / todayTasks.length) * 100) : 0;
-        } else if (goal.type === 'monthly') {
-          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-          
-          const monthTasks = props.tasks.filter((task: any) => {
-            const createdDate = new Date(task.created_at);
-            return createdDate >= monthStart;
-          });
-          
-          const completedMonthTasks = monthTasks.filter((task: any) => task.completed);
-          current = monthTasks.length > 0 ? Math.round((completedMonthTasks.length / monthTasks.length) * 100) : 0;
-        }
-        break;
-
-      case 'custom':
-        if (goal.type === 'daily') {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const tomorrow = new Date(today);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          
-          current = props.tasks.filter((task: any) => {
-            if (!task.completed) return false;
-            const createdDate = new Date(task.created_at);
-            return createdDate >= today && createdDate < tomorrow;
-          }).length;
-        } else if (goal.type === 'weekly') {
-          const weekStart = new Date(now);
-          weekStart.setDate(now.getDate() - now.getDay());
-          weekStart.setHours(0, 0, 0, 0);
-          
-          current = props.tasks.filter((task: any) => {
-            if (!task.completed) return false;
-            const createdDate = new Date(task.created_at);
-            return createdDate >= weekStart;
-          }).length;
-        } else if (goal.type === 'monthly') {
-          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-          
-          current = props.tasks.filter((task: any) => {
-            if (!task.completed) return false;
-            const createdDate = new Date(task.created_at);
-            return createdDate >= monthStart;
-          }).length;
-        }
-        break;
+    if (goal.category === 'tasks') {
+      current = props.tasks.filter((task: any) => task.completed).length;
+    } else if (goal.category === 'productivity') {
+      if (goal.type === 'weekly') {
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const weekTasks = props.tasks.filter((task: any) => {
+          const createdDate = new Date(task.created_at);
+          return createdDate >= weekStart;
+        });
+        
+        const completedWeekTasks = weekTasks.filter((task: any) => task.completed);
+        current = weekTasks.length > 0 ? Math.round((completedWeekTasks.length / weekTasks.length) * 100) : 0;
+      } else if (goal.type === 'daily') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const todayTasks = props.tasks.filter((task: any) => {
+          const createdDate = new Date(task.created_at);
+          return createdDate >= today && createdDate < tomorrow;
+        });
+        
+        const completedTodayTasks = todayTasks.filter((task: any) => task.completed);
+        current = todayTasks.length > 0 ? Math.round((completedTodayTasks.length / todayTasks.length) * 100) : 0;
+      } else if (goal.type === 'monthly') {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const monthTasks = props.tasks.filter((task: any) => {
+          const createdDate = new Date(task.created_at);
+          return createdDate >= monthStart;
+        });
+        
+        const completedMonthTasks = monthTasks.filter((task: any) => task.completed);
+        current = monthTasks.length > 0 ? Math.round((completedMonthTasks.length / monthTasks.length) * 100) : 0;
+      }
+    } else if (goal.category === 'custom') {
+      if (goal.type === 'daily') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        current = props.tasks.filter((task: any) => {
+          if (!task.completed) return false;
+          const createdDate = new Date(task.created_at);
+          return createdDate >= today && createdDate < tomorrow;
+        }).length;
+      } else if (goal.type === 'weekly') {
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        
+        current = props.tasks.filter((task: any) => {
+          if (!task.completed) return false;
+          const createdDate = new Date(task.created_at);
+          return createdDate >= weekStart;
+        }).length;
+      } else if (goal.type === 'monthly') {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        current = props.tasks.filter((task: any) => {
+          if (!task.completed) return false;
+          const createdDate = new Date(task.created_at);
+          return createdDate >= monthStart;
+        }).length;
+      }
     }
 
     const completed = current >= goal.target;
@@ -286,10 +277,15 @@ async function addGoal() {
       completed: false
     };
 
-    goals.value = [...goals.value, newGoalObj];
-    
     try {
-      await api.createGoal(newGoalObj);
+      const { startDate, endDate, id, ...goalData } = newGoalObj;
+      const payload = {
+        ...goalData,
+        start_date: startDate instanceof Date ? startDate.toISOString() : startDate,
+        end_date: endDate instanceof Date ? endDate.toISOString() : endDate
+      };
+      await api.createGoal(payload as any);
+      await loadGoals();
     } catch (error) {
       console.error('Error creating goal:', error);
     }

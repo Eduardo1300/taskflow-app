@@ -23,6 +23,8 @@ export class GoalsController {
       category: body.category || 'general',
       type: body.type || 'daily',
       completed: false,
+      start_date: body.start_date || null,
+      end_date: body.end_date || null,
     }, req.user.userId);
     return { data: goal };
   }

@@ -151,7 +151,16 @@ class ApiClient {
   }
 
   async createGoal(goal: Partial<Goal>): Promise<Goal> {
-    const { data } = await this.client.post('/goals', goal);
+    const payload: any = { ...goal };
+    if (payload.startDate) {
+      payload.start_date = payload.startDate;
+      delete payload.startDate;
+    }
+    if (payload.endDate) {
+      payload.end_date = payload.endDate;
+      delete payload.endDate;
+    }
+    const { data } = await this.client.post('/goals', payload);
     return data.data;
   }
 
