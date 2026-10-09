@@ -228,7 +228,8 @@ function formatDate(dateString: string) {
           </label>
           <select
             v-model="form.category"
-            class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+            class="w-full px-4 py-3 pr-10 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 appearance-none bg-no-repeat bg-[length:16px_16px] bg-[right_12px_center]"
+            style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E&quot;);"
           >
             <option value="">Sin categoría</option>
             <option v-for="cat in taskCategories" :key="cat.name" :value="cat.name">

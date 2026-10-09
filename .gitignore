@@ -1,50 +1,59 @@
 # Dependencies
-node_modules/
-.pnp
-.pnp.js
+node_modules
+*/node_modules
+**/node_modules
 
-# Build
-dist/
-build/
+# Build outputs
+dist
+*/dist
+**/dist
+build
+*/build
+**/build
 
-# Environment
+# Environment variables
 .env
 .env.local
-.env.production
 .env.*.local
+*/.env
+**/!.env.example
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+# Database files
+*.sql
+*.sqlite
+*.sqlite3
+*.db
 
 # Logs
+logs
 *.log
 npm-debug.log*
+pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
 # Testing
-coverage/
+coverage
+*/coverage
+**/coverage
+
+# Temporary files
+tmp
+temp
+*.tmp
 
 # Misc
-*.tgz
-.cache/
-.vercel
-
-# Database
-*.sql
-*.dump
-
-# OS specific
 *.local
-
-# Temp files
-tmp/
-temp/
-*.tmp
+*.bak
+*.pid
+*.seed
