@@ -173,10 +173,7 @@ taskflow-backend/src/
 │   ├── profiles/           # Perfiles usuario
 │   ├── categories/         # Categorías
 │   ├── goals/              # Metas
-│   ├── collaborations/     # Colaboración
-│   ├── notifications/      # Notificaciones
-│   ├── productivity/       # Métricas + Insights
-│   └── ai/                 # Sugerencias IA
+│   └── productivity/       # Métricas + Insights
 ├── common/                 # Guards, pipes, decorators
 └── setup/                  # Inicialización BD
 ```

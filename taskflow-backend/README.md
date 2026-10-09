@@ -6,11 +6,8 @@ Backend REST API para TaskFlow construido con NestJS, TypeORM y PostgreSQL.
 
 - ✅ Autenticación JWT
 - ✅ CRUD de tareas, categorías, metas
-- ✅ Sistema de colaboraciones
-- ✅ Notificaciones
 - ✅ Métricas de productividad
 - ✅ Insights IA
-- ✅ Sugerencias IA
 
 ## Instalación
 
@@ -79,10 +76,7 @@ src/
 ├── profiles/       # Perfiles de usuario
 ├── categories/     # Categorías
 ├── goals/         # Metas/Objetivos
-├── collaborations/ # Colaboraciones en tareas
-├── notifications/ # Notificaciones
 ├── productivity/   # Métricas e Insights
-├── ai/            # Sugerencias IA
 ├── health/        # Health checks
 ├── setup/         # Inicialización BD
 ├── common/        # Guards, pipes, decorators
@@ -121,34 +115,16 @@ Prefix: `/api`
 - `PUT /api/goals/:id` - Actualizar meta
 - `DELETE /api/goals/:id` - Eliminar meta
 
-### Colaboraciones
-- `POST /api/collaborations/invite` - Invitar colaborador
-- `GET /api/collaborations/task/:taskId` - Colaboradores de tarea
-- `DELETE /api/collaborations/task/:taskId/:userId` - Eliminar colaborador
-
-### Notificaciones
-- `GET /api/notifications` - Listar notificaciones
-- `PUT /api/notifications/:id/read` - Marcar como leída
-
 ### Productividad
 - `GET /api/productivity/metrics` - Métricas diarias
 - `GET /api/productivity/insights` - Insights de productividad
-
-### IA
-- `POST /api/ai/suggest-priority` - Sugerir prioridad
-- `POST /api/ai/suggest-category` - Sugerir categoría
-- `POST /api/ai/suggest-due-date` - Sugerir fecha límite
 
 ## Base de Datos
 
 Schema completo en `taskflow-supabase.sql` (21 tablas):
 
 **Core (5)**: profiles, tasks, categories, goals, task_activity
-**Colaboración (2)**: task_collaborators, collaboration_invitations
-**Notificaciones (3)**: notifications, notification_configs, email_preferences
 **Productividad (2)**: productivity_metrics, productivity_insights
-**IA (1)**: ai_suggestions_history
-**Otros (8)**: api_keys, api_rate_limits, automation_rules, webhooks
 
 Incluye: índices optimizados, datos de ejemplo, constraints, checks, triggers para updated_at.
 
