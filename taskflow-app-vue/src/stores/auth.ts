@@ -61,6 +61,11 @@ export const useAuthStore = defineStore('auth', () => {
     if (api.getToken()) {
       fetchProfile();
     }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  }
+
+  function handleBeforeUnload() {
+    api.clearToken();
   }
 
   return {

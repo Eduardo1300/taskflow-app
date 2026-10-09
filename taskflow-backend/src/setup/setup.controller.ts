@@ -43,10 +43,10 @@ export class SetupController {
       );
 
       await this.dataSource.query(
-        `INSERT INTO tasks (title, description, completed, favorite, created_at, user_id, category, priority) VALUES 
-        ('Bienvenido a TaskFlow', 'Esta es tu primera tarea. ¡Organiza tu vida productiva!', false, true, NOW(), $1, 'general', 'medium'),
-        ('Explora el dashboard', 'Revisa todas las funcionalidades disponibles', false, false, NOW(), $1, 'general', 'low'),
-        ('Crea tu primera tarea', 'Usa el botón + para agregar nuevas tareas', false, false, NOW(), $1, 'general', 'high')`,
+        `INSERT INTO tasks (title, description, completed, favorite, created_at, user_id, category, priority, tags) VALUES 
+        ('Bienvenido a TaskFlow', 'Esta es tu primera tarea. ¡Organiza tu vida productiva!', false, true, NOW(), $1, 'Trabajo', 'medium', ARRAY['bienvenida', 'inicio']),
+        ('Explora el dashboard', 'Revisa todas las funcionalidades disponibles', false, false, NOW(), $1, 'Personal', 'low', ARRAY['exploracion']),
+        ('Crea tu primera tarea', 'Usa el botón + para agregar nuevas tareas', false, false, NOW(), $1, 'Estudio', 'high', ARRAY['tutorial'])`,
         [adminId]
       );
 
@@ -82,10 +82,10 @@ export class SetupController {
       );
 
       await this.dataSource.query(
-        `INSERT INTO tasks (title, description, completed, favorite, created_at, user_id, category, priority) VALUES 
-        ('Bienvenido a TaskFlow', 'Esta es tu primera tarea. ¡Organiza tu vida productiva!', false, true, NOW(), $1, 'general', 'medium'),
-        ('Explora el dashboard', 'Revisa todas las funcionalidades disponibles', false, false, NOW(), $1, 'general', 'low'),
-        ('Crea tu primera tarea', 'Usa el botón + para agregar nuevas tareas', false, false, NOW(), $1, 'general', 'high')`,
+        `INSERT INTO tasks (title, description, completed, favorite, created_at, user_id, category, priority, tags) VALUES 
+        ('Bienvenido a TaskFlow', 'Esta es tu primera tarea. ¡Organiza tu vida productiva!', false, true, NOW(), $1, 'Trabajo', 'medium', ARRAY['bienvenida', 'inicio']),
+        ('Explora el dashboard', 'Revisa todas las funcionalidades disponibles', false, false, NOW(), $1, 'Personal', 'low', ARRAY['exploracion']),
+        ('Crea tu primera tarea', 'Usa el botón + para agregar nuevas tareas', false, false, NOW(), $1, 'Estudio', 'high', ARRAY['tutorial'])`,
         [adminId]
       );
 
