@@ -135,10 +135,15 @@ function updateGoalProgressLocal() {
     let current = 0;
     const now = new Date();
 
-    if (goal.category === 'tasks') {
+    // Normalizar categoría y tipo para compatibilidad con seeds
+    const cat = (goal.category || '').toLowerCase();
+    const type = (goal.type || '').toLowerCase();
+
+    if (cat === 'tasks' || cat === 'tareas') {
+      // Total de tareas completadas
       current = props.tasks.filter((task: any) => task.completed).length;
-    } else if (goal.category === 'productivity') {
-      if (goal.type === 'weekly') {
+    } else if (cat === 'productivity' || cat === 'productividad') {
+      if (type === 'weekly' || type === 'semanal') {
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
         weekStart.setHours(0, 0, 0, 0);
@@ -150,7 +155,7 @@ function updateGoalProgressLocal() {
         
         const completedWeekTasks = weekTasks.filter((task: any) => task.completed);
         current = weekTasks.length > 0 ? Math.round((completedWeekTasks.length / weekTasks.length) * 100) : 0;
-      } else if (goal.type === 'daily') {
+      } else if (type === 'daily' || type === 'diario') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -163,7 +168,7 @@ function updateGoalProgressLocal() {
         
         const completedTodayTasks = todayTasks.filter((task: any) => task.completed);
         current = todayTasks.length > 0 ? Math.round((completedTodayTasks.length / todayTasks.length) * 100) : 0;
-      } else if (goal.type === 'monthly') {
+      } else if (type === 'monthly' || type === 'mensual') {
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         
         const monthTasks = props.tasks.filter((task: any) => {
@@ -174,8 +179,8 @@ function updateGoalProgressLocal() {
         const completedMonthTasks = monthTasks.filter((task: any) => task.completed);
         current = monthTasks.length > 0 ? Math.round((completedMonthTasks.length / monthTasks.length) * 100) : 0;
       }
-    } else if (goal.category === 'custom') {
-      if (goal.type === 'daily') {
+    } else if (cat === 'custom' || cat === 'personalizado') {
+      if (type === 'daily' || type === 'diario') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -186,7 +191,7 @@ function updateGoalProgressLocal() {
           const createdDate = new Date(task.created_at);
           return createdDate >= today && createdDate < tomorrow;
         }).length;
-      } else if (goal.type === 'weekly') {
+      } else if (type === 'weekly' || type === 'semanal') {
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
         weekStart.setHours(0, 0, 0, 0);
@@ -196,7 +201,7 @@ function updateGoalProgressLocal() {
           const createdDate = new Date(task.created_at);
           return createdDate >= weekStart;
         }).length;
-      } else if (goal.type === 'monthly') {
+      } else if (type === 'monthly' || type === 'mensual') {
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         
         current = props.tasks.filter((task: any) => {
@@ -205,6 +210,23 @@ function updateGoalProgressLocal() {
           return createdDate >= monthStart;
         }).length;
       }
+    } else if (cat === 'racha' || cat === 'streak') {
+      // Racha: días consecutivos con al menos una tarea completada
+      current = calculateStreak(props.tasks, now);
+    } else if (cat === 'proyecto' || cat === 'project') {
+      // Proyecto: total de tareas completadas (mismo que 'tasks')
+      current = props.tasks.filter((task: any) => task.completed).length;
+    } else if (type === 'quarterly' || type === 'trimestral') {
+      // Trimestral: tareas completadas en el trimestre actual
+      const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+      current = props.tasks.filter((task: any) => {
+        if (!task.completed) return false;
+        const createdDate = new Date(task.created_at);
+        return createdDate >= quarterStart;
+      }).length;
+    } else {
+      // Fallback: total completadas
+      current = props.tasks.filter((task: any) => task.completed).length;
     }
 
     const completed = current >= goal.target;
@@ -212,6 +234,31 @@ function updateGoalProgressLocal() {
     // Solo actualiza localmente, sin llamadas a API
     return { ...goal, current, completed };
   });
+}
+
+function calculateStreak(tasks: any[], now: Date): number {
+  const completedDates = new Set<string>();
+  tasks.filter(t => t.completed).forEach(t => {
+    const d = new Date(t.created_at);
+    d.setHours(0, 0, 0, 0);
+    completedDates.add(d.toISOString().split('T')[0]);
+  });
+  
+  let streak = 0;
+  const checkDate = new Date(now);
+  checkDate.setHours(0, 0, 0, 0);
+  
+  // Si hoy no hay tarea completada, empezar desde ayer
+  if (!completedDates.has(checkDate.toISOString().split('T')[0])) {
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+  
+  while (completedDates.has(checkDate.toISOString().split('T')[0])) {
+    streak++;
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+  
+  return streak;
 }
 
 // Función para sincronizar progreso con el backend (llamar manualmente si se desea)
@@ -355,18 +402,43 @@ function getProgressColor(percentage: number, completed: boolean) {
 }
 
 function getTypeIcon(type: Goal['type']) {
-  switch (type) {
-    case 'daily': return Calendar;
-    case 'weekly': return TrendingUp;
-    case 'monthly': return Target;
+  switch ((type || '').toLowerCase()) {
+    case 'daily':
+    case 'diario':
+      return Calendar;
+    case 'weekly':
+    case 'semanal':
+      return TrendingUp;
+    case 'monthly':
+    case 'mensual':
+      return Target;
+    case 'quarterly':
+    case 'trimestral':
+      return Target;
+    case 'racha':
+    case 'streak':
+      return Zap;
+    default:
+      return Target;
   }
 }
 
 function getTypeLabel(type: Goal['type']) {
-  switch (type) {
-    case 'daily': return 'Diario';
-    case 'weekly': return 'Semanal';
-    case 'monthly': return 'Mensual';
+  switch ((type || '').toLowerCase()) {
+    case 'daily':
+    case 'diario':
+      return 'Diario';
+    case 'weekly':
+    case 'semanal':
+      return 'Semanal';
+    case 'monthly':
+    case 'mensual':
+      return 'Mensual';
+    case 'quarterly':
+    case 'trimestral':
+      return 'Trimestral';
+    default:
+      return type || '—';
   }
 }
 </script>
