@@ -22,6 +22,15 @@ const emit = defineEmits(['close', 'saved']);
 
 const taskStore = useTaskStore();
 
+// Obtiene la fecha local actual en formato YYYY-MM-DD
+function getTodayDateString(): string {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 const taskCategories = computed(() => {
   if (taskStore.categories.length > 0) {
     return taskStore.categories.map((cat: any) => ({ name: cat.name, icon: '📁' }));
@@ -47,7 +56,7 @@ const form = ref({
   title: '',
   description: '',
   priority: 'medium' as 'low' | 'medium' | 'high',
-  dueDate: '',
+  dueDate: getTodayDateString(),
   category: '',
   tags: [] as string[]
 });
@@ -66,7 +75,7 @@ watch(() => props.task, (newTask) => {
       title: newTask.title,
       description: newTask.description || '',
       priority: newTask.priority || 'medium',
-      dueDate: dueDateStr,
+      dueDate: dueDateStr || getTodayDateString(),
       category: taskCategory,
       tags: parseTagsArray(newTask.tags)
     };
@@ -87,7 +96,7 @@ function resetForm() {
     title: '',
     description: '',
     priority: 'medium',
-    dueDate: '',
+    dueDate: getTodayDateString(),
     category: '',
     tags: []
   };
@@ -156,7 +165,11 @@ function formatDate(dateString: string) {
             </p>
           </div>
         </div>
-        <button @click="$emit('close')" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
+        <button 
+          type="button" 
+          @click="$emit('close')" 
+          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+        >
           <X class="h-5 w-5" />
         </button>
       </div>
@@ -199,7 +212,8 @@ function formatDate(dateString: string) {
             </label>
             <select
               v-model="form.priority"
-              class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+              class="w-full px-4 py-3 pr-10 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 appearance-none bg-no-repeat bg-[length:16px_16px] bg-[right_1.25rem_center]"
+              style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E&quot;);"
             >
               <option value="low">Baja</option>
               <option value="medium">Media</option>
@@ -248,10 +262,14 @@ function formatDate(dateString: string) {
             <span
               v-for="tag in form.tags"
               :key="tag"
-              class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full text-sm"
+              class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full text-sm flex items-center"
             >
               {{ tag }}
-              <button @click="removeTag(tag)" class="ml-1 hover:text-blue-800">
+              <button 
+                type="button" 
+                @click="removeTag(tag)" 
+                class="ml-1 hover:text-blue-800 dark:hover:text-blue-200"
+              >
                 <Trash2 class="h-3 w-3 inline" />
               </button>
             </span>
@@ -260,11 +278,12 @@ function formatDate(dateString: string) {
             <input
               v-model="newTag"
               type="text"
-              @keyup.enter="addTag"
+              @keydown.enter.prevent="addTag"
               class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
               placeholder="Agregar etiqueta..."
             />
             <button
+              type="button"
               @click="addTag"
               class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 transition-all"
             >
@@ -284,8 +303,8 @@ function formatDate(dateString: string) {
           Cancelar
         </button>
         <button
+          type="submit"
           form="task-form"
-          @click="handleSubmit"
           :disabled="loading"
           class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
