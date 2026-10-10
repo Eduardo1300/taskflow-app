@@ -100,33 +100,32 @@ function toggleFAQ(index: number) {
     </header>
 
     <section class="relative py-20 lg:py-32 overflow-hidden">
-      <div class="absolute top-20 left-10 w-32 h-32 bg-blue-400/30 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute bottom-20 right-10 w-40 h-40 bg-purple-400/30 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute top-1/3 right-1/4 w-24 h-24 bg-pink-400/20 rounded-full blur-2xl animate-pulse"></div>
-      <div class="absolute bottom-1/3 left-1/4 w-16 h-16 bg-cyan-400/20 rounded-full blur-xl"></div>
-
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-          <div class="inline-flex items-center px-6 py-3 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium mb-8 shadow-lg hover:shadow-xl transition-shadow cursor-default">
-            <Sparkles class="h-5 w-5 mr-2" />
-            <span class="animate-pulse-glow px-2 py-0.5 bg-blue-200 dark:bg-blue-800 rounded-full">✨ Nueva versión 2.0</span>
+          <!-- Badge animado -->
+          <div class="inline-flex items-center px-6 py-3 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium mb-8 shadow-lg hover:shadow-xl transition-shadow cursor-default animate-fade-in-up">
+            <Sparkles class="h-5 w-5 mr-2 animate-bounce-slow" />
+            <span class="px-2 py-0.5 bg-blue-200 dark:bg-blue-800 rounded-full">✨ Nueva versión 2.0</span>
           </div>
           
-          <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8">
+          <!-- Título con animación escalonada -->
+          <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8 animate-fade-in-up" style="animation-delay: 100ms;">
             Productividad
             <span class="block gradient-text mt-2 relative">
               Sin Límites
-              <span class="absolute -inset-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-20 blur-xl rounded-full animate-pulse"></span>
+              <span class="from-blue-600 via-purple-600 to-pink-600 opacity-20 blur-xl rounded-full animate-pulse-slow"></span>
             </span>
           </h1>
           
-          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12">
+          <!-- Subtítulo -->
+          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12 animate-fade-in-up" style="animation-delay: 200ms;">
             Organiza, colabora y alcanza tus objetivos con TaskFlow. La plataforma más avanzada para gestión de tareas con 
             <span class="font-semibold text-blue-600 dark:text-blue-400"> IA integrada</span>.
           </p>
 
-          <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-16">
-            <router-link to="/login" class="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover-lift flex items-center overflow-hidden">
+          <!-- Botones CTA -->
+          <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-16 animate-fade-in-up" style="animation-delay: 300ms;">
+            <router-link to="/login" class="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover-lift flex items-center overflow-hidden animate-slide-up">
               <span class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               <span class="relative z-10 flex items-center">
                 Comenzar gratis
@@ -134,7 +133,7 @@ function toggleFAQ(index: number) {
               </span>
             </router-link>
             
-            <button class="group flex items-center px-8 py-4 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <button class="group flex items-center px-8 py-4 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors animate-slide-up" style="animation-delay: 100ms;">
               <div class="relative w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center mr-3 group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
                 <Play class="h-5 w-5 ml-0.5 group-hover:animate-pulse" />
                 <span class="absolute inset-0 rounded-full border-2 border-blue-500 group-hover:animate-ping opacity-75"></span>
@@ -143,17 +142,19 @@ function toggleFAQ(index: number) {
             </button>
           </div>
 
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div v-for="(stat, index) in stats" :key="index" class="text-center group cursor-default">
-              <div class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-110 transition-all duration-300">
+          <!-- Stats con animación escalonada -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-in-up" style="animation-delay: 400ms;">
+            <div v-for="(stat, index) in stats" :key="index" class="text-center group cursor-default" :style="{ animationDelay: `${500 + index * 100}ms` }">
+              <div class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-110 transition-all duration-300 animate-scale-in">
                 {{ stat.number }}
               </div>
               <div class="text-gray-600 dark:text-gray-400 mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ stat.label }}</div>
             </div>
           </div>
 
-          <div class="mt-12 flex justify-center">
-            <div class="animate-bounce">
+          <!-- Scroll indicator -->
+          <div class="mt-12 flex justify-center animate-fade-in-up" style="animation-delay: 600ms;">
+            <div class="animate-bounce-slow">
               <ChevronDown class="h-8 w-8 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer" />
             </div>
           </div>
