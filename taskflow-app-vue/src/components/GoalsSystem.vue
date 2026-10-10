@@ -44,9 +44,14 @@ const newGoal = ref<Partial<Goal>>({
 });
 
 async function loadGoals() {
-  if (!authStore.user?.id) return;
+  console.log('loadGoals() called, token:', api.getToken() ? 'yes' : 'no');
+  if (!api.getToken()) {
+    console.log('loadGoals: no token, returning');
+    return;
+  }
   
   try {
+    console.log('loadGoals: fetching goals...');
     const data = await api.getGoals();
     console.log('Goals loaded from API:', data);
     
@@ -62,18 +67,22 @@ async function loadGoals() {
       goals.value = uniqueGoals.map((g: any) => ({
         ...g,
         startDate: g.start_date ? new Date(g.start_date) : new Date(),
-        endDate: g.end_date ? new Date(g.end_date) : new Date()
+        endDate: g.end_date ? new Date(g.end_date) : new Date(),
+        userId: g.user_id
       })) as Goal[];
+      console.log('Goals processed for UI:', goals.value);
     } else {
+      console.log('loadGoals: no goals found, creating defaults');
       await createDefaultGoals();
     }
   } catch (error) {
     console.error('Error loading goals:', error);
+    goals.value = [];
   }
 }
 
 async function createDefaultGoals() {
-  if (!authStore.user?.id) return;
+  if (!api.getToken()) return;
   
   const defaultGoals = [
     {
@@ -121,7 +130,7 @@ async function createDefaultGoals() {
   }
 }
 
-function updateGoalProgress() {
+function updateGoalProgressLocal() {
   goals.value = goals.value.map(goal => {
     let current = 0;
     const now = new Date();
@@ -200,18 +209,25 @@ function updateGoalProgress() {
 
     const completed = current >= goal.target;
     
-    // Update in background
-    api.updateGoal(goal.id, { current, completed } as any).catch(err => 
-      console.error('Error updating goal progress:', err)
-    );
-    
+    // Solo actualiza localmente, sin llamadas a API
     return { ...goal, current, completed };
   });
 }
 
-watch(() => [props.tasks, goals.value.length], () => {
+// Función para sincronizar progreso con el backend (llamar manualmente si se desea)
+async function syncGoalProgress() {
+  for (const goal of goals.value) {
+    try {
+      await api.updateGoal(goal.id, { current: goal.current, completed: goal.completed } as any);
+    } catch (err) {
+      console.error('Error syncing goal progress:', err);
+    }
+  }
+}
+
+watch(() => [props.tasks], () => {
   if (goals.value.length > 0) {
-    updateGoalProgress();
+    updateGoalProgressLocal();
   }
 }, { deep: true });
 
@@ -231,7 +247,7 @@ watch(() => editingGoal.value, () => {
 }, { immediate: true });
 
 onMounted(() => {
-  if (authStore.user?.id) {
+  if (api.getToken()) {
     loadGoals();
   }
 });
@@ -296,7 +312,9 @@ async function addGoal() {
       console.log('Creating goal with payload:', payload);
       const response = await api.createGoal(payload);
       console.log('Goal created response:', response);
+      console.log('About to call loadGoals()...');
       await loadGoals();
+      console.log('loadGoals() completed, goals.value:', goals.value);
       isModalOpen.value = false;
       editingGoal.value = null;
       newGoal.value = { title: '', description: '', target: 0, type: 'daily', category: 'tasks' };
